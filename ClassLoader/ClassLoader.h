@@ -1,0 +1,69 @@
+#pragma once
+
+#include "../Core.h"
+#include "ConstantPool.h"
+
+// MAGIC NUMBER
+#define MAGIC_NUMBER       0xCAFEBABE
+
+struct ExceptionTableEntry {
+	uint16_t startPc;
+	uint16_t endPc;
+	uint16_t handlerPc;
+	uint16_t catchType;
+};
+
+struct AttributeInfo {
+	uint16_t attributeNameIndex;
+	uint32_t attributeLength;
+};
+
+struct AttributeConstantValue : public AttributeInfo {
+	uint16_t constantValueIndex;
+};
+
+struct AttributeCode : public AttributeInfo {
+	uint16_t maxStack;
+	uint16_t maxLocals;
+	uint32_t codeLength;
+	uint8_t* code;
+	std::vector<ExceptionTableEntry> exceptionTable;
+	uint16_t attributesCount;
+	std::vector<AttributeInfo*> attributes;
+};
+
+struct FieldInfo {
+	uint16_t accessFlags;
+	uint16_t nameIndex;
+	uint16_t descriptorIndex;
+};
+
+struct ClassInfo {
+	uint16_t minorVersion;
+	uint16_t majorVersion;
+	ConstantPool constantPool;
+	uint16_t accessFlags;
+	uint16_t thisClass;
+	uint16_t superClass;
+	std::vector<uint16_t> interfaces;
+	std::vector<FieldInfo> fields;
+};
+
+class ClassLoader {
+private:
+	uint64_t bytePtr;
+private:
+	uint8_t readUnsignedByte(uint8_t* bytes);
+	uint16_t readUnsignedShort(uint8_t* bytes);
+	uint32_t readUnsignedInt(uint8_t* bytes);
+	void checkMagicNumber(uint8_t* bytes);
+	ConstantPool readConstantPool(uint8_t* bytes);
+	ConstantPoolItem* readConstantPoolItem(uint8_t tag, uint8_t* bytes);
+	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes);
+public:
+	ClassLoader();
+	ClassInfo readClass(uint8_t* bytes);
+	ClassInfo readClass(const std::string& className);
+	std::vector<uint16_t> readInterfaces(uint8_t* bytes, uint16_t interfacesCount);
+	std::vector<FieldInfo> readFields(uint8_t* bytes);
+};
