@@ -3,6 +3,7 @@
 
 #include "Core.h"
 #include "ClassLoader/ClassLoader.h"
+#include "Printer/ClassPrinter.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,6 +13,7 @@ int main(int argc, char* argv[])
 
     ClassLoader classLoader;
     ClassInfo classInfo = classLoader.readClass("Main.class");
+    ClassPrinter::printClass(classInfo);
 
     std::cout << "" << std::endl;
 }

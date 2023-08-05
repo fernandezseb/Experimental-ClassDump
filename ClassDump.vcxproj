@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="ClassDump.cpp" />
     <ClCompile Include="ClassLoader\ClassLoader.cpp" />
+    <ClCompile Include="Printer\ClassPrinter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassLoader\ClassLoader.h" />
     <ClInclude Include="ClassLoader\ConstantPool.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Printer\ClassPrinter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

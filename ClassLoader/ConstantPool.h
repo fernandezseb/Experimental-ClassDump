@@ -44,6 +44,10 @@ struct ConstantPoolItem {
 		tag(tag)
 	{
 	}
+
+	ConstantType getType() {
+		return (ConstantType)tag;
+	}
 };
 
 struct ConstantPoolNamedReference : public ConstantPoolItem {
