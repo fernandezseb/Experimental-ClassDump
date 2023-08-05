@@ -9,11 +9,16 @@ int main(int argc, char* argv[])
 {
     std::cout << "Starting ClassDump v0.1..." << std::endl;
 
-    const std::string className = argv[1];
+    if (argc > 1) {
+        const std::string className = argv[1];
 
-    ClassLoader classLoader;
-    ClassInfo classInfo = classLoader.readClass("Main.class");
-    ClassPrinter::printClass(classInfo);
+        ClassLoader classLoader;
+        ClassInfo classInfo = classLoader.readClass(className);
+        ClassPrinter::printClass(classInfo);
 
-    std::cout << "" << std::endl;
+        std::cout << "" << std::endl;
+    } else {
+        std::cout << "Class name must be supplied" << std::endl;
+        exit(1);
+    }
 }
