@@ -1,21 +1,6 @@
 #include "ClassPrinter.h"
 
 std::string ClassPrinter::getTypeAsString(ConstantType type) {
-	//CT_UTF8 = 1u,
-	//	CT_INTEGER = 3u,
-	//	CT_FLOAT = 4u,
-	//	CT_LONG = 5u,
-	//	CT_DOUBLE = 6u,
-	//	CT_CLASS = 7u,
-	//	CT_STRING = 8u,
-	//	CT_FIELDREF = 9u,
-	//	CT_METHODREF = 10u,
-	//	CT_INTERFACEMETHOD = 11u,
-	//	CT_NAMEANDTYPE = 12u,
-	//	CT_METHODHANDLE = 15u,
-	//	CT_METHODTYPE = 16u,
-	//	CT_INVOKEDYNAMIC = 18u
-
 	switch (type) {
 	case CT_UTF8:
 		return "UTF8";

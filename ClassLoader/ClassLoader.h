@@ -28,7 +28,6 @@ struct AttributeCode : public AttributeInfo {
 	uint32_t codeLength;
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
-	uint16_t attributesCount;
 	std::vector<AttributeInfo*> attributes;
 };
 
@@ -36,6 +35,14 @@ struct FieldInfo {
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
+};
+
+struct MethodInfo {
+	uint16_t accessFlags;
+	uint16_t nameIndex;
+	uint16_t descriptorIndex;
+	AttributeCode* code;
+	bool isNative;
 };
 
 struct ClassInfo {
@@ -47,6 +54,7 @@ struct ClassInfo {
 	uint16_t superClass;
 	std::vector<uint16_t> interfaces;
 	std::vector<FieldInfo> fields;
+	std::vector<MethodInfo> methods;
 };
 
 class ClassLoader {
@@ -59,11 +67,14 @@ private:
 	void checkMagicNumber(uint8_t* bytes);
 	ConstantPool readConstantPool(uint8_t* bytes);
 	ConstantPoolItem* readConstantPoolItem(uint8_t tag, uint8_t* bytes);
-	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes);
+	ExceptionTableEntry readExceptionTableEntry(uint8_t* bytes);
+	std::vector<ExceptionTableEntry> readExceptionTable(uint8_t* bytes);
+	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes, ConstantPool& constantPool);
 public:
 	ClassLoader();
 	ClassInfo readClass(uint8_t* bytes);
 	ClassInfo readClass(const std::string& className);
 	std::vector<uint16_t> readInterfaces(uint8_t* bytes, uint16_t interfacesCount);
-	std::vector<FieldInfo> readFields(uint8_t* bytes);
+	std::vector<FieldInfo> readFields(uint8_t* bytes, ConstantPool& constantPool);
+	std::vector<MethodInfo> readMethods(uint8_t* bytes, ConstantPool& constantPool);
 };

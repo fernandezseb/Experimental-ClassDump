@@ -149,6 +149,9 @@ struct CPStringInfo : public ConstantPoolItem {
 };
 
 class ConstantPool {
+private:
+	void checkIndex(uint16_t index);
 public:
 	std::vector<ConstantPoolItem*> constants;
+	std::string getString(uint16_t index);
 };

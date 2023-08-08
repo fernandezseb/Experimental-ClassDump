@@ -20,6 +20,19 @@ inline uint32_t ClassLoader::readUnsignedInt(uint8_t* bytes) {
     return (uint32_t)value;
 }
 
+static AttributeInfo* findAttributeWithName(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool, std::string name)
+{
+    AttributeInfo* attrib = 0;
+
+    for (AttributeInfo* attrib : attributes) {
+        if (constantPool.getString(attrib->attributeNameIndex) == name) {
+            return attrib;
+        }
+    }
+
+    return attrib;
+}
+
 void ClassLoader::checkMagicNumber(uint8_t* bytes) {
     uint32_t magic = readUnsignedInt(bytes);
     if (magic == MAGIC_NUMBER) {
@@ -152,11 +165,89 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, uint8_t* bytes)
     return item;
 }
 
-std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes)
+ExceptionTableEntry ClassLoader::readExceptionTableEntry(uint8_t* bytes) {
+    uint16_t startPc = readUnsignedShort(bytes);
+    uint16_t endPc = readUnsignedShort(bytes);
+    uint16_t handlerPc = readUnsignedShort(bytes);
+    uint16_t catchType = readUnsignedShort(bytes);
+
+    ExceptionTableEntry entry;
+    entry.startPc = startPc;
+    entry.endPc = endPc;
+    entry.handlerPc = handlerPc;
+    entry.catchType = catchType;
+
+    return entry;
+}
+
+std::vector<ExceptionTableEntry> ClassLoader::readExceptionTable(uint8_t* bytes) {
+    std::vector<ExceptionTableEntry> table;
+    uint16_t exceptionTableLength = readUnsignedShort(bytes);
+
+    for (uint16_t currentException = 0; currentException < exceptionTableLength; currentException++) {
+        ExceptionTableEntry entry = readExceptionTableEntry(bytes);
+        table.push_back(entry);
+    }
+
+    return table;
+}
+
+std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, ConstantPool& constantPool)
 {
     std::vector<AttributeInfo*> attributes;
 
+    uint16_t attributesCount = readUnsignedShort(bytes);
 
+    for (int currentAttrib = 0; currentAttrib < attributesCount; currentAttrib++) {
+        uint16_t attributeNameIndex = readUnsignedShort(bytes);
+        uint32_t attributeLength = readUnsignedInt(bytes);
+
+        std::string name = constantPool.getString(attributeNameIndex);
+
+        if (name == "Code") {
+            uint16_t maxStack = readUnsignedShort(bytes);
+            uint16_t maxLocals = readUnsignedShort(bytes);
+            uint32_t codeLength = readUnsignedInt(bytes);
+            uint8_t* code = (uint8_t*)malloc(sizeof(uint8_t) * codeLength);
+            memcpy(code, &bytes[bytePtr], sizeof(uint8_t) * codeLength);
+            bytePtr += codeLength;
+
+            std::vector<ExceptionTableEntry> exceptions = readExceptionTable(bytes);
+            std::vector<AttributeInfo*> attribs = readAttributes(bytes, constantPool);
+
+
+            AttributeCode* att = new AttributeCode();
+            att->attributeNameIndex = attributeNameIndex;
+            att->attributeLength = attributeLength;
+            att->maxStack = maxStack;
+            att->maxLocals = maxLocals;
+            att->codeLength = codeLength;
+            att->code = code;
+            att->exceptionTable = exceptions;
+            att->attributes = attribs;
+
+            attributes.push_back(att);
+        }
+        else if (name == "LineNumberTable") {
+            uint16_t lineNumberTableLength = readUnsignedShort(bytes);
+            for (int lineNumerTableIndex = 0; lineNumerTableIndex < lineNumberTableLength; lineNumerTableIndex++) {
+                uint16_t startPc = readUnsignedShort(bytes);
+                uint16_t lineNumber = readUnsignedShort(bytes);
+            }
+        } else if (name == "LocalVariableTable") {
+            uint16_t localVariableTableLength = readUnsignedShort(bytes);
+            for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
+                uint16_t startPc = readUnsignedShort(bytes);
+                uint16_t length = readUnsignedShort(bytes);
+                uint16_t nameIndex = readUnsignedShort(bytes);
+                uint16_t descriptorIndex = readUnsignedShort(bytes);
+                uint16_t index = readUnsignedShort(bytes);
+            }
+        } else {
+            std::cout << "Attribute parsing not implemented yet" << std::endl;
+            exit(1);
+        }           
+    }
 
     return attributes;
 }
@@ -181,7 +272,8 @@ ClassInfo ClassLoader::readClass(uint8_t* bytes)
     classInfo.superClass = readUnsignedShort(bytes);
     uint16_t interfacesCount = readUnsignedShort(bytes);
     classInfo.interfaces = readInterfaces(bytes, interfacesCount);
-    classInfo.fields = readFields(bytes);
+    classInfo.fields = readFields(bytes, classInfo.constantPool);
+    classInfo.methods = readMethods(bytes, classInfo.constantPool);
 
     return classInfo;
 }
@@ -223,7 +315,7 @@ std::vector<uint16_t> ClassLoader::readInterfaces(uint8_t* bytes, uint16_t inter
     return interfaces;
 }
 
-std::vector<FieldInfo> ClassLoader::readFields(uint8_t* bytes)
+std::vector<FieldInfo> ClassLoader::readFields(uint8_t* bytes, ConstantPool& constantPool)
 {
     std::vector<FieldInfo> fields;
 
@@ -233,7 +325,7 @@ std::vector<FieldInfo> ClassLoader::readFields(uint8_t* bytes)
         uint16_t accessFlags = readUnsignedShort(bytes);
         uint16_t nameIndex = readUnsignedShort(bytes);
         uint16_t descriptorIndex = readUnsignedShort(bytes);
-        std::vector<AttributeInfo*> attributeInfo = readAttributes(bytes);
+        std::vector<AttributeInfo*> attributeInfo = readAttributes(bytes, constantPool);
         FieldInfo fieldInfo;
         fieldInfo.accessFlags = accessFlags;
         fieldInfo.descriptorIndex = descriptorIndex;
@@ -243,4 +335,37 @@ std::vector<FieldInfo> ClassLoader::readFields(uint8_t* bytes)
     }
 
     return fields;
+}
+
+inline static AttributeCode* getCodeAttribute(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool) 
+{
+    return (AttributeCode*) findAttributeWithName(attributes, constantPool, "Code");
+}
+
+std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& constantPool)
+{
+    std::vector<MethodInfo> methods;
+
+    uint16_t methodsCount = readUnsignedShort(bytes);
+
+    while (methods.size() < methodsCount) {
+        uint16_t accessFlags = readUnsignedShort(bytes);
+        uint16_t nameIndex = readUnsignedShort(bytes);
+        uint16_t descriptorIndex = readUnsignedShort(bytes);
+        std::vector<AttributeInfo*> attributes = readAttributes(bytes, constantPool);
+        MethodInfo info;
+        info.accessFlags = accessFlags;
+        info.nameIndex = nameIndex;
+        info.descriptorIndex = descriptorIndex;
+        // TODO: Fix these
+        info.code = 0;
+        info.isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
+        if (!info.isNative) {
+            info.code = getCodeAttribute(attributes, constantPool);
+        }
+
+        methods.push_back(info);
+    }
+
+    return methods;
 }

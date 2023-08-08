@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="ClassDump.cpp" />
     <ClCompile Include="ClassLoader\ClassLoader.cpp" />
+    <ClCompile Include="ClassLoader\ConstantPool.cpp" />
     <ClCompile Include="Printer\ClassPrinter.cpp" />
   </ItemGroup>
   <ItemGroup>
