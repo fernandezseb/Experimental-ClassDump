@@ -37,17 +37,26 @@ std::string ClassPrinter::getTypeAsString(ConstantType type) {
 
 void ClassPrinter::printClass(ClassInfo& classInfo)
 {
-	std::cout << "| Class Version " << classInfo.majorVersion 
+	std::cout << "| Class Version: " << classInfo.majorVersion 
 		<< "." 
 		<< classInfo.minorVersion 
 		<< std::endl;
+
 
 	std::cout << "| Constants: " << std::endl;
 
 	int current = 1;
 	for (ConstantPoolItem* item : classInfo.constantPool.constants) {
-		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << std::endl;
+		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << " \"" << item->toString() << "\"" << std::endl;
 		current++;
 	}
+
+	CPClassInfo* classPtr = (CPClassInfo*)classInfo.constantPool.constants[classInfo.thisClass - 1];
+	CPClassInfo* superClassPtr = (CPClassInfo*)classInfo.constantPool.constants[classInfo.superClass - 1];
+
+	std::cout << "| Name: " << classInfo.constantPool.getString(classPtr->nameIndex) << std::endl;
+	std::cout << "| Superclass name: " << classInfo.constantPool.getString(superClassPtr->nameIndex) << std::endl;
+
+
 
 }

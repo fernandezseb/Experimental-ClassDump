@@ -48,6 +48,10 @@ struct ConstantPoolItem {
 	ConstantType getType() {
 		return (ConstantType)tag;
 	}
+
+	virtual std::string toString() {
+		return "";
+	}
 };
 
 struct ConstantPoolNamedReference : public ConstantPoolItem {
@@ -128,6 +132,9 @@ struct CPUTF8Info : public ConstantPoolItem {
 	CPUTF8Info(uint8_t tag, uint16_t length, uint8_t* bytes)
 		: ConstantPoolItem(tag), length(length), bytes(bytes)
 	{
+	}
+	std::string toString() {
+		return (char*) bytes;
 	}
 };
 
