@@ -42,20 +42,20 @@ void ClassPrinter::printClass(ClassInfo& classInfo)
 		<< classInfo.minorVersion 
 		<< std::endl;
 
-
+	ConstantPool& cp = classInfo.constantPool;
 	std::cout << "| Constants: " << std::endl;
 
 	int current = 1;
-	for (ConstantPoolItem* item : classInfo.constantPool.constants) {
+	for (ConstantPoolItem* item : cp.constants) {
 		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << " \"" << item->toString() << "\"" << std::endl;
 		current++;
 	}
 
-	CPClassInfo* classPtr = (CPClassInfo*)classInfo.constantPool.constants[classInfo.thisClass - 1];
-	CPClassInfo* superClassPtr = (CPClassInfo*)classInfo.constantPool.constants[classInfo.superClass - 1];
+	CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
+	CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
 
-	std::cout << "| Name: " << classInfo.constantPool.getString(classPtr->nameIndex) << std::endl;
-	std::cout << "| Superclass name: " << classInfo.constantPool.getString(superClassPtr->nameIndex) << std::endl;
+	std::cout << "| Name: " << cp.getString(classPtr->nameIndex) << std::endl;
+	std::cout << "| Superclass name: " << cp.getString(superClassPtr->nameIndex) << std::endl;
 
 
 

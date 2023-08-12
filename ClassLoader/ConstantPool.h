@@ -161,4 +161,5 @@ private:
 public:
 	std::vector<ConstantPoolItem*> constants;
 	std::string getString(uint16_t index);
+	CPClassInfo* getClassInfo(uint16_t index);
 };
