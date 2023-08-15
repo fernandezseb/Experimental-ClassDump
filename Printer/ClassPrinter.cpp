@@ -68,18 +68,17 @@ void ClassPrinter::printClass(ClassInfo& classInfo)
 
 	ConstantPool& cp = classInfo.constantPool;
 	std::cout << "| Constants:" << std::endl;
+	int current = 1;
+	for (ConstantPoolItem* item : cp.constants) {
+		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << " \"" << item->toString() << "\"" << std::endl;
+		current++;
+	}
 
 	std::cout << "| Flags:";
 	for (AccessFlag flag : classInfo.getAccessFlags()) {
 		std::cout << " " << getTypeAsString(flag);
 	}
 	std::cout << std::endl;
-
-	int current = 1;
-	for (ConstantPoolItem* item : cp.constants) {
-		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << " \"" << item->toString() << "\"" << std::endl;
-		current++;
-	}
 
 	CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
 	CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
