@@ -369,3 +369,15 @@ std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& c
 
     return methods;
 }
+
+std::vector<AccessFlag> ClassInfo::getAccessFlags()
+{
+    std::vector<AccessFlag> flags;
+    for (AccessFlag flag : classFlags) {
+        if ((accessFlags & flag) == flag) {
+            flags.push_back(flag);
+        }
+    }
+
+    return flags;
+}

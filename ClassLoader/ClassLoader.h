@@ -45,7 +45,17 @@ struct MethodInfo {
 	bool isNative;
 };
 
-struct ClassInfo {
+class ClassInfo {
+private:
+	const std::vector<AccessFlag> classFlags = {ACC_PUBLIC, 
+		ACC_FINAL, 
+		ACC_SUPER, 
+		ACC_INTERFACE, 
+		ACC_ABSTRACT,
+		ACC_SYNTHETIC,
+		ACC_ANNOTATION,
+		ACC_ENUM};
+public:
 	uint16_t minorVersion;
 	uint16_t majorVersion;
 	ConstantPool constantPool;
@@ -55,6 +65,7 @@ struct ClassInfo {
 	std::vector<uint16_t> interfaces;
 	std::vector<FieldInfo> fields;
 	std::vector<MethodInfo> methods;
+	std::vector<AccessFlag> getAccessFlags();
 };
 
 class ClassLoader {

@@ -35,6 +35,30 @@ std::string ClassPrinter::getTypeAsString(ConstantType type) {
 	}
 }
 
+std::string ClassPrinter::getTypeAsString(AccessFlag flag)
+{
+	switch (flag) {
+	case ACC_PUBLIC:
+		return "ACC_PUBLIC";
+	case ACC_FINAL:
+		return "ACC_FINAL";
+	case ACC_SUPER:
+		return "ACC_SUPER";
+	case ACC_INTERFACE:
+		return "ACC_INTERFACE";
+	case ACC_ABSTRACT:
+		return "ACC_ABSTRACT";
+	case ACC_SYNTHETIC:
+		return "ACC_SYNTHETIC";
+	case ACC_ANNOTATION:
+		return "ACC_ANNOTATION";
+	case ACC_ENUM:
+		return "ACC_ENUM";
+	default:
+		return "UNKNOWN";
+	}
+}
+
 void ClassPrinter::printClass(ClassInfo& classInfo)
 {
 	std::cout << "| Class Version: " << classInfo.majorVersion 
@@ -43,7 +67,13 @@ void ClassPrinter::printClass(ClassInfo& classInfo)
 		<< std::endl;
 
 	ConstantPool& cp = classInfo.constantPool;
-	std::cout << "| Constants: " << std::endl;
+	std::cout << "| Constants:" << std::endl;
+
+	std::cout << "| Flags:";
+	for (AccessFlag flag : classInfo.getAccessFlags()) {
+		std::cout << " " << getTypeAsString(flag);
+	}
+	std::cout << std::endl;
 
 	int current = 1;
 	for (ConstantPoolItem* item : cp.constants) {
