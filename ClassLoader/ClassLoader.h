@@ -37,24 +37,43 @@ struct FieldInfo {
 	uint16_t descriptorIndex;
 };
 
-struct MethodInfo {
+class MethodInfo {
+private:
+	const std::vector<AccessFlag> methodFlags = {
+		ACC_PUBLIC,
+		ACC_PRIVATE,
+		ACC_PROTECTED,
+		ACC_STATIC,
+		ACC_FINAL,
+		ACC_SYNCHRONIZED,
+		ACC_BRIDGE,
+		ACC_VARARGS,
+		ACC_NATIVE,
+		ACC_ABSTRACT,
+		ACC_STRICT,
+		ACC_SYNTHETIC
+	};
+public:
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
 	AttributeCode* code;
 	bool isNative;
+	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassInfo {
 private:
-	const std::vector<AccessFlag> classFlags = {ACC_PUBLIC, 
+	const std::vector<AccessFlag> classFlags = {
+		ACC_PUBLIC, 
 		ACC_FINAL, 
 		ACC_SUPER, 
 		ACC_INTERFACE, 
 		ACC_ABSTRACT,
 		ACC_SYNTHETIC,
 		ACC_ANNOTATION,
-		ACC_ENUM};
+		ACC_ENUM
+	};
 public:
 	uint16_t minorVersion;
 	uint16_t majorVersion;

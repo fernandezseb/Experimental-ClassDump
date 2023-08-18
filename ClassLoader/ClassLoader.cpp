@@ -381,3 +381,15 @@ std::vector<AccessFlag> ClassInfo::getAccessFlags() const
 
     return flags;
 }
+
+std::vector<AccessFlag> MethodInfo::getAccessFlags() const
+{
+    std::vector<AccessFlag> flags;
+    for (AccessFlag flag : methodFlags) {
+        if ((accessFlags & flag) == flag) {
+            flags.push_back(flag);
+        }
+    }
+
+    return flags;
+}
