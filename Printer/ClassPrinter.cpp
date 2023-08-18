@@ -80,7 +80,8 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 
 void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool& cp)
 {
-	std::cout << "| Method: " << cp.getString(methodInfo.nameIndex) << std::endl;
+	std::cout << "| Method: " << cp.getString(methodInfo.nameIndex) 
+		<< " " << cp.getString(methodInfo.descriptorIndex)  << std::endl;
 	std::cout << "| ============================================================" << std::endl;
 
 	std::cout << "| Flags:";
@@ -88,6 +89,15 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 		std::cout << " " << getTypeAsString(flag);
 	}
 	std::cout << std::endl;
+
+	std::cout << "| Code: " << std::endl;
+
+	if (methodInfo.isNative) {
+		std::cout << "(Native Code)" << std::endl;
+	}
+	else {
+
+	}
 }
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
