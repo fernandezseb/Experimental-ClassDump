@@ -65,7 +65,7 @@ public:
 	std::vector<uint16_t> interfaces;
 	std::vector<FieldInfo> fields;
 	std::vector<MethodInfo> methods;
-	std::vector<AccessFlag> getAccessFlags();
+	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassLoader {

@@ -1,6 +1,6 @@
 #include "ConstantPool.h"
 
-void ConstantPool::checkIndex(uint16_t index)
+void ConstantPool::checkIndex(uint16_t index) const
 {
 	if (index > this->constants.size()) {
 		std::cout << "Invalid index into constant pool: %" << index << std::endl;
@@ -8,7 +8,7 @@ void ConstantPool::checkIndex(uint16_t index)
 	}
 }
 
-std::string ConstantPool::getString(uint16_t index)
+std::string ConstantPool::getString(uint16_t index) const
 {
 	checkIndex(index);
 
@@ -24,7 +24,7 @@ std::string ConstantPool::getString(uint16_t index)
 	}
 }
 
-CPClassInfo* ConstantPool::getClassInfo(uint16_t index)
+CPClassInfo* ConstantPool::getClassInfo(uint16_t index) const
 {
 	checkIndex(index);
 

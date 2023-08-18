@@ -59,14 +59,14 @@ std::string ClassPrinter::getTypeAsString(AccessFlag flag)
 	}
 }
 
-void ClassPrinter::printClass(ClassInfo& classInfo)
+void ClassPrinter::printClass(const ClassInfo& classInfo)
 {
 	std::cout << "| Class Version: " << classInfo.majorVersion 
 		<< "." 
 		<< classInfo.minorVersion 
 		<< std::endl;
 
-	ConstantPool& cp = classInfo.constantPool;
+	const ConstantPool& cp = classInfo.constantPool;
 	std::cout << "| Constants:" << std::endl;
 	int current = 1;
 	for (ConstantPoolItem* item : cp.constants) {
@@ -80,11 +80,19 @@ void ClassPrinter::printClass(ClassInfo& classInfo)
 	}
 	std::cout << std::endl;
 
-	CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-	CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
+	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
+	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
 
 	std::cout << "| Name: " << cp.getString(classPtr->nameIndex) << std::endl;
 	std::cout << "| Superclass name: " << cp.getString(superClassPtr->nameIndex) << std::endl;
+
+
+	std::cout << "| Interfaces: " << std::endl;
+
+	for (uint16_t index : classInfo.interfaces) {
+		CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
+		std::cout << "| " << cp.getString(superClassPtr->nameIndex) << std::endl;
+	}
 
 
 

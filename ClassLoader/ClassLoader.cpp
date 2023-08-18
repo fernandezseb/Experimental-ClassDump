@@ -370,7 +370,7 @@ std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& c
     return methods;
 }
 
-std::vector<AccessFlag> ClassInfo::getAccessFlags()
+std::vector<AccessFlag> ClassInfo::getAccessFlags() const
 {
     std::vector<AccessFlag> flags;
     for (AccessFlag flag : classFlags) {
