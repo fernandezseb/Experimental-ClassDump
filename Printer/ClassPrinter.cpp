@@ -82,8 +82,7 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 {
 	std::cout << "| Method: " << cp.getString(methodInfo.nameIndex) 
 		<< " " << cp.getString(methodInfo.descriptorIndex)  << std::endl;
-	std::cout << "| ============================================================" << std::endl;
-
+	
 	std::cout << "| Flags:";
 	for (AccessFlag flag : methodInfo.getAccessFlags()) {
 		std::cout << " " << getTypeAsString(flag);
@@ -96,8 +95,17 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 		std::cout << "(Native Code)" << std::endl;
 	}
 	else {
-
+		printCode(methodInfo.code);
 	}
+
+	std::cout << "| ============================================================" << std::endl;
+}
+
+void ClassPrinter::printCode(const AttributeCode* code)
+{
+	std::cout << "| Stack: " << code->maxStack << std::endl;
+	std::cout << "| Locals: " << code->maxStack << std::endl;
+
 }
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
@@ -144,6 +152,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "| Methods: " << std::endl;
 
+	std::cout << "| ============================================================" << std::endl;
 	for (const MethodInfo& methodInfo : classInfo.methods) {
 		printMethod(methodInfo, cp);
 	}
