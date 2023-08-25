@@ -13,8 +13,9 @@ int main(int argc, char* argv[])
         const std::string className = argv[1];
 
         ClassLoader classLoader;
+        ClassPrinter classPrinter;
         ClassInfo classInfo = classLoader.readClass(className);
-        ClassPrinter::printClass(classInfo);
+        classPrinter.printClass(classInfo);
 
         std::cout << "" << std::endl;
     } else {

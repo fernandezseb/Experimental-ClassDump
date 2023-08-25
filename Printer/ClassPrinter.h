@@ -201,13 +201,21 @@ enum Opcode : uint8_t {
 	impdep2    = 0xff
 };
 
+struct Instruction {
+	Opcode opcode;
+	uint8_t args;
+	const char* name;
+};
+
 class ClassPrinter {
 private:
+	std::vector<Instruction> instructions;
 	static std::string getTypeAsString(ConstantType type);
 	static std::string getTypeAsString(AccessFlag flag);
-	static void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
-	static void printMethod(const MethodInfo& methodInfo, const ConstantPool& cp);
-	static void printCode(const AttributeCode* code);
+	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
+	void printMethod(const MethodInfo& methodInfo, const ConstantPool& cp);
+	void printCode(const AttributeCode* code);
 public:
-	static void printClass(const ClassInfo& classInfo);
+	ClassPrinter();
+	void printClass(const ClassInfo& classInfo);
 };

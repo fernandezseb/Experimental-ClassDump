@@ -106,6 +106,51 @@ void ClassPrinter::printCode(const AttributeCode* code)
 	std::cout << "| Stack: " << code->maxStack << std::endl;
 	std::cout << "| Locals: " << code->maxStack << std::endl;
 
+	for (uint32_t index = 0; index < code->codeLength; index++) {
+		uint8_t opcode = code->code[index];
+		bool found = false;
+		for (Instruction instruction : this->instructions) {
+			if (((uint8_t)instruction.opcode) == opcode) {
+				std::cout << "|" << index << " [" << instruction.name << "]";
+				if (instruction.args > 0) {
+					for (int arg = 0; arg < instruction.args; arg++) {
+						std::cout << " " << (int) (code->code[++index]);
+					}
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			std::cout << "|" << index << " [" << (int)opcode << "]";
+		}
+		std::cout << std::endl;
+	}
+
+	std::cout << "| Exceptions: " << std::endl;
+
+	for (ExceptionTableEntry entry : code->exceptionTable) {
+		std::cout << "PC Range: " << entry.startPc << " - " << entry.endPc
+			<< " handlerPC: " << entry.handlerPc << " Catch type: " << entry.catchType << std::endl;
+	}
+
+}
+
+ClassPrinter::ClassPrinter()
+{
+	instructions.push_back({nop, 0, "nop"});
+	instructions.push_back({ bipush, 1, "bipush" });
+	instructions.push_back({ istore_2, 0, "istore_2" });
+	instructions.push_back({ i_return, 0, "return" });
+	instructions.push_back({ i_new, 2, "new" });
+	instructions.push_back({ dup, 0, "dup" });
+	instructions.push_back({ invokespecial, 2, "invokespecial" });
+	instructions.push_back({ aload_0, 0, "aload_0" });
+	instructions.push_back({ aload_1, 0, "aload_1" });
+	instructions.push_back({ astore_1, 0, "astore_1" });
+	instructions.push_back({ aload_0, 0, "aload_0" });
+	instructions.push_back({ ldc, 1, "ldc" });
+	instructions.push_back({ invokevirtual, 2, "invokevirtual" });
 }
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
