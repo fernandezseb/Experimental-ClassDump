@@ -155,6 +155,16 @@ ClassPrinter::ClassPrinter()
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
 {
+	std::cout << "Classfile ";
+	std::wcout << classInfo.filePath;
+	std::cout << std::endl;
+
+	char time[50];
+	strftime(time, 50, "%b %d, %Y", localtime(&classInfo.lastModified));
+
+	std::cout << "  Last modified " << time << "; size " << classInfo.size << " bytes" << std::endl;
+	std::cout << "  MD5 checksum " << classInfo.md5 << std::endl;
+
 	std::cout << "| Class Version: " << classInfo.majorVersion 
 		<< "." 
 		<< classInfo.minorVersion 

@@ -4,10 +4,11 @@
 #include "Core.h"
 #include "ClassLoader/ClassLoader.h"
 #include "Printer/ClassPrinter.h"
+#include "ClassDumpConfig.h"
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Starting ClassDump v0.1..." << std::endl;
+    std::cout << "Starting ClassDump v" << CLASSDUMP_VERSION_MAJOR << "." << CLASSDUMP_VERSION_MINOR << std::endl;
 
     if (argc > 1) {
         const std::string className = argv[1];

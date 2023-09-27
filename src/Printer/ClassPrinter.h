@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ClassLoader/ClassLoader.h"
+#include "ClassLoader/ClassLoader.h"
 
 enum Opcode : uint8_t {
 	// CONSTANTS

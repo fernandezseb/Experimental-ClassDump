@@ -9,8 +9,15 @@ project(ClassDump
     DESCRIPTION "A simple Java class file parser for learning purposes"
     LANGUAGES CXX)
 
-    add_executable(ClassDump
+    configure_file(ClassDumpConfig.h.in ClassDumpConfig.h)
+
+    add_executable(${PROJECT_NAME}
     src/ClassDump.cpp
     src/Printer/ClassPrinter.cpp
     src/ClassLoader/ClassLoader.cpp
     src/ClassLoader/ConstantPool.cpp)
+
+    add_subdirectory(extern/md5)
+    target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR})
+    target_link_directories(${PROJECT_NAME} PRIVATE MD5)
+    target_link_libraries(${PROJECT_NAME} MD5)

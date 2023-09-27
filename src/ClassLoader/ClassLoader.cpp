@@ -1,6 +1,7 @@
 #include "ClassLoader.h"
 
-#include "../Core.h"
+#include "Core.h"
+#include "md5/md5.h"
 
 inline uint8_t ClassLoader::readUnsignedByte(uint8_t* bytes) {
     uint8_t buffer = 0;
@@ -281,15 +282,28 @@ ClassInfo ClassLoader::readClass(uint8_t* bytes)
 ClassInfo ClassLoader::readClass(const std::string& className)
 {
 
-    struct stat results;
+    try {
+        std::filesystem::path path = std::filesystem::canonical(className);
+        std::wstring absolutePath = path.c_str();
 
-    if (stat(className.c_str(), &results) == 0) {
-        uint8_t* bytes = new uint8_t[results.st_size];
+        std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
 
-        std::ifstream myFile(className.c_str(), std::ios::in | std::ios::binary);
+        struct stat attr;
+        stat(className.c_str(), &attr);
 
-        myFile.read((char*)bytes, results.st_size);
+        std::ifstream myFile(path, std::ios::in | std::ios::binary);
+        uint64_t size = std::filesystem::file_size(path);
+        uint8_t* bytes = new uint8_t[size];
+
+        myFile.read((char*)bytes, size);
+
+        std::string checksum =  md5(bytes, size);
+
         ClassInfo classInfo = readClass(bytes);
+        classInfo.filePath = absolutePath;
+        classInfo.size = size;
+        classInfo.lastModified = attr.st_mtime;
+        classInfo.md5 = checksum;
 
         std::cout << "" << std::endl;
         myFile.close();
@@ -297,8 +311,10 @@ ClassInfo ClassLoader::readClass(const std::string& className)
 
         return classInfo;
     }
-    else {
-        std::cout << "File not found: " << className << " " << std::endl;
+    catch (const std::exception& ex) {
+        std::cout << "Canonical path for " << className << " threw exception:\n"
+            << ex.what() << '\n';
+        exit(-1);
     }
     return ClassInfo();
 }
