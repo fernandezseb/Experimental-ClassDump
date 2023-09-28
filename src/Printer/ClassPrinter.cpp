@@ -3,35 +3,35 @@
 std::string ClassPrinter::getTypeAsString(ConstantType type) {
 	switch (type) {
 	case CT_UTF8:
-		return "UTF8";
+		return "Utf8";
 	case CT_INTEGER:
-		return "INTEGER";
+		return "Integer";
 	case CT_FLOAT:
-		return "FLOAT";
+		return "Float";
 	case CT_LONG:
-		return "LONG";
+		return "Long";
 	case CT_DOUBLE:
-		return "DOUBLE";
+		return "Double";
 	case CT_CLASS:
-		return "CLASS";
+		return "Class";
 	case CT_STRING:
-		return "STRING";
+		return "String";
 	case CT_FIELDREF:
-		return "FIELDREF";
+		return "Fieldref";
 	case CT_METHODREF:
-		return "METHODREF";
+		return "Methodref";
 	case CT_INTERFACEMETHOD:
-		return "INTERFACEMETHOD";
+		return "Interfacemethod";
 	case CT_NAMEANDTYPE:
-		return "NAMEANDTYPE";
+		return "NameAndType";
 	case CT_METHODHANDLE:
-		return "METHODHANDLE";
+		return "MethodHandle";
 	case CT_METHODTYPE:
-		return "METHODTYPE";
+		return "Methodtype";
 	case CT_INVOKEDYNAMIC:
-		return "INVOKEDYNAMIC";
+		return "InvokeDynamic";
 	default:
-		return "UNKNOWN";
+		return "Unknown";
 	}
 }
 
@@ -80,16 +80,20 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 
 void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool& cp)
 {
-	std::cout << "| Method: " << cp.getString(methodInfo.nameIndex) 
-		<< " " << cp.getString(methodInfo.descriptorIndex)  << std::endl;
+	std::cout << "  ";
+	if ((methodInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC) {
+		std::cout << "public ";
+	}
+	std::cout << cp.getString(methodInfo.nameIndex) << ";" << std::endl;
+	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
 	
-	std::cout << "| Flags:";
+	std::cout << "    flags:";
 	for (AccessFlag flag : methodInfo.getAccessFlags()) {
 		std::cout << " " << getTypeAsString(flag);
 	}
 	std::cout << std::endl;
 
-	std::cout << "| Code: " << std::endl;
+	std::cout << "    Code: " << std::endl;
 
 	if (methodInfo.isNative) {
 		std::cout << "(Native Code)" << std::endl;
@@ -97,21 +101,19 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 	else {
 		printCode(methodInfo.code);
 	}
-
-	std::cout << "| ============================================================" << std::endl;
 }
 
 void ClassPrinter::printCode(const AttributeCode* code)
 {
-	std::cout << "| Stack: " << code->maxStack << std::endl;
-	std::cout << "| Locals: " << code->maxStack << std::endl;
+	std::cout << "      stack=" << code->maxStack << ", " << "locals=" << code->maxStack << std::endl;
+	// TODO: Add arguments
 
 	for (uint32_t index = 0; index < code->codeLength; index++) {
 		uint8_t opcode = code->code[index];
 		bool found = false;
 		for (Instruction instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
-				std::cout << "|" << index << " [" << instruction.name << "]";
+				std::cout << "        " << index << ": " << instruction.name;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
 						std::cout << " " << (int) (code->code[++index]);
@@ -127,7 +129,7 @@ void ClassPrinter::printCode(const AttributeCode* code)
 		std::cout << std::endl;
 	}
 
-	std::cout << "| Exceptions: " << std::endl;
+	std::cout << "      Exceptions: " << std::endl;
 
 	for (ExceptionTableEntry entry : code->exceptionTable) {
 		std::cout << "PC Range: " << entry.startPc << " - " << entry.endPc
@@ -165,52 +167,60 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "  Last modified " << time << "; size " << classInfo.size << " bytes" << std::endl;
 	std::cout << "  MD5 checksum " << classInfo.md5 << std::endl;
 
-	std::cout << "| Class Version: " << classInfo.majorVersion 
-		<< "." 
-		<< classInfo.minorVersion 
-		<< std::endl;
-
 	const ConstantPool& cp = classInfo.constantPool;
-	std::cout << "| Constants:" << std::endl;
-	int current = 1;
-	for (ConstantPoolItem* item : cp.constants) {
-		std::cout << "| " << "[" << current << "] " << getTypeAsString(item->getType()) << " \"" << item->toString() << "\"" << std::endl;
-		current++;
+	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
+	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
+
+	if (((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC)) {
+		std::cout << "public ";
 	}
 
-	std::cout << "| Flags:";
+	std::cout << "class " << cp.getString(classPtr->nameIndex);
+
+	std::cout << " extends " << cp.getString(superClassPtr->nameIndex) << std::endl;
+
+	std::cout << "  minor version" << " " << classInfo.minorVersion  << std::endl;
+	std::cout << "  major version" << " " << classInfo.majorVersion  << std::endl;
+
+	std::cout << "  flags:";
 	for (AccessFlag flag : classInfo.getAccessFlags()) {
 		std::cout << " " << getTypeAsString(flag);
 	}
 	std::cout << std::endl;
 
-	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
+	std::cout << "Constant pool:" << std::endl;
+	int current = 1;
+	for (ConstantPoolItem* item : cp.constants) {
+		std::string indexStr = std::string("#");
+		indexStr = indexStr + std::to_string(current);
+		std::cout << std::right << std::setfill(' ') << std::setw(5) << indexStr;
+		std::cout << " = " << std::left << std::setfill(' ') << std::setw(15) << getTypeAsString(item->getType()) << item->toString() << std::endl;
+		current++;
+	}
 
-	std::cout << "| Name: " << cp.getString(classPtr->nameIndex) << std::endl;
-	std::cout << "| Superclass name: " << cp.getString(superClassPtr->nameIndex) << std::endl;
+	std::cout << "{" << std::endl;
 
 
-	std::cout << "| Interfaces: " << std::endl;
+	std::cout << "Interfaces: " << std::endl;
 
 	for (uint16_t index : classInfo.interfaces) {
 		CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-		std::cout << "| " << cp.getString(superClassPtr->nameIndex) << std::endl;
+		std::cout << "  " << cp.getString(superClassPtr->nameIndex) << std::endl;
 	}
 
 
-	std::cout << "| Fields: " << std::endl;
+	std::cout << "Fields: " << std::endl;
 
 	for (const FieldInfo fieldInfo : classInfo.fields) {
 		printField(fieldInfo, cp);
 	}
 
-	std::cout << "| Methods: " << std::endl;
-
-	std::cout << "| ============================================================" << std::endl;
+	std::cout << "Methods: " << std::endl;
 	for (const MethodInfo& methodInfo : classInfo.methods) {
 		printMethod(methodInfo, cp);
 	}
+
+	std::cout << "}" << std::endl;
 
 
 }
