@@ -68,6 +68,13 @@ struct CPMethodRef : public ConstantPoolNamedReference {
 		: ConstantPoolNamedReference(tag, classIndex, nameAndTypeIndex)
 	{
 	}
+
+	std::string toString() {
+		std::string str = "#" + std::to_string(classIndex);
+		str += ".#";
+		str += std::to_string(nameAndTypeIndex);
+		return str;
+	}
 };
 
 struct CPFieldRef : public ConstantPoolNamedReference {
@@ -89,6 +96,10 @@ struct CPClassInfo : public ConstantPoolItem {
 	CPClassInfo(uint8_t tag, uint16_t nameIndex)
 		: ConstantPoolItem(tag), nameIndex(nameIndex)
 	{
+	}
+
+	std::string toString() {
+		return "#" + std::to_string(nameIndex);
 	}
 };
 
@@ -145,6 +156,13 @@ struct CPNameAndTypeInfo : public ConstantPoolItem {
 		: ConstantPoolItem(tag), nameIndex(nameIndex), descriptorIndex(descriptorIndex)
 	{
 	}
+
+	std::string toString() {
+		std::string str = "#" + std::to_string(nameIndex);
+		str += ".#";
+		str += std::to_string(descriptorIndex);
+		return str;
+	}
 };
 
 struct CPStringInfo : public ConstantPoolItem {
@@ -152,6 +170,10 @@ struct CPStringInfo : public ConstantPoolItem {
 	CPStringInfo(uint8_t tag, uint16_t stringIndex)
 		: ConstantPoolItem(tag), stringIndex(stringIndex)
 	{
+	}
+
+	std::string toString() {
+		return "#" + std::to_string(stringIndex);
 	}
 };
 
