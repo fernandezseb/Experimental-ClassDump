@@ -14,8 +14,12 @@ project(ClassDump
     add_executable(${PROJECT_NAME}
     src/ClassDump.cpp
     src/Printer/ClassPrinter.cpp
+    src/Printer/ClassPrinter.h
     src/ClassLoader/ClassLoader.cpp
-    src/ClassLoader/ConstantPool.cpp)
+    src/ClassLoader/ClassLoader.h
+    src/ClassLoader/ConstantPool.cpp
+    src/ClassLoader/ConstantPool.h
+    src/Core.h)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR})
