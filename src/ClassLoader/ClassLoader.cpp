@@ -275,6 +275,7 @@ ClassInfo ClassLoader::readClass(uint8_t* bytes)
     classInfo.interfaces = readInterfaces(bytes, interfacesCount);
     classInfo.fields = readFields(bytes, classInfo.constantPool);
     classInfo.methods = readMethods(bytes, classInfo.constantPool);
+    classInfo.isPublic = ((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
 
     return classInfo;
 }

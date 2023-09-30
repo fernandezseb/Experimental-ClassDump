@@ -93,6 +93,7 @@ public:
 	std::vector<FieldInfo> fields;
 	std::vector<MethodInfo> methods;
 	std::vector<AccessFlag> getAccessFlags() const;
+	bool isPublic;
 };
 
 class ClassLoader {

@@ -123,7 +123,6 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		<< "locals=" << code->maxStack
 		<< ", args_size=" << std::to_string(method->args.size())
 		<< std::endl;
-	// TODO: Add arguments
 
 	for (uint32_t index = 0; index < code->codeLength; index++) {
 		uint8_t opcode = code->code[index];
@@ -191,7 +190,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
 	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
 
-	if (((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC)) {
+	if (classInfo.isPublic) {
 		std::cout << "public ";
 	}
 
@@ -200,9 +199,24 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	// TODO: Don't print java/lang/Object
 	std::cout << " extends " << cp.getString(superClassPtr->nameIndex);
 	// TODO: print the interfaces here
+	if (classInfo.interfaces.size() > 0) {
+		std::cout << " implements";
+
+
+		int counter = 0;
+		for (uint16_t index : classInfo.interfaces) {
+			CPClassInfo* classPtr = cp.getClassInfo(index);
+
+			if (counter > 0) {
+				std::cout << ",";
+			}
+
+			std::cout << " " << cp.getString(classPtr->nameIndex);
+			counter++;
+		}
+
+	}
 	std::cout << std::endl;
-
-
 
 	std::cout << "  minor version" << " " << classInfo.minorVersion  << std::endl;
 	std::cout << "  major version" << " " << classInfo.majorVersion  << std::endl;
@@ -224,14 +238,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	}
 
 	std::cout << "{" << std::endl;
-
-
-	/*std::cout << "Interfaces: " << std::endl;
-
-	for (uint16_t index : classInfo.interfaces) {
-		CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-		std::cout << "  " << cp.getString(superClassPtr->nameIndex) << std::endl;
-	}*/
 
 	// Fields
 	for (const FieldInfo fieldInfo : classInfo.fields) {
