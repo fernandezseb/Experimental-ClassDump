@@ -129,7 +129,8 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		bool found = false;
 		for (Instruction instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
-				std::cout << "        " << index << ": " << instruction.name;
+				std::string indexStr = std::to_string(index) + ": ";
+				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr << instruction.name;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
 						std::cout << " " << (int) (code->code[++index]);
