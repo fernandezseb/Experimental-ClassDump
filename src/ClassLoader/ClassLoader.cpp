@@ -358,6 +358,72 @@ inline static AttributeCode* getCodeAttribute(std::vector<AttributeInfo*> attrib
     return (AttributeCode*) findAttributeWithName(attributes, constantPool, "Code");
 }
 
+void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& method)
+{
+    std::string returnType = "";
+    std::vector<std::string> args;
+
+
+    bool inArgs = false;
+    bool parsingArg = false;
+    std::string temp = "";
+    int arrCount = 0;
+    for (char c : descriptor) {
+        if (c == '(') {
+            inArgs = true;
+            continue;
+        }
+
+        if (c == ')') {
+            inArgs = false;
+            continue;
+        }
+
+        if (!inArgs) {
+            if (c == 'V') {
+                returnType = "V";
+            }
+
+        }
+
+        if (inArgs) {
+            if (c == 'L') {
+                parsingArg = true;
+                temp = "";
+            }
+            else if (c == ';') {
+                parsingArg = false;
+                std::string arrPart = "";
+                for (int i = 0; i < arrCount; i++) {
+                    arrPart += "[]";
+                }
+                args.push_back(temp + arrPart);
+                arrCount = 0;
+            } else if (c == '[') {
+                arrCount++;
+            } else if (parsingArg) {
+                temp += c;
+            }
+            else if (c == 'B' || c == 'C' || c == 'D' || c == 'F' || c == 'I' || c == 'J' || c == 'S' || c == 'Z') {
+                std::string arrPart = "";
+                for (int i = 0; i < arrCount; i++) {
+                    arrPart += "[]";
+                }
+                args.push_back(c + arrPart);
+                arrCount = 0;
+            } else {
+                std::cout << "ERROR: unexpected character in descriptor found: " << c << std::endl;
+                exit(-1);
+            }
+        }
+    }
+
+    method.returnType = returnType;
+    method.args = args;
+
+    std::cout << descriptor << " " << returnType << " " << std::to_string(args.size()) << std::endl;
+}
+
 std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& constantPool)
 {
     std::vector<MethodInfo> methods;
@@ -379,6 +445,10 @@ std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& c
         if (!info.isNative) {
             info.code = getCodeAttribute(attributes, constantPool);
         }
+        info.isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
+        info.isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
+
+        parseDescriptor(constantPool.getString(descriptorIndex), info);
 
         methods.push_back(info);
     }

@@ -74,6 +74,14 @@ std::string ClassPrinter::getTypeAsString(AccessFlag flag)
 	}
 }
 
+std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
+{
+	if (returnType == "V") {
+		return "void";
+	}
+	// TODO: Add other return types
+}
+
 void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp)
 {
 }
@@ -81,9 +89,16 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool& cp)
 {
 	std::cout << "  ";
-	if ((methodInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC) {
+	if (methodInfo.isPublic) {
 		std::cout << "public ";
 	}
+	if (methodInfo.isStatic) {
+		std::cout << "static ";
+	}
+	if (methodInfo.isNative) {
+		std::cout << "native ";
+	}
+	std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
 	std::cout << cp.getString(methodInfo.nameIndex) << ";" << std::endl;
 	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
 	
@@ -93,19 +108,21 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 	}
 	std::cout << std::endl;
 
-	std::cout << "    Code: " << std::endl;
-
 	if (methodInfo.isNative) {
-		std::cout << "(Native Code)" << std::endl;
 	}
 	else {
-		printCode(methodInfo.code);
+		std::cout << "    Code: " << std::endl;
+		printCode(methodInfo.code, &methodInfo);
 	}
+	std::cout << std::endl;
 }
 
-void ClassPrinter::printCode(const AttributeCode* code)
+void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method)
 {
-	std::cout << "      stack=" << code->maxStack << ", " << "locals=" << code->maxStack << std::endl;
+	std::cout << "      stack=" << code->maxStack << ", " 
+		<< "locals=" << code->maxStack
+		<< ", args_size=" << std::to_string(method->args.size())
+		<< std::endl;
 	// TODO: Add arguments
 
 	for (uint32_t index = 0; index < code->codeLength; index++) {
@@ -129,12 +146,12 @@ void ClassPrinter::printCode(const AttributeCode* code)
 		std::cout << std::endl;
 	}
 
-	std::cout << "      Exceptions: " << std::endl;
+	//std::cout << "      Exceptions: " << std::endl;
 
-	for (ExceptionTableEntry entry : code->exceptionTable) {
-		std::cout << "PC Range: " << entry.startPc << " - " << entry.endPc
-			<< " handlerPC: " << entry.handlerPc << " Catch type: " << entry.catchType << std::endl;
-	}
+	//for (ExceptionTableEntry entry : code->exceptionTable) {
+	//	std::cout << "PC Range: " << entry.startPc << " - " << entry.endPc
+	//		<< " handlerPC: " << entry.handlerPc << " Catch type: " << entry.catchType << std::endl;
+	//}
 
 }
 
@@ -153,6 +170,9 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ aload_0, 0, "aload_0" });
 	instructions.push_back({ ldc, 1, "ldc" });
 	instructions.push_back({ invokevirtual, 2, "invokevirtual" });
+	instructions.push_back({ invokestatic, 2, "invokestatic" });
+	instructions.push_back({ athrow, 0, "athrow" });
+	instructions.push_back({ putfield, 2, "putfield" });
 }
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
@@ -177,7 +197,12 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "class " << cp.getString(classPtr->nameIndex);
 
-	std::cout << " extends " << cp.getString(superClassPtr->nameIndex) << std::endl;
+	// TODO: Don't print java/lang/Object
+	std::cout << " extends " << cp.getString(superClassPtr->nameIndex);
+	// TODO: print the interfaces here
+	std::cout << std::endl;
+
+
 
 	std::cout << "  minor version" << " " << classInfo.minorVersion  << std::endl;
 	std::cout << "  major version" << " " << classInfo.majorVersion  << std::endl;
@@ -201,21 +226,19 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "{" << std::endl;
 
 
-	std::cout << "Interfaces: " << std::endl;
+	/*std::cout << "Interfaces: " << std::endl;
 
 	for (uint16_t index : classInfo.interfaces) {
 		CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
 		std::cout << "  " << cp.getString(superClassPtr->nameIndex) << std::endl;
-	}
+	}*/
 
-
-	std::cout << "Fields: " << std::endl;
-
+	// Fields
 	for (const FieldInfo fieldInfo : classInfo.fields) {
 		printField(fieldInfo, cp);
 	}
 
-	std::cout << "Methods: " << std::endl;
+	// Methods
 	for (const MethodInfo& methodInfo : classInfo.methods) {
 		printMethod(methodInfo, cp);
 	}

@@ -59,7 +59,11 @@ public:
 	uint16_t descriptorIndex;
 	AttributeCode* code;
 	bool isNative;
+	bool isPublic;
+	bool isStatic;
 	std::vector<AccessFlag> getAccessFlags() const;
+	std::string returnType;
+	std::vector<std::string> args;
 };
 
 class ClassInfo {
@@ -104,6 +108,7 @@ private:
 	ExceptionTableEntry readExceptionTableEntry(uint8_t* bytes);
 	std::vector<ExceptionTableEntry> readExceptionTable(uint8_t* bytes);
 	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes, ConstantPool& constantPool);
+	void parseDescriptor(const std::string& descriptor, MethodInfo& method);
 public:
 	ClassLoader();
 	ClassInfo readClass(uint8_t* bytes);

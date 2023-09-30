@@ -212,9 +212,10 @@ private:
 	std::vector<Instruction> instructions;
 	static std::string getTypeAsString(ConstantType type);
 	static std::string getTypeAsString(AccessFlag flag);
+	static std::string getAsExternalReturnType(std::string returnType);
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
 	void printMethod(const MethodInfo& methodInfo, const ConstantPool& cp);
-	void printCode(const AttributeCode* code);
+	void printCode(const AttributeCode* code, const MethodInfo* methodInfo);
 public:
 	ClassPrinter();
 	void printClass(const ClassInfo& classInfo);
