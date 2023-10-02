@@ -451,6 +451,9 @@ std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& c
 
         parseDescriptor(constantPool.getString(descriptorIndex), info);
 
+        std::string name = constantPool.getString(nameIndex);
+        info.isConstructor = (name == "<init>");
+
         methods.push_back(info);
     }
 

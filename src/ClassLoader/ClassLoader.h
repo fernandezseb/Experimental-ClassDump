@@ -61,6 +61,7 @@ public:
 	bool isNative;
 	bool isPublic;
 	bool isStatic;
+	bool isConstructor;
 	std::vector<AccessFlag> getAccessFlags() const;
 	std::string returnType;
 	std::vector<std::string> args;
