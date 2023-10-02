@@ -1,5 +1,7 @@
 #include "ClassPrinter.h"
 
+#include "Util.h"
+
 std::string ClassPrinter::getTypeAsString(ConstantType type) {
 	switch (type) {
 	case CT_UTF8:
@@ -86,6 +88,16 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 {
 }
 
+void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ConstantPool& cp)
+{
+	std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
+	std::cout << cp.getString(methodInfo.nameIndex) << "(";
+
+	std::cout << joinStrings(methodInfo.args, ",");
+
+	std::cout << ");" << std::endl;
+}
+
 void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool& cp)
 {
 	std::cout << "  ";
@@ -98,8 +110,7 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 	if (methodInfo.isNative) {
 		std::cout << "native ";
 	}
-	std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
-	std::cout << cp.getString(methodInfo.nameIndex) << ";" << std::endl;
+	printMethodSignature(methodInfo, cp);
 	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
 	
 	std::cout << "    flags:";

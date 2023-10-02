@@ -214,6 +214,7 @@ private:
 	static std::string getTypeAsString(AccessFlag flag);
 	static std::string getAsExternalReturnType(std::string returnType);
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
+	void printMethodSignature(const MethodInfo& methodInfo, const ConstantPool& cp);
 	void printMethod(const MethodInfo& methodInfo, const ConstantPool& cp);
 	void printCode(const AttributeCode* code, const MethodInfo* methodInfo);
 public:

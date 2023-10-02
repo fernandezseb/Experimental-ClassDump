@@ -19,7 +19,9 @@ project(ClassDump
     src/ClassLoader/ClassLoader.h
     src/ClassLoader/ConstantPool.cpp
     src/ClassLoader/ConstantPool.h
-    src/Core.h)
+    src/Core.h 
+    src/Util.cpp
+    src/Util.h)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR})
