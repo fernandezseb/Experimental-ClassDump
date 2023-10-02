@@ -84,6 +84,12 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 	// TODO: Add other return types
 }
 
+std::string ClassPrinter::getAsExternalClassName(std::string className)
+{
+	std::replace(className.begin(), className.end(), '/', '.');
+	return className;
+}
+
 void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp)
 {
 }
@@ -93,7 +99,7 @@ void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const Cons
 	std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
 	std::cout << cp.getString(methodInfo.nameIndex) << "(";
 
-	std::cout << joinStrings(methodInfo.args, ",");
+	std::cout << getAsExternalClassName(joinStrings(methodInfo.args, ","));
 
 	std::cout << ");" << std::endl;
 }
@@ -208,24 +214,25 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "class " << cp.getString(classPtr->nameIndex);
 
-	// TODO: Don't print java/lang/Object
-	std::cout << " extends " << cp.getString(superClassPtr->nameIndex);
+	std::string superClassName =  cp.getString(superClassPtr->nameIndex);
+	if (superClassName != "java/lang/Object") {
+		std::cout << " extends " << getAsExternalClassName(cp.getString(superClassPtr->nameIndex));
+	}
+
 	// TODO: print the interfaces here
 	if (classInfo.interfaces.size() > 0) {
-		std::cout << " implements";
+		std::cout << " implements ";
 
 
-		int counter = 0;
+		// TODO: OPTIMIZE: Replace vector by array 
+		std::vector<std::string> names;
+
 		for (uint16_t index : classInfo.interfaces) {
 			CPClassInfo* classPtr = cp.getClassInfo(index);
-
-			if (counter > 0) {
-				std::cout << ",";
-			}
-
-			std::cout << " " << cp.getString(classPtr->nameIndex);
-			counter++;
+			names.push_back(cp.getString(classPtr->nameIndex));
 		}
+
+		std::cout << getAsExternalClassName(joinStrings(names, ", "));
 
 	}
 	std::cout << std::endl;

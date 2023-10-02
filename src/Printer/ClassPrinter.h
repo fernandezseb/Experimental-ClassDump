@@ -213,6 +213,7 @@ private:
 	static std::string getTypeAsString(ConstantType type);
 	static std::string getTypeAsString(AccessFlag flag);
 	static std::string getAsExternalReturnType(std::string returnType);
+	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
 	void printMethodSignature(const MethodInfo& methodInfo, const ConstantPool& cp);
 	void printMethod(const MethodInfo& methodInfo, const ConstantPool& cp);
