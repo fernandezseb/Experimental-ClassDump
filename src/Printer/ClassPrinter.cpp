@@ -94,17 +94,30 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 {
 }
 
-void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ConstantPool& cp)
+void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
 {
-	std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
-	std::cout << cp.getString(methodInfo.nameIndex) << "(";
+	if (!methodInfo.isConstructor) {
+		std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
+	}
+
+	if (methodInfo.isConstructor) {
+		// TODO: Reuse classname
+		const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
+		const std::string className = cp.getString(classPtr->nameIndex);
+		std::cout << className;
+	}
+	else
+	{
+		std::cout << cp.getString(methodInfo.nameIndex);
+	}
+	std::cout << "(";
 
 	std::cout << getAsExternalClassName(joinStrings(methodInfo.args, ","));
 
 	std::cout << ");" << std::endl;
 }
 
-void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool& cp)
+void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
 {
 	std::cout << "  ";
 	if (methodInfo.isPublic) {
@@ -116,7 +129,7 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ConstantPool&
 	if (methodInfo.isNative) {
 		std::cout << "native ";
 	}
-	printMethodSignature(methodInfo, cp);
+	printMethodSignature(methodInfo, classInfo, cp);
 	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
 	
 	std::cout << "    flags:";
@@ -265,7 +278,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	// Methods
 	for (const MethodInfo& methodInfo : classInfo.methods) {
-		printMethod(methodInfo, cp);
+		printMethod(methodInfo, classInfo, cp);
 	}
 
 	std::cout << "}" << std::endl;
