@@ -297,7 +297,13 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		std::string indexStr = std::string("#");
 		indexStr = indexStr + std::to_string(current);
 		std::cout << std::right << std::setfill(' ') << std::setw(5) << indexStr;
-		std::cout << " = " << std::left << std::setfill(' ') << std::setw(15) << getTypeAsString(item->getType()) << item->toString() << std::endl;
+		std::cout << " = " << std::left << std::setfill(' ') << std::setw(15) << getTypeAsString(item->getType())
+			<< std::left << std::setfill(' ') << std::setw(15) << item->toString();
+		std::string expanded = item->toExpandedString(cp);
+		if (expanded.size() > 0) {
+			std::cout << "// " << expanded;
+		}
+		std::cout << std::endl;
 		current++;
 	}
 

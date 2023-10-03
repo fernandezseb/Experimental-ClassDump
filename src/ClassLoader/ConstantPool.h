@@ -38,6 +38,8 @@ enum AccessFlag : uint16_t {
 	ACC_ENUM =         0x4000
 };
 
+class ConstantPool;
+
 struct ConstantPoolItem {
 	uint8_t tag;
 	ConstantPoolItem(uint8_t tag) :
@@ -49,9 +51,8 @@ struct ConstantPoolItem {
 		return (ConstantType)tag;
 	}
 
-	virtual std::string toString() {
-		return "";
-	}
+	virtual std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 struct ConstantPoolNamedReference : public ConstantPoolItem {
@@ -69,12 +70,8 @@ struct CPMethodRef : public ConstantPoolNamedReference {
 	{
 	}
 
-	std::string toString() {
-		std::string str = "#" + std::to_string(classIndex);
-		str += ".#";
-		str += std::to_string(nameAndTypeIndex);
-		return str;
-	}
+	std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 struct CPFieldRef : public ConstantPoolNamedReference {
@@ -82,6 +79,8 @@ struct CPFieldRef : public ConstantPoolNamedReference {
 		: ConstantPoolNamedReference(tag, classIndex, nameAndTypeIndex)
 	{
 	}
+	std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 struct CPInterfaceRef : public ConstantPoolNamedReference {
@@ -98,9 +97,8 @@ struct CPClassInfo : public ConstantPoolItem {
 	{
 	}
 
-	std::string toString() {
-		return "#" + std::to_string(nameIndex);
-	}
+	std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 struct CPIntegerInfo : public ConstantPoolItem {
@@ -109,6 +107,8 @@ struct CPIntegerInfo : public ConstantPoolItem {
 		: ConstantPoolItem(tag), bytes(bytes)
 	{
 	}
+
+	std::string toString();
 };
 
 struct CPFloatInfo : public ConstantPoolItem {
@@ -144,9 +144,7 @@ struct CPUTF8Info : public ConstantPoolItem {
 		: ConstantPoolItem(tag), length(length), bytes(bytes)
 	{
 	}
-	std::string toString() {
-		return (char*) bytes;
-	}
+	std::string toString();
 };
 
 struct CPNameAndTypeInfo : public ConstantPoolItem {
@@ -157,12 +155,8 @@ struct CPNameAndTypeInfo : public ConstantPoolItem {
 	{
 	}
 
-	std::string toString() {
-		std::string str = "#" + std::to_string(nameIndex);
-		str += ".#";
-		str += std::to_string(descriptorIndex);
-		return str;
-	}
+	std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 struct CPStringInfo : public ConstantPoolItem {
@@ -172,9 +166,8 @@ struct CPStringInfo : public ConstantPoolItem {
 	{
 	}
 
-	std::string toString() {
-		return "#" + std::to_string(stringIndex);
-	}
+	std::string toString();
+	virtual std::string toExpandedString(const ConstantPool& cp);
 };
 
 class ConstantPool {
