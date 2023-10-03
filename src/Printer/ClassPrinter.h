@@ -201,10 +201,17 @@ enum Opcode : uint8_t {
 	impdep2    = 0xff
 };
 
+void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
+
+void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp);
+
+void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp);
+
 struct Instruction {
 	Opcode opcode;
 	uint8_t args;
 	const char* name;
+	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool& cp) = DefaultPrinter;
 };
 
 class ClassPrinter {
@@ -217,7 +224,7 @@ private:
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
 	void printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp);
 	void printMethod(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp);
-	void printCode(const AttributeCode* code, const MethodInfo* methodInfo);
+	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool& cp);
 public:
 	ClassPrinter();
 	void printClass(const ClassInfo& classInfo);

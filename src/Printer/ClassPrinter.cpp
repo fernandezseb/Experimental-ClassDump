@@ -142,12 +142,38 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ClassInfo& cl
 	}
 	else {
 		std::cout << "    Code: " << std::endl;
-		printCode(methodInfo.code, &methodInfo);
+		printCode(methodInfo.code, &methodInfo, cp);
 	}
 	std::cout << std::endl;
 }
 
-void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method)
+void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	for (uint8_t arg : args) {
+		std::cout << " " << (unsigned int) arg;
+	}
+}
+
+void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	for (uint8_t arg : args) {
+		std::cout << " #" << (unsigned int) arg;
+	}
+}
+
+void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	for (int i = 0; i < args.size(); i += 2) {
+		uint8_t byte1 = args[i];
+		uint8_t byte2 = args[i + 1];
+
+		uint16_t shortIndex = (byte1 << 8) | byte2;
+
+		std::cout << " #" << (unsigned int)shortIndex;
+	}
+}
+
+void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool& cp)
 {
 	std::cout << "      stack=" << code->maxStack << ", " 
 		<< "locals=" << code->maxStack
@@ -160,12 +186,17 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		for (Instruction instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
 				std::string indexStr = std::to_string(index) + ": ";
-				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr << instruction.name;
+				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr 
+					<< std::left << std::setfill(' ') << std::setw(15) << instruction.name;
+				
+				std::vector<uint8_t> args;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
-						std::cout << " " << (int) (code->code[++index]);
+						args.push_back(code->code[++index]);
 					}
 				}
+				instruction.printFunction(args, cp);
+				
 				found = true;
 				break;
 			}
@@ -187,22 +218,23 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 ClassPrinter::ClassPrinter()
 {
-	instructions.push_back({nop, 0, "nop"});
-	instructions.push_back({ bipush, 1, "bipush" });
-	instructions.push_back({ istore_2, 0, "istore_2" });
-	instructions.push_back({ i_return, 0, "return" });
-	instructions.push_back({ i_new, 2, "new" });
-	instructions.push_back({ dup, 0, "dup" });
-	instructions.push_back({ invokespecial, 2, "invokespecial" });
-	instructions.push_back({ aload_0, 0, "aload_0" });
-	instructions.push_back({ aload_1, 0, "aload_1" });
-	instructions.push_back({ astore_1, 0, "astore_1" });
-	instructions.push_back({ aload_0, 0, "aload_0" });
-	instructions.push_back({ ldc, 1, "ldc" });
-	instructions.push_back({ invokevirtual, 2, "invokevirtual" });
-	instructions.push_back({ invokestatic, 2, "invokestatic" });
-	instructions.push_back({ athrow, 0, "athrow" });
-	instructions.push_back({ putfield, 2, "putfield" });
+	instructions.push_back({nop, 0, "nop", DefaultPrinter});
+	instructions.push_back({ bipush, 1, "bipush", DefaultPrinter});
+	instructions.push_back({ istore_1, 0, "istore_1", DefaultPrinter});
+	instructions.push_back({ istore_2, 0, "istore_2", DefaultPrinter});
+	instructions.push_back({ i_return, 0, "return", DefaultPrinter});
+	instructions.push_back({ i_new, 2, "new", ShortIndices});
+	instructions.push_back({ dup, 0, "dup", DefaultPrinter});
+	instructions.push_back({ invokespecial, 2, "invokespecial", ShortIndices});
+	instructions.push_back({ aload_0, 0, "aload_0", DefaultPrinter});
+	instructions.push_back({ aload_1, 0, "aload_1", DefaultPrinter});
+	instructions.push_back({ astore_1, 0, "astore_1", DefaultPrinter});
+	instructions.push_back({ aload_0, 0, "aload_0", DefaultPrinter});
+	instructions.push_back({ ldc, 1, "ldc", ByteIndices });
+	instructions.push_back({ invokevirtual, 2, "invokevirtual", ShortIndices });
+	instructions.push_back({ invokestatic, 2, "invokestatic", ShortIndices });
+	instructions.push_back({ athrow, 0, "athrow", DefaultPrinter });
+	instructions.push_back({ putfield, 2, "putfield", ShortIndices });
 }
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
