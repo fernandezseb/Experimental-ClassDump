@@ -436,7 +436,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		std::cout << " extends " << getAsExternalClassName(cp.getString(superClassPtr->nameIndex));
 	}
 
-	// TODO: print the interfaces here
 	if (classInfo.interfaces.size() > 0) {
 		std::cout << " implements ";
 
