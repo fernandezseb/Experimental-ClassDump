@@ -132,11 +132,12 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ClassInfo& cl
 	printMethodSignature(methodInfo, classInfo, cp);
 	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
 	
-	std::cout << "    flags:";
+	std::cout << "    flags: ";
+	std::vector<std::string> flags;
 	for (AccessFlag flag : methodInfo.getAccessFlags()) {
-		std::cout << " " << getTypeAsString(flag);
+		flags.push_back(getTypeAsString(flag));
 	}
-	std::cout << std::endl;
+	std::cout << joinStrings(flags, ", ") << std::endl;
 
 	if (methodInfo.isNative) {
 	}
@@ -456,11 +457,12 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "  minor version" << " " << classInfo.minorVersion  << std::endl;
 	std::cout << "  major version" << " " << classInfo.majorVersion  << std::endl;
 
-	std::cout << "  flags:";
+	std::cout << "  flags: ";
+	std::vector<std::string> flags;
 	for (AccessFlag flag : classInfo.getAccessFlags()) {
-		std::cout << " " << getTypeAsString(flag);
+		flags.push_back(getTypeAsString(flag));
 	}
-	std::cout << std::endl;
+	std::cout << joinStrings(flags, ", ") << std::endl;
 
 	std::cout << "Constant pool:" << std::endl;
 	int current = 1;
