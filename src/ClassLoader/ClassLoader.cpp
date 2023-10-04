@@ -36,10 +36,7 @@ static AttributeInfo* findAttributeWithName(std::vector<AttributeInfo*> attribut
 
 void ClassLoader::checkMagicNumber(uint8_t* bytes) {
     uint32_t magic = readUnsignedInt(bytes);
-    if (magic == MAGIC_NUMBER) {
-        std::cout << "Magic Number OK!" << std::endl;
-    }
-    else {
+    if (magic != MAGIC_NUMBER) {
         std::cout << "Magic Number not OK.Exiting." << std::endl;
         exit(1);
     }
@@ -50,8 +47,6 @@ ConstantPool ClassLoader::readConstantPool(uint8_t* bytes)
     ConstantPool constantPool;
 
     uint16_t cpCount = readUnsignedShort(bytes);
-
-    std::cout << "Loading constant pool of size: " << cpCount << std::endl;
 
     uint16_t arrCount = cpCount - 1;
 
@@ -305,8 +300,6 @@ ClassInfo ClassLoader::readClass(const std::string& className)
         classInfo.size = size;
         classInfo.lastModified = attr.st_mtime;
         classInfo.md5 = checksum;
-
-        std::cout << "" << std::endl;
         myFile.close();
         delete[] bytes;
 
@@ -421,8 +414,6 @@ void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& met
 
     method.returnType = returnType;
     method.args = args;
-
-    std::cout << descriptor << " " << returnType << " " << std::to_string(args.size()) << std::endl;
 }
 
 std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& constantPool)

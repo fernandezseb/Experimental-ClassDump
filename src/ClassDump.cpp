@@ -17,8 +17,6 @@ int main(int argc, char* argv[])
         ClassPrinter classPrinter;
         ClassInfo classInfo = classLoader.readClass(className);
         classPrinter.printClass(classInfo);
-
-        std::cout << "" << std::endl;
     } else {
         std::cout << "Class name must be supplied" << std::endl;
         exit(1);
