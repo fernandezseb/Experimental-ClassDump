@@ -111,3 +111,16 @@ std::string CPFieldRef::toExpandedString(const ConstantPool& cp)
 {
 	return cp.getClassInfo(classIndex)->toExpandedString(cp) + "." + cp.constants[nameAndTypeIndex - 1]->toExpandedString(cp);
 }
+
+std::string CPFloatInfo::toString()
+{
+	float f = *reinterpret_cast<float*> ( & bytes);
+	return std::to_string((float)f) + "f";
+}
+
+std::string CPDoubleInfo::toString()
+{
+	uint64_t bytes = ((uint64_t)highBytes << 32) + (uint64_t)lowBytes;
+	double d = *reinterpret_cast<double*> (&bytes);
+	return std::to_string((double)d) + "d";
+}

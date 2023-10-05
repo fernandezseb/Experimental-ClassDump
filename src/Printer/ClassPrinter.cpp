@@ -467,6 +467,10 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "Constant pool:" << std::endl;
 	int current = 1;
 	for (ConstantPoolItem* item : cp.constants) {
+		if (item == 0) {
+			current++;
+			continue;
+		}
 		std::string indexStr = std::string("#");
 		indexStr = indexStr + std::to_string(current);
 		std::cout << std::right << std::setfill(' ') << std::setw(5) << indexStr;

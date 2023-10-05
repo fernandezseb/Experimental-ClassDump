@@ -60,6 +60,10 @@ ConstantPool ClassLoader::readConstantPool(uint8_t* bytes)
         constantPool.constants[currentConstantIndex] = constantPoolItem;
 
         // if tag is long or double we need to increment by 2
+        if (tag == CT_LONG || tag == CT_DOUBLE) {
+            currentConstantIndex++;
+        }
+
     }
 
     return constantPool;
@@ -154,7 +158,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, uint8_t* bytes)
     default:
     {
         std::cout << "Unidentified constant pool item detected with tag: "
-            << tag << " " << std::endl;
+            << (int) tag << " " << std::endl;
     }
     }
 

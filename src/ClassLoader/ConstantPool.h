@@ -117,6 +117,7 @@ struct CPFloatInfo : public ConstantPoolItem {
 		: ConstantPoolItem(tag), bytes(bytes)
 	{
 	}
+	std::string toString();
 };
 
 struct CPLongInfo : public ConstantPoolItem {
@@ -135,6 +136,7 @@ struct CPDoubleInfo : public ConstantPoolItem {
 		: ConstantPoolItem(tag), highBytes(highBytes), lowBytes(lowBytes)
 	{
 	}
+	std::string toString();
 };
 
 struct CPUTF8Info : public ConstantPoolItem {
