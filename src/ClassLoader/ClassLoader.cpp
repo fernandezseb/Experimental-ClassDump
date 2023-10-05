@@ -378,10 +378,17 @@ void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& met
         }
 
         if (!inArgs) {
-            if (c == 'V') {
-                returnType = "V";
+            if (c == 'V' || c == 'B' || c == 'C' || c == 'D' || c == 'F' || c == 'I' || c == 'J' || c == 'S' || c == 'Z') {
+                std::string arrPart = "";
+                for (int i = 0; i < arrCount; i++) {
+                    arrPart += "[]";
+                }
+                returnType = (c + arrPart);
+                arrCount = 0;
             }
-
+            if (c == '[') {
+                arrCount++;
+            }
         }
 
         if (inArgs) {

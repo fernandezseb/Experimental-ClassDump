@@ -78,10 +78,50 @@ std::string ClassPrinter::getTypeAsString(AccessFlag flag)
 
 std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 {
-	if (returnType == "V") {
-		return "void";
+	std::string output = "";
+	for (char c : returnType) {
+
+		if (c == 'V') {
+			output += "void";
+		}
+		else if (c == 'B') {
+			output += "byte";
+		}
+		else if (c == 'C') {
+			output += "char";
+		}
+		else if (c == 'D') {
+			output += "double";
+		}
+		else if (c == 'F') {
+			output += "float";
+		}
+		else if (c == 'I') {
+			output += "int";
+		}
+		else if (c == 'J') {
+			output += "long";
+		}
+		else if (c == 'S') {
+			output += "short";
+		}
+		else if (c == 'Z') {
+			output += "boolean";
+		}
+		else if (c == 'D') {
+			output += "double";
+		}
+		else if (c == '[') {
+			output += "[]";
+		}
+		else if (c == ']') {
+		}
+		else {
+			output += "(unknown)";
+		}
 	}
-	// TODO: Add other return types
+
+	return output;
 }
 
 std::string ClassPrinter::getAsExternalClassName(std::string className)
