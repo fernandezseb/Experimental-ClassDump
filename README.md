@@ -92,12 +92,14 @@ Constant pool:
 ```
 
 
-## Goal of this project
+## Goal and scope
 
-The goal of this project is to be a simple to understand C++ implementation of a Java class file parser, in order to learn more about Java class files.
+The goal of this project is to be a simple to understand C++ implementation of a Java class file parser, in order to learn more about Java class files and C++. 
+(Because I haven't worked professionally with C++ yet.)
 In the future I am going to use this one and create a simple to understand basic implementation of a JVM using this parser, also with the aim of being educational.
 
-The goal is **not** to be reliable, fast, or memory efficient.
+The goal is **not** to be reliable, fast, or memory efficient, or even feature complete.
+Even though it is not set in stone, I will be trying to implement as much features as possible of JDK 8, in the free time that I have.
 
 ## Still to do
 * All return types other than void, in methods
@@ -107,4 +109,6 @@ The goal is **not** to be reliable, fast, or memory efficient.
 * Showing "Compiled from"
 * Showing the data to which the code is referring inline
 * Fix args_size for constructors?
-
+* Add automated tests using CTest
+* LineNumberTable printing
+* LocalVariableTable printing
