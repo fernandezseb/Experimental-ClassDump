@@ -102,7 +102,6 @@ The goal is **not** to be reliable, fast, or memory efficient, or even feature c
 Even though it is not set in stone, I will be trying to implement as much features as possible of JDK 8, in the free time that I have.
 
 ## Still to do
-* All return types other than void, in methods
 * The last opcodes that are not implemented yet
 * Fields
 * More attribute parsing (including add support for class attributes)
