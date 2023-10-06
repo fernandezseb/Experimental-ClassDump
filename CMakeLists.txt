@@ -21,9 +21,14 @@ project(ClassDump
     src/ClassLoader/ConstantPool.h
     src/Core.h 
     src/Util.cpp
-    src/Util.h)
+    src/Util.h 
+    src/ClassLoader/DescriptorParser.h
+    src/ClassLoader/DescriptorParser.cpp)
 
     add_subdirectory(extern/md5)
-    target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR})
+    target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)
     target_link_directories(${PROJECT_NAME} PRIVATE MD5)
     target_link_libraries(${PROJECT_NAME} MD5)
+
+    enable_testing()
+    add_subdirectory("test")

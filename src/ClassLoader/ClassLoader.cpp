@@ -1,6 +1,7 @@
 #include "ClassLoader.h"
 
 #include "Core.h"
+#include "DescriptorParser.h"
 #include "md5/md5.h"
 
 inline uint8_t ClassLoader::readUnsignedByte(uint8_t* bytes) {
@@ -358,73 +359,9 @@ inline static AttributeCode* getCodeAttribute(std::vector<AttributeInfo*> attrib
 
 void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& method)
 {
-    std::string returnType = "";
-    std::vector<std::string> args;
-
-
-    bool inArgs = false;
-    bool parsingArg = false;
-    std::string temp = "";
-    int arrCount = 0;
-    for (char c : descriptor) {
-        if (c == '(') {
-            inArgs = true;
-            continue;
-        }
-
-        if (c == ')') {
-            inArgs = false;
-            continue;
-        }
-
-        if (!inArgs) {
-            if (c == 'V' || c == 'B' || c == 'C' || c == 'D' || c == 'F' || c == 'I' || c == 'J' || c == 'S' || c == 'Z') {
-                std::string arrPart = "";
-                for (int i = 0; i < arrCount; i++) {
-                    arrPart += "[]";
-                }
-                returnType = (c + arrPart);
-                arrCount = 0;
-            }
-            if (c == '[') {
-                arrCount++;
-            }
-        }
-
-        if (inArgs) {
-            if (c == 'L') {
-                parsingArg = true;
-                temp = "";
-            }
-            else if (c == ';') {
-                parsingArg = false;
-                std::string arrPart = "";
-                for (int i = 0; i < arrCount; i++) {
-                    arrPart += "[]";
-                }
-                args.push_back(temp + arrPart);
-                arrCount = 0;
-            } else if (c == '[') {
-                arrCount++;
-            } else if (parsingArg) {
-                temp += c;
-            }
-            else if (c == 'B' || c == 'C' || c == 'D' || c == 'F' || c == 'I' || c == 'J' || c == 'S' || c == 'Z') {
-                std::string arrPart = "";
-                for (int i = 0; i < arrCount; i++) {
-                    arrPart += "[]";
-                }
-                args.push_back(c + arrPart);
-                arrCount = 0;
-            } else {
-                std::cout << "ERROR: unexpected character in descriptor found: " << c << std::endl;
-                exit(-1);
-            }
-        }
-    }
-
-    method.returnType = returnType;
-    method.args = args;
+    Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
+    method.returnType = desc.returnType;
+    method.args = desc.args;
 }
 
 std::vector<MethodInfo> ClassLoader::readMethods(uint8_t* bytes, ConstantPool& constantPool)

@@ -79,9 +79,23 @@ std::string ClassPrinter::getTypeAsString(AccessFlag flag)
 std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 {
 	std::string output = "";
-	for (char c : returnType) {
+	int arrCount = 0;
+	bool inClass = false;
 
-		if (c == 'V') {
+	for (char c : returnType) {
+		if (c == 'L') {
+			inClass = true;
+		}
+		else if (c == ';') {
+			inClass = false;
+		}
+		else if (inClass) {
+			output += c;
+		}
+		else if (c == '[') {
+			arrCount++;
+		}
+		else if (c == 'V') {
 			output += "void";
 		}
 		else if (c == 'B') {
@@ -111,14 +125,10 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 		else if (c == 'D') {
 			output += "double";
 		}
-		else if (c == '[') {
-			output += "[]";
-		}
-		else if (c == ']') {
-		}
-		else {
-			output += "(unknown)";
-		}
+	}
+
+	for (int curr = 0; curr < arrCount; curr++) {
+		output += "[]";
 	}
 
 	return output;
@@ -137,7 +147,7 @@ void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp
 void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
 {
 	if (!methodInfo.isConstructor) {
-		std::cout << getAsExternalReturnType(methodInfo.returnType) << " ";
+		std::cout << getAsExternalClassName(getAsExternalReturnType(methodInfo.returnType)) << " ";
 	}
 
 	if (methodInfo.isConstructor) {
@@ -152,7 +162,13 @@ void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const Clas
 	}
 	std::cout << "(";
 
-	std::cout << getAsExternalClassName(joinStrings(methodInfo.args, ","));
+	std::vector<std::string> args;
+
+	for (std::string arg : methodInfo.args) {
+		args.push_back(getAsExternalReturnType(arg));
+	}
+
+	std::cout << getAsExternalClassName(joinStrings(args, ","));
 
 	std::cout << ");" << std::endl;
 }
