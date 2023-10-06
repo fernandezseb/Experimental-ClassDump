@@ -232,9 +232,13 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp)
 
 void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool& cp)
 {
+	int argsSize = method->args.size();
+	if (!method->isStatic) {
+		argsSize++;
+	}
 	std::cout << "      stack=" << code->maxStack << ", " 
 		<< "locals=" << code->maxLocals
-		<< ", args_size=" << std::to_string(method->args.size())
+		<< ", args_size=" << std::to_string(argsSize)
 		<< std::endl;
 
 	for (uint32_t index = 0; index < code->codeLength; index++) {

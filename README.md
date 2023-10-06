@@ -107,7 +107,6 @@ Even though it is not set in stone, I will be trying to implement as much featur
 * More attribute parsing (including add support for class attributes)
 * Showing "Compiled from"
 * Showing the data to which the code is referring inline
-* Fix args_size for constructors?
 * Add automated tests using CTest
 * LineNumberTable printing
 * LocalVariableTable printing
