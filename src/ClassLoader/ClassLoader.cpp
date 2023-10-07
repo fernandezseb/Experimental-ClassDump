@@ -345,6 +345,7 @@ std::vector<FieldInfo> ClassLoader::readFields(uint8_t* bytes, ConstantPool& con
         fieldInfo.accessFlags = accessFlags;
         fieldInfo.descriptorIndex = descriptorIndex;
         fieldInfo.nameIndex = nameIndex;
+        fieldInfo.isPrivate = ((accessFlags & ACC_PRIVATE) == ACC_PRIVATE);
         // TODO: Parse attributes and add to FieldInfo
         fields.push_back(fieldInfo);
     }
@@ -415,6 +416,18 @@ std::vector<AccessFlag> MethodInfo::getAccessFlags() const
 {
     std::vector<AccessFlag> flags;
     for (AccessFlag flag : methodFlags) {
+        if ((accessFlags & flag) == flag) {
+            flags.push_back(flag);
+        }
+    }
+
+    return flags;
+}
+
+std::vector<AccessFlag> FieldInfo::getAccessFlags() const
+{
+    std::vector<AccessFlag> flags;
+    for (AccessFlag flag : fieldFlags) {
         if ((accessFlags & flag) == flag) {
             flags.push_back(flag);
         }

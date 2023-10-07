@@ -31,10 +31,25 @@ struct AttributeCode : public AttributeInfo {
 	std::vector<AttributeInfo*> attributes;
 };
 
-struct FieldInfo {
+class FieldInfo {
+private:
+	const std::vector<AccessFlag> fieldFlags = {
+		ACC_PUBLIC,
+		ACC_PRIVATE,
+		ACC_PROTECTED,
+		ACC_STATIC,
+		ACC_FINAL,
+		ACC_VOLATILE,
+		ACC_TRANSIENT,
+		ACC_SYNTHETIC,
+		ACC_ENUM
+	};
+public:
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
+	bool isPrivate;
+	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class MethodInfo {

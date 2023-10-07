@@ -142,6 +142,21 @@ std::string ClassPrinter::getAsExternalClassName(std::string className)
 
 void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp)
 {
+	std::string descriptor = cp.getString(fieldInfo.descriptorIndex);
+	std::string name = cp.getString(fieldInfo.nameIndex);
+	std::cout << "  ";
+	if (fieldInfo.isPrivate) {
+		std::cout << "private ";
+	}
+	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) << " " << name << ";" << std::endl;
+	std::cout << "    descriptor: " << descriptor << std::endl;
+	std::cout << "    flags: ";
+	std::vector<std::string> flags;
+	for (AccessFlag flag : fieldInfo.getAccessFlags()) {
+		flags.push_back(getTypeAsString(flag));
+	}
+	std::cout << joinStrings(flags, ", ") << std::endl;
+	std::cout << std::endl;
 }
 
 void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
