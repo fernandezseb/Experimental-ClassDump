@@ -283,6 +283,13 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		std::cout << std::endl;
 	}
 
+	if (code->lineNumberTable != NULL) {
+		std::cout << "      LineNumberTable:" << std::endl;
+		for (LineNumberTableEntry* entry : code->lineNumberTable->entries) {
+			std::cout << "        line " << entry->lineNumber << ": " << entry->startPc << std::endl;
+		}
+	}
+
 	//std::cout << "      Exceptions: " << std::endl;
 
 	//for (ExceptionTableEntry entry : code->exceptionTable) {

@@ -23,6 +23,8 @@ struct AttributeConstantValue : public AttributeInfo {
 	uint16_t constantValueIndex;
 };
 
+struct AttributeLineNumberTable;
+
 struct AttributeCode : public AttributeInfo {
 	uint16_t maxStack;
 	uint16_t maxLocals;
@@ -30,6 +32,7 @@ struct AttributeCode : public AttributeInfo {
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
 	std::vector<AttributeInfo*> attributes;
+	AttributeLineNumberTable *lineNumberTable;
 };
 
 struct AttributeSourceFile : public AttributeInfo {
@@ -37,6 +40,15 @@ struct AttributeSourceFile : public AttributeInfo {
 	std::string toString(const ConstantPool& cp) {
 		return "SourceFile: \"" + cp.getString(sourceFileIndex) + "\"";
 	}
+};
+
+struct LineNumberTableEntry {
+	uint16_t startPc;
+	uint16_t lineNumber;
+};
+
+struct AttributeLineNumberTable :public AttributeInfo {
+	std::vector<LineNumberTableEntry*> entries;
 };
 
 class FieldInfo {

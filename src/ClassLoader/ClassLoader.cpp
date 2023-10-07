@@ -226,15 +226,25 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
             att->code = code;
             att->exceptionTable = exceptions;
             att->attributes = attribs;
+            AttributeLineNumberTable *lineNumberTable = (AttributeLineNumberTable*) findAttributeWithName(attribs, constantPool, "LineNumberTable");
+            att->lineNumberTable = lineNumberTable;
 
             attributes.push_back(att);
         }
         else if (name == "LineNumberTable") {
             uint16_t lineNumberTableLength = readUnsignedShort(bytes);
+            AttributeLineNumberTable* att = new AttributeLineNumberTable();
+            att->attributeNameIndex = attributeNameIndex;
+            att->attributeLength = attributeLength;
             for (int lineNumerTableIndex = 0; lineNumerTableIndex < lineNumberTableLength; lineNumerTableIndex++) {
                 uint16_t startPc = readUnsignedShort(bytes);
                 uint16_t lineNumber = readUnsignedShort(bytes);
+                LineNumberTableEntry *entry = new LineNumberTableEntry();
+                entry->startPc = startPc;
+                entry->lineNumber = lineNumber;
+                att->entries.push_back(entry);
             }
+            attributes.push_back(att);
         }
         else if (name == "LocalVariableTable") {
             uint16_t localVariableTableLength = readUnsignedShort(bytes);
