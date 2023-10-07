@@ -235,7 +235,8 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
                 uint16_t startPc = readUnsignedShort(bytes);
                 uint16_t lineNumber = readUnsignedShort(bytes);
             }
-        } else if (name == "LocalVariableTable") {
+        }
+        else if (name == "LocalVariableTable") {
             uint16_t localVariableTableLength = readUnsignedShort(bytes);
             for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
                 uint16_t startPc = readUnsignedShort(bytes);
@@ -244,8 +245,18 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
                 uint16_t descriptorIndex = readUnsignedShort(bytes);
                 uint16_t index = readUnsignedShort(bytes);
             }
-        } else {
-            std::cout << "Attribute parsing not implemented yet" << std::endl;
+        }
+        else if (name == "SourceFile") {
+            uint16_t sourceFileIndex = readUnsignedShort(bytes);
+            AttributeSourceFile* att = new AttributeSourceFile();
+            att->attributeNameIndex = attributeNameIndex;
+            att->attributeLength = attributeLength;
+            att->sourceFileIndex = sourceFileIndex;
+            
+            attributes.push_back(att);
+        }
+        else {
+            std::cout << "Attribute parsing not implemented yet for type: " << name << std::endl;
             exit(1);
         }           
     }
@@ -256,6 +267,11 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
 ClassLoader::ClassLoader()
     : bytePtr(0u)
 {
+}
+
+inline static AttributeSourceFile* getSourceFileAttribute(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool)
+{
+    return (AttributeSourceFile*)findAttributeWithName(attributes, constantPool, "SourceFile");
 }
 
 ClassInfo ClassLoader::readClass(uint8_t* bytes)
@@ -276,6 +292,15 @@ ClassInfo ClassLoader::readClass(uint8_t* bytes)
     classInfo.fields = readFields(bytes, classInfo.constantPool);
     classInfo.methods = readMethods(bytes, classInfo.constantPool);
     classInfo.isPublic = ((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
+
+    std::vector<AttributeInfo*> attributeInfo = readAttributes(bytes, classInfo.constantPool);
+    classInfo.attributes = attributeInfo;
+    // TODO: Don't crash when this is not defined
+    AttributeSourceFile* sourceFile = getSourceFileAttribute(attributeInfo, classInfo.constantPool);
+
+    if (sourceFile != NULL) {
+        classInfo.sourceFile = classInfo.constantPool.getString(sourceFile->sourceFileIndex);
+    }
 
     return classInfo;
 }

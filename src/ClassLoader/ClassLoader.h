@@ -16,6 +16,7 @@ struct ExceptionTableEntry {
 struct AttributeInfo {
 	uint16_t attributeNameIndex;
 	uint32_t attributeLength;
+	virtual std::string toString(const ConstantPool& cp) { return ""; }
 };
 
 struct AttributeConstantValue : public AttributeInfo {
@@ -29,6 +30,13 @@ struct AttributeCode : public AttributeInfo {
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
 	std::vector<AttributeInfo*> attributes;
+};
+
+struct AttributeSourceFile : public AttributeInfo {
+	uint16_t sourceFileIndex;
+	std::string toString(const ConstantPool& cp) {
+		return "SourceFile: \"" + cp.getString(sourceFileIndex) + "\"";
+	}
 };
 
 class FieldInfo {
@@ -109,6 +117,8 @@ public:
 	std::vector<FieldInfo> fields;
 	std::vector<MethodInfo> methods;
 	std::vector<AccessFlag> getAccessFlags() const;
+	std::vector<AttributeInfo*> attributes;
+	std::string sourceFile;
 	bool isPublic;
 };
 

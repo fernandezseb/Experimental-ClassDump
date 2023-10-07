@@ -497,6 +497,10 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "  Last modified " << time << "; size " << classInfo.size << " bytes" << std::endl;
 	std::cout << "  MD5 checksum " << classInfo.md5 << std::endl;
 
+	if (classInfo.sourceFile != "") {
+		std::cout << "  Compiled from \"" << classInfo.sourceFile << "\"" << std::endl;
+	}
+
 	const ConstantPool& cp = classInfo.constantPool;
 	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
 	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
@@ -573,5 +577,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "}" << std::endl;
 
-
+	for (AttributeInfo* att : classInfo.attributes) {
+		std::cout << att->toString(cp) << std::endl;
+	}
 }
