@@ -228,6 +228,7 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
             att->attributes = attribs;
             AttributeLineNumberTable *lineNumberTable = (AttributeLineNumberTable*) findAttributeWithName(attribs, constantPool, "LineNumberTable");
             att->lineNumberTable = lineNumberTable;
+            att->localVariableTable = (AttributeLocalVariableTable*)findAttributeWithName(attribs, constantPool, "LocalVariableTable");
 
             attributes.push_back(att);
         }
@@ -248,13 +249,24 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
         }
         else if (name == "LocalVariableTable") {
             uint16_t localVariableTableLength = readUnsignedShort(bytes);
+            AttributeLocalVariableTable* att = new AttributeLocalVariableTable();
+            att->attributeNameIndex = attributeNameIndex;
+            att->attributeLength = attributeLength;
             for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
                 uint16_t startPc = readUnsignedShort(bytes);
                 uint16_t length = readUnsignedShort(bytes);
                 uint16_t nameIndex = readUnsignedShort(bytes);
                 uint16_t descriptorIndex = readUnsignedShort(bytes);
                 uint16_t index = readUnsignedShort(bytes);
+                LocalVariableTableEntry* entry = new LocalVariableTableEntry();
+                entry->startPc = startPc;
+                entry->length = length;
+                entry->nameIndex = nameIndex;
+                entry->descriptorIndex = descriptorIndex;
+                entry->index = index;
+                att->entries.push_back(entry);
             }
+            attributes.push_back(att);
         }
         else if (name == "SourceFile") {
             uint16_t sourceFileIndex = readUnsignedShort(bytes);

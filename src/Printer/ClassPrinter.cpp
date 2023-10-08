@@ -290,12 +290,19 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		}
 	}
 
-	//std::cout << "      Exceptions: " << std::endl;
+	if (code->localVariableTable != NULL) {
+		std::cout << "      LocalVariableTable:" << std::endl;
+		std::cout << "        Start  Length  Slot  Name   Signature" << std::endl;
 
-	//for (ExceptionTableEntry entry : code->exceptionTable) {
-	//	std::cout << "PC Range: " << entry.startPc << " - " << entry.endPc
-	//		<< " handlerPC: " << entry.handlerPc << " Catch type: " << entry.catchType << std::endl;
-	//}
+		for (LocalVariableTableEntry* entry : code->localVariableTable->entries) {
+			std::cout << "        " << std::right << std::setfill(' ') << std::setw(5) << entry->startPc;
+			std::cout << "  " << std::right << std::setfill(' ') << std::setw(6) << entry->length;
+			std::cout << "  " << std::right << std::setfill(' ') << std::setw(4) << entry->index;
+			std::cout << "  " << std::right << std::setfill(' ') << std::setw(4) << cp.getString(entry->nameIndex);
+			std::cout << "   " << std::left << std::setfill(' ') << std::setw(10) << cp.getString(entry->descriptorIndex);
+			std::cout << std::endl;
+		}
+	}
 
 }
 

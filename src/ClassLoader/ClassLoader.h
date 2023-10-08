@@ -24,6 +24,7 @@ struct AttributeConstantValue : public AttributeInfo {
 };
 
 struct AttributeLineNumberTable;
+struct AttributeLocalVariableTable;
 
 struct AttributeCode : public AttributeInfo {
 	uint16_t maxStack;
@@ -33,6 +34,7 @@ struct AttributeCode : public AttributeInfo {
 	std::vector<ExceptionTableEntry> exceptionTable;
 	std::vector<AttributeInfo*> attributes;
 	AttributeLineNumberTable *lineNumberTable;
+	AttributeLocalVariableTable* localVariableTable;
 };
 
 struct AttributeSourceFile : public AttributeInfo {
@@ -49,6 +51,18 @@ struct LineNumberTableEntry {
 
 struct AttributeLineNumberTable :public AttributeInfo {
 	std::vector<LineNumberTableEntry*> entries;
+};
+
+struct LocalVariableTableEntry {
+	uint16_t startPc;
+	uint16_t length;
+	uint16_t nameIndex;
+	uint16_t descriptorIndex;
+	uint16_t index;
+};
+
+struct AttributeLocalVariableTable :public AttributeInfo {
+	std::vector<LocalVariableTableEntry*> entries;
 };
 
 class FieldInfo {
