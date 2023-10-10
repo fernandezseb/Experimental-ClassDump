@@ -193,6 +193,68 @@ std::vector<ExceptionTableEntry> ClassLoader::readExceptionTable(uint8_t* bytes)
     return table;
 }
 
+void ClassLoader::readStackMapTable(uint8_t* bytes) {
+    uint16_t numberOfEntries = readUnsignedShort(bytes);
+    //printf("[%" PRIu16 "] \n", numberOfEntries);
+    for (uint16_t currentEntry = 0; currentEntry < numberOfEntries; currentEntry++) {
+        uint8_t frameType = readUnsignedByte(bytes);
+        if (frameType >= 0 && frameType <= 63) {
+            // same frame
+        }
+        else if (frameType >= 64 && frameType <= 127) {
+            // same locals 1 stack item frame
+            uint8_t tag = readUnsignedByte(bytes);
+            if (tag == 7 || tag == 8) {
+                uint16_t crap = readUnsignedShort(bytes);
+            }
+
+        }
+        else if (frameType == 247) {
+            // same locals 1 stack item frame extended
+        }
+        else if (frameType >= 248 && frameType <= 250) {
+            // chop frame
+            uint16_t offsetDelta = readUnsignedShort(bytes);
+        }
+        else if (frameType == 251) {
+            uint16_t offsetDelta = readUnsignedShort(bytes);
+            // same frame extended
+        }
+        else if (frameType >= 252 && frameType <= 254) {
+            // append frame
+            uint16_t offsetDelta = readUnsignedShort(bytes);
+            for (uint16_t currentLocal = 0; currentLocal < (frameType - 251); currentLocal++) {
+                uint8_t tag = readUnsignedByte(bytes);
+                if (tag == 7 || tag == 8) {
+                    uint16_t crap = readUnsignedShort(bytes);
+                }
+            }
+        }
+        else if (frameType == 255) {
+            // full frame
+            uint16_t offsetDelta = readUnsignedShort(bytes);
+            uint16_t numberOfLocals = readUnsignedShort(bytes);
+            for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; currentLocal++) {
+                uint8_t tag = readUnsignedByte(bytes);
+                if (tag == 7 || tag == 8) {
+                    uint16_t crap = readUnsignedShort(bytes);
+                }
+            }
+            uint16_t numberOfStackItems = readUnsignedShort(bytes);
+            for (uint16_t currentLocal = 0; currentLocal < numberOfStackItems; currentLocal++) {
+                uint8_t tag = readUnsignedByte(bytes);
+                if (tag == 7 || tag == 8) {
+                    uint16_t crap = readUnsignedShort(bytes);
+                }
+            }
+        }
+        else {
+            std::cout << "Unknown frame type detected:" << (unsigned int) frameType;
+            exit(1);
+        }
+    }
+}
+
 std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, ConstantPool& constantPool)
 {
     std::vector<AttributeInfo*> attributes;
@@ -276,6 +338,9 @@ std::vector<AttributeInfo*> ClassLoader::readAttributes(uint8_t* bytes, Constant
             att->sourceFileIndex = sourceFileIndex;
             
             attributes.push_back(att);
+        }
+        else if (name == "StackMapTable") {
+            readStackMapTable(bytes);
         }
         else {
             std::cout << "Attribute parsing not implemented yet for type: " << name << std::endl;

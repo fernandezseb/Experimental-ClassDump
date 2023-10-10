@@ -160,6 +160,7 @@ private:
 	ConstantPoolItem* readConstantPoolItem(uint8_t tag, uint8_t* bytes);
 	ExceptionTableEntry readExceptionTableEntry(uint8_t* bytes);
 	std::vector<ExceptionTableEntry> readExceptionTable(uint8_t* bytes);
+	void readStackMapTable(uint8_t* bytes);
 	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes, ConstantPool& constantPool);
 	void parseDescriptor(const std::string& descriptor, MethodInfo& method);
 public:
