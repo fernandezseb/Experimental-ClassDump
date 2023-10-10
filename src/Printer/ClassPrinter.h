@@ -203,6 +203,8 @@ enum Opcode : uint8_t {
 
 void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
 
+void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
+
 void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp);
 
 void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp);
@@ -211,7 +213,7 @@ struct Instruction {
 	Opcode opcode;
 	uint8_t args;
 	const char* name;
-	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool& cp) = DefaultPrinter;
+	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool& cp) = NULL;
 };
 
 class ClassPrinter {

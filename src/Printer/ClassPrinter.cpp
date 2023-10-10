@@ -221,8 +221,13 @@ void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ClassInfo& cl
 
 void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 {
+}
+
+void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+{
 	for (uint8_t arg : args) {
-		std::cout << " " << (unsigned int) arg;
+		int8_t signedInt = *reinterpret_cast<int8_t*>(&arg);
+		std::cout << " " << std::to_string(signedInt);
 	}
 }
 
@@ -271,14 +276,17 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 						args.push_back(code->code[++index]);
 					}
 				}
-				instruction.printFunction(args, cp);
+				if (instruction.printFunction != NULL) {
+					instruction.printFunction(args, cp);
+				}
 				
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			std::cout << "|" << index << " [" << (int)opcode << "]";
+			std::cout << "Instruction with opcode: " << (int)opcode << " unrecognized" << std::endl;
+			exit(1);
 		}
 		std::cout << std::endl;
 	}
@@ -308,191 +316,191 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 ClassPrinter::ClassPrinter()
 {
-	instructions.push_back({nop, 0, "nop", DefaultPrinter});
-	instructions.push_back({ bipush, 1, "bipush", DefaultPrinter});
-	instructions.push_back({ istore_0, 0, "istore_0", DefaultPrinter });
-	instructions.push_back({ istore_1, 0, "istore_1", DefaultPrinter});
-	instructions.push_back({ istore_2, 0, "istore_2", DefaultPrinter});
-	instructions.push_back({ istore_3, 0, "istore_3", DefaultPrinter });
-	instructions.push_back({ i_return, 0, "return", DefaultPrinter});
+	instructions.push_back({nop, 0, "nop"});
+	instructions.push_back({ bipush, 1, "bipush", SignedBytePrinter});
+	instructions.push_back({ istore_0, 0, "istore_0"});
+	instructions.push_back({ istore_1, 0, "istore_1"});
+	instructions.push_back({ istore_2, 0, "istore_2"});
+	instructions.push_back({ istore_3, 0, "istore_3"});
+	instructions.push_back({ i_return, 0, "return"});
 	instructions.push_back({ i_new, 2, "new", ShortIndices});
-	instructions.push_back({ dup, 0, "dup", DefaultPrinter});
+	instructions.push_back({ dup, 0, "dup"});
 	instructions.push_back({ invokespecial, 2, "invokespecial", ShortIndices});
-	instructions.push_back({ aaload, 0, "aaload", DefaultPrinter });
-	instructions.push_back({ aastore, 0, "aastore", DefaultPrinter });
-	instructions.push_back({ aconst_null, 0, "aconst_null", DefaultPrinter });
-	instructions.push_back({ aload, 1, "aload", DefaultPrinter });
-	instructions.push_back({ aload_0, 0, "aload_0", DefaultPrinter});
-	instructions.push_back({ aload_1, 0, "aload_1", DefaultPrinter});
-	instructions.push_back({ aload_2, 0, "aload_2", DefaultPrinter });
-	instructions.push_back({ aload_3, 0, "aload_3", DefaultPrinter });
-	instructions.push_back({ anewarray, 0, "anewarray", ShortIndices });
-	instructions.push_back({ areturn, 0, "areturn", DefaultPrinter });
-	instructions.push_back({ aload_1, 0, "aload_1", DefaultPrinter });
-	instructions.push_back({ arraylength, 0, "arraylength", DefaultPrinter });
-	instructions.push_back({ arraylength, 0, "arraylength", DefaultPrinter });
-	instructions.push_back({ astore, 1, "astore", DefaultPrinter });
-	instructions.push_back({ arraylength, 0, "arraylength", DefaultPrinter });
-	instructions.push_back({ astore_0, 0, "astore_0", DefaultPrinter });
-	instructions.push_back({ astore_1, 0, "astore_1", DefaultPrinter});
-	instructions.push_back({ astore_2, 0, "astore_2", DefaultPrinter });
-	instructions.push_back({ astore_3, 0, "astore_3", DefaultPrinter });
-	instructions.push_back({ aload_0, 0, "aload_0", DefaultPrinter});
-	instructions.push_back({ ldc, 1, "ldc", ByteIndices });
+	instructions.push_back({ aaload, 0, "aaload"});
+	instructions.push_back({ aastore, 0, "aastore"});
+	instructions.push_back({ aconst_null, 0, "aconst_null" });
+	instructions.push_back({ aload, 1, "aload", SignedBytePrinter });
+	instructions.push_back({ aload_0, 0, "aload_0"});
+	instructions.push_back({ aload_1, 0, "aload_1"});
+	instructions.push_back({ aload_2, 0, "aload_2" });
+	instructions.push_back({ aload_3, 0, "aload_3" });
+	instructions.push_back({ anewarray, 0, "anewarray", ShortIndices }); // TODO: Check
+	instructions.push_back({ areturn, 0, "areturn"});
+	instructions.push_back({ aload_1, 0, "aload_1" });
+	instructions.push_back({ arraylength, 0, "arraylength" });
+	instructions.push_back({ arraylength, 0, "arraylength" });
+	instructions.push_back({ astore, 1, "astore", SignedBytePrinter });
+	instructions.push_back({ arraylength, 0, "arraylength" });
+	instructions.push_back({ astore_0, 0, "astore_0" });
+	instructions.push_back({ astore_1, 0, "astore_1"});
+	instructions.push_back({ astore_2, 0, "astore_2" });
+	instructions.push_back({ astore_3, 0, "astore_3" });
+	instructions.push_back({ aload_0, 0, "aload_0"});
+	instructions.push_back({ ldc, 1, "ldc", SignedBytePrinter });
 	instructions.push_back({ ldc_w, 2, "ldc_w", ShortIndices });
 	instructions.push_back({ ldc2_w, 2, "ldc2_w", ShortIndices });
 	instructions.push_back({ invokevirtual, 2, "invokevirtual", ShortIndices });
 	instructions.push_back({ invokestatic, 2, "invokestatic", ShortIndices });
-	instructions.push_back({ athrow, 0, "athrow", DefaultPrinter });
-	instructions.push_back({ baload, 0, "baload", DefaultPrinter });
-	instructions.push_back({ bastore, 0, "bastore", DefaultPrinter });
-	instructions.push_back({ caload, 0, "caload", DefaultPrinter });
-	instructions.push_back({ castore, 0, "castore", DefaultPrinter });
+	instructions.push_back({ athrow, 0, "athrow" });
+	instructions.push_back({ baload, 0, "baload" });
+	instructions.push_back({ bastore, 0, "bastore" });
+	instructions.push_back({ caload, 0, "caload" });
+	instructions.push_back({ castore, 0, "castore" });
 	instructions.push_back({ checkcast, 2, "checkcast", ShortIndices });
-	instructions.push_back({ d2f, 0, "d2f", DefaultPrinter });
-	instructions.push_back({ d2i, 0, "d2i", DefaultPrinter });
-	instructions.push_back({ d2l, 0, "d2l", DefaultPrinter });
-	instructions.push_back({ dadd, 0, "dadd", DefaultPrinter });
-	instructions.push_back({ daload, 0, "daload", DefaultPrinter });
-	instructions.push_back({ dastore, 0, "dastore", DefaultPrinter });
-	instructions.push_back({ dconst_0, 0, "dconst_0", DefaultPrinter });
-	instructions.push_back({ dconst_1, 0, "dconst_1", DefaultPrinter });
-	instructions.push_back({ ddiv, 0, "ddiv", DefaultPrinter });
-	instructions.push_back({ dload, 0, "dload", DefaultPrinter });
-	instructions.push_back({ dload_0, 0, "dload_0", DefaultPrinter });
-	instructions.push_back({ dload_1, 0, "dload_1", DefaultPrinter });
-	instructions.push_back({ dload_2, 0, "dload_2", DefaultPrinter });
-	instructions.push_back({ dload_3, 0, "dload_3", DefaultPrinter });
-	instructions.push_back({ dmul, 0, "dmul", DefaultPrinter });
-	instructions.push_back({ dneg, 0, "dneg", DefaultPrinter });
-	instructions.push_back({ drem, 0, "drem", DefaultPrinter });
-	instructions.push_back({ dreturn, 0, "dreturn", DefaultPrinter });
-	instructions.push_back({ dstore, 1, "dstore", DefaultPrinter });
-	instructions.push_back({ dstore_0, 0, "dstore_0", DefaultPrinter });
-	instructions.push_back({ dstore_1, 0, "dstore_1", DefaultPrinter });
-	instructions.push_back({ dstore_2, 0, "dstore_2", DefaultPrinter });
-	instructions.push_back({ dstore_3, 0, "dstore_3", DefaultPrinter });
-	instructions.push_back({ dsub, 0, "dsub", DefaultPrinter });
-	instructions.push_back({ dup, 0, "dup", DefaultPrinter });
-	instructions.push_back({ dup_x1, 0, "dup_x1", DefaultPrinter });
-	instructions.push_back({ dup_x2, 0, "dup_x2", DefaultPrinter });
-	instructions.push_back({ dup2, 0, "dup2", DefaultPrinter });
-	instructions.push_back({ dup2_x1, 0, "dup2_x1", DefaultPrinter });
-	instructions.push_back({ dup2_x2, 0, "dup2_x2", DefaultPrinter });
-	instructions.push_back({ f2d, 0, "f2d", DefaultPrinter });
-	instructions.push_back({ f2i, 0, "f2i", DefaultPrinter });
-	instructions.push_back({ f2l, 0, "f2l", DefaultPrinter });
-	instructions.push_back({ fadd, 0, "fadd", DefaultPrinter });
-	instructions.push_back({ faload, 0, "faload", DefaultPrinter });
-	instructions.push_back({ fastore, 0, "fastore", DefaultPrinter });
-	instructions.push_back({ fconst_0, 0, "fconst_0", DefaultPrinter });
-	instructions.push_back({ fconst_1, 0, "fconst_1", DefaultPrinter });
-	instructions.push_back({ fconst_2, 0, "fconst_2", DefaultPrinter });
-	instructions.push_back({ fdiv, 0, "fdiv", DefaultPrinter });
-	instructions.push_back({ fload, 1, "fload", DefaultPrinter });
-	instructions.push_back({ fload_0, 0, "fload_0", DefaultPrinter });
-	instructions.push_back({ fload_1, 0, "fload_1", DefaultPrinter });
-	instructions.push_back({ fload_2, 0, "fload_2", DefaultPrinter });
-	instructions.push_back({ fload_3, 0, "fload_3", DefaultPrinter });
-	instructions.push_back({ fmul, 0, "fmul", DefaultPrinter });
-	instructions.push_back({ fneg, 0, "fneg", DefaultPrinter });
-	instructions.push_back({ frem, 0, "frem", DefaultPrinter });
-	instructions.push_back({ freturn, 0, "freturn", DefaultPrinter });
-	instructions.push_back({ fstore, 1, "fstore", DefaultPrinter });
-	instructions.push_back({ fstore_0, 0, "fstore_0", DefaultPrinter });
-	instructions.push_back({ fstore_1, 0, "fstore_1", DefaultPrinter });
-	instructions.push_back({ fstore_2, 0, "fstore_2", DefaultPrinter });
-	instructions.push_back({ fstore_3, 0, "fstore_3", DefaultPrinter });
-	instructions.push_back({ fsub, 0, "fsub", DefaultPrinter });
+	instructions.push_back({ d2f, 0, "d2f" });
+	instructions.push_back({ d2i, 0, "d2i" });
+	instructions.push_back({ d2l, 0, "d2l" });
+	instructions.push_back({ dadd, 0, "dadd" });
+	instructions.push_back({ daload, 0, "daload" });
+	instructions.push_back({ dastore, 0, "dastore" });
+	instructions.push_back({ dconst_0, 0, "dconst_0" });
+	instructions.push_back({ dconst_1, 0, "dconst_1" });
+	instructions.push_back({ ddiv, 0, "ddiv" });
+	instructions.push_back({ dload, 0, "dload" });
+	instructions.push_back({ dload_0, 0, "dload_0" });
+	instructions.push_back({ dload_1, 0, "dload_1" });
+	instructions.push_back({ dload_2, 0, "dload_2" });
+	instructions.push_back({ dload_3, 0, "dload_3" });
+	instructions.push_back({ dmul, 0, "dmul" });
+	instructions.push_back({ dneg, 0, "dneg" });
+	instructions.push_back({ drem, 0, "drem" });
+	instructions.push_back({ dreturn, 0, "dreturn" });
+	instructions.push_back({ dstore, 1, "dstore", SignedBytePrinter });
+	instructions.push_back({ dstore_0, 0, "dstore_0" });
+	instructions.push_back({ dstore_1, 0, "dstore_1" });
+	instructions.push_back({ dstore_2, 0, "dstore_2" });
+	instructions.push_back({ dstore_3, 0, "dstore_3" });
+	instructions.push_back({ dsub, 0, "dsub" });
+	instructions.push_back({ dup, 0, "dup" });
+	instructions.push_back({ dup_x1, 0, "dup_x1" });
+	instructions.push_back({ dup_x2, 0, "dup_x2" });
+	instructions.push_back({ dup2, 0, "dup2" });
+	instructions.push_back({ dup2_x1, 0, "dup2_x1" });
+	instructions.push_back({ dup2_x2, 0, "dup2_x2" });
+	instructions.push_back({ f2d, 0, "f2d" });
+	instructions.push_back({ f2i, 0, "f2i" });
+	instructions.push_back({ f2l, 0, "f2l" });
+	instructions.push_back({ fadd, 0, "fadd" });
+	instructions.push_back({ faload, 0, "faload" });
+	instructions.push_back({ fastore, 0, "fastore" });
+	instructions.push_back({ fconst_0, 0, "fconst_0" });
+	instructions.push_back({ fconst_1, 0, "fconst_1" });
+	instructions.push_back({ fconst_2, 0, "fconst_2" });
+	instructions.push_back({ fdiv, 0, "fdiv" });
+	instructions.push_back({ fload, 1, "fload", SignedBytePrinter });
+	instructions.push_back({ fload_0, 0, "fload_0" });
+	instructions.push_back({ fload_1, 0, "fload_1" });
+	instructions.push_back({ fload_2, 0, "fload_2" });
+	instructions.push_back({ fload_3, 0, "fload_3" });
+	instructions.push_back({ fmul, 0, "fmul" });
+	instructions.push_back({ fneg, 0, "fneg" });
+	instructions.push_back({ frem, 0, "frem" });
+	instructions.push_back({ freturn, 0, "freturn" });
+	instructions.push_back({ fstore, 1, "fstore", SignedBytePrinter });
+	instructions.push_back({ fstore_0, 0, "fstore_0" });
+	instructions.push_back({ fstore_1, 0, "fstore_1" });
+	instructions.push_back({ fstore_2, 0, "fstore_2" });
+	instructions.push_back({ fstore_3, 0, "fstore_3" });
+	instructions.push_back({ fsub, 0, "fsub" });
 	instructions.push_back({ getfield, 2, "getfield", ShortIndices });
 	instructions.push_back({ getstatic, 2, "getstatic", ShortIndices });
 	instructions.push_back({ i_goto, 2, "goto", ShortIndices });
 	instructions.push_back({ goto_w, 4, "goto_w", ShortIndices }); // TODO: needs to be a wider printer
-	instructions.push_back({ i2b, 0, "i2b", DefaultPrinter });
-	instructions.push_back({ i2c, 0, "i2c", DefaultPrinter });
-	instructions.push_back({ i2d, 0, "i2d", DefaultPrinter });
-	instructions.push_back({ i2f, 0, "i2f", DefaultPrinter });
-	instructions.push_back({ i2l, 0, "i2l", DefaultPrinter });
-	instructions.push_back({ i2s, 0, "i2s", DefaultPrinter });
-	instructions.push_back({ iadd, 0, "iadd", DefaultPrinter });
-	instructions.push_back({ iaload, 0, "iaload", DefaultPrinter });
-	instructions.push_back({ iand, 0, "iand", DefaultPrinter });
-	instructions.push_back({ iastore, 0, "iastore", DefaultPrinter });
-	instructions.push_back({ iconst_m1, 0, "iconst_m1", DefaultPrinter });
-	instructions.push_back({ iconst_0, 0, "iconst_0", DefaultPrinter });
-	instructions.push_back({ iconst_1, 0, "iconst_1", DefaultPrinter });
-	instructions.push_back({ iconst_2, 0, "iconst_2", DefaultPrinter });
-	instructions.push_back({ iconst_3, 0, "iconst_3", DefaultPrinter });
-	instructions.push_back({ iconst_4, 0, "iconst_4", DefaultPrinter });
-	instructions.push_back({ iconst_5, 0, "iconst_5", DefaultPrinter });
-	instructions.push_back({ idiv, 0, "idiv", DefaultPrinter });
-	instructions.push_back({ iinc, 2, "iinc", DefaultPrinter });
-	instructions.push_back({ iload, 1, "iload", DefaultPrinter });
-	instructions.push_back({ iload_0, 0, "iload_0", DefaultPrinter });
-	instructions.push_back({ iload_1, 0, "iload_1", DefaultPrinter });
-	instructions.push_back({ iload_2, 0, "iload_2", DefaultPrinter });
-	instructions.push_back({ iload_3, 0, "iload_3", DefaultPrinter });
-	instructions.push_back({ imul, 0, "imul", DefaultPrinter });
-	instructions.push_back({ ineg, 0, "ineg", DefaultPrinter });
+	instructions.push_back({ i2b, 0, "i2b" });
+	instructions.push_back({ i2c, 0, "i2c" });
+	instructions.push_back({ i2d, 0, "i2d" });
+	instructions.push_back({ i2f, 0, "i2f" });
+	instructions.push_back({ i2l, 0, "i2l" });
+	instructions.push_back({ i2s, 0, "i2s" });
+	instructions.push_back({ iadd, 0, "iadd" });
+	instructions.push_back({ iaload, 0, "iaload" });
+	instructions.push_back({ iand, 0, "iand" });
+	instructions.push_back({ iastore, 0, "iastore" });
+	instructions.push_back({ iconst_m1, 0, "iconst_m1" });
+	instructions.push_back({ iconst_0, 0, "iconst_0" });
+	instructions.push_back({ iconst_1, 0, "iconst_1" });
+	instructions.push_back({ iconst_2, 0, "iconst_2" });
+	instructions.push_back({ iconst_3, 0, "iconst_3" });
+	instructions.push_back({ iconst_4, 0, "iconst_4" });
+	instructions.push_back({ iconst_5, 0, "iconst_5" });
+	instructions.push_back({ idiv, 0, "idiv" });
+	instructions.push_back({ iinc, 2, "iinc", SignedBytePrinter });
+	instructions.push_back({ iload, 1, "iload", SignedBytePrinter });
+	instructions.push_back({ iload_0, 0, "iload_0" });
+	instructions.push_back({ iload_1, 0, "iload_1" });
+	instructions.push_back({ iload_2, 0, "iload_2" });
+	instructions.push_back({ iload_3, 0, "iload_3" });
+	instructions.push_back({ imul, 0, "imul" });
+	instructions.push_back({ ineg, 0, "ineg" });
 	instructions.push_back({ instanceof, 2, "instanceof", ShortIndices });
 	instructions.push_back({ invokedynamic, 4, "invokedynamic", ShortIndices }); // TODO: Investigate 0 0
-	instructions.push_back({ invokeinterface, 4, "invokeinterface", DefaultPrinter }); // TODO: Investigate
+	instructions.push_back({ invokeinterface, 4, "invokeinterface", SignedBytePrinter }); // TODO: Investigate
 	instructions.push_back({ invokespecial, 2, "invokespecial", ShortIndices });
-	instructions.push_back({ ior, 0, "ior", DefaultPrinter });
-	instructions.push_back({ irem, 0, "irem", DefaultPrinter });
-	instructions.push_back({ ior, 0, "ior", DefaultPrinter });
-	instructions.push_back({ ireturn, 0, "ireturn", DefaultPrinter });
-	instructions.push_back({ ishr, 0, "ishr", DefaultPrinter });
-	instructions.push_back({ istore, 1, "istore", DefaultPrinter });
-	instructions.push_back({ isub, 0, "isub", DefaultPrinter });
-	instructions.push_back({ iushr, 0, "iushr", DefaultPrinter });
-	instructions.push_back({ ixor, 0, "ixor", DefaultPrinter });
+	instructions.push_back({ ior, 0, "ior" });
+	instructions.push_back({ irem, 0, "irem" });
+	instructions.push_back({ ior, 0, "ior" });
+	instructions.push_back({ ireturn, 0, "ireturn" });
+	instructions.push_back({ ishr, 0, "ishr" });
+	instructions.push_back({ istore, 1, "istore", SignedBytePrinter });
+	instructions.push_back({ isub, 0, "isub" });
+	instructions.push_back({ iushr, 0, "iushr" });
+	instructions.push_back({ ixor, 0, "ixor" });
 	instructions.push_back({ jsr, 2, "jsr", ShortIndices });
 	instructions.push_back({ jsr_w, 0, "jsr_w", ShortIndices }); // TODO: Use wide printer
-	instructions.push_back({ l2d, 0, "l2d", DefaultPrinter });
-	instructions.push_back({ l2f, 0, "l2f", DefaultPrinter });
-	instructions.push_back({ l2i, 0, "l2i", DefaultPrinter });
-	instructions.push_back({ ladd, 0, "ladd", DefaultPrinter });
-	instructions.push_back({ laload, 0, "laload", DefaultPrinter });
-	instructions.push_back({ land, 0, "land", DefaultPrinter });
-	instructions.push_back({ lastore, 0, "lastore", DefaultPrinter });
-	instructions.push_back({ lconst_0, 0, "lconst_0", DefaultPrinter });
-	instructions.push_back({ lconst_1, 0, "lconst_1", DefaultPrinter });
-	instructions.push_back({ i_ldiv, 0, "ldiv", DefaultPrinter });
-	instructions.push_back({ lload, 1, "lload", DefaultPrinter });
-	instructions.push_back({ lload_0, 0, "lload_0", DefaultPrinter });
-	instructions.push_back({ lload_1, 0, "lload_1", DefaultPrinter });
-	instructions.push_back({ lload_2, 0, "lload_2", DefaultPrinter });
-	instructions.push_back({ lload_3, 0, "lload_3", DefaultPrinter });
-	instructions.push_back({ lmul, 0, "lmul", DefaultPrinter });
-	instructions.push_back({ lneg, 0, "lneg", DefaultPrinter });
+	instructions.push_back({ l2d, 0, "l2d" });
+	instructions.push_back({ l2f, 0, "l2f" });
+	instructions.push_back({ l2i, 0, "l2i" });
+	instructions.push_back({ ladd, 0, "ladd" });
+	instructions.push_back({ laload, 0, "laload" });
+	instructions.push_back({ land, 0, "land", });
+	instructions.push_back({ lastore, 0, "lastore" });
+	instructions.push_back({ lconst_0, 0, "lconst_0" });
+	instructions.push_back({ lconst_1, 0, "lconst_1" });
+	instructions.push_back({ i_ldiv, 0, "ldiv" });
+	instructions.push_back({ lload, 1, "lload", SignedBytePrinter });
+	instructions.push_back({ lload_0, 0, "lload_0" });
+	instructions.push_back({ lload_1, 0, "lload_1" });
+	instructions.push_back({ lload_2, 0, "lload_2" });
+	instructions.push_back({ lload_3, 0, "lload_3" });
+	instructions.push_back({ lmul, 0, "lmul" });
+	instructions.push_back({ lneg, 0, "lneg" });
 	// TODO: implementlookupswitch
-	instructions.push_back({ lor, 0, "lor", DefaultPrinter });
-	instructions.push_back({ lrem, 0, "lrem", DefaultPrinter });
-	instructions.push_back({ lreturn, 0, "lreturn", DefaultPrinter });
-	instructions.push_back({ lshl, 0, "lshl", DefaultPrinter });
-	instructions.push_back({ lshr, 0, "lshr", DefaultPrinter });
-	instructions.push_back({ lstore, 1, "lstore", DefaultPrinter });
-	instructions.push_back({ lstore_0, 0, "lstore_0", DefaultPrinter });
-	instructions.push_back({ lstore_1, 0, "lstore_1", DefaultPrinter });
-	instructions.push_back({ lstore_2, 0, "lstore_2", DefaultPrinter });
-	instructions.push_back({ lstore_3, 0, "lstore_3", DefaultPrinter });
-	instructions.push_back({ lsub, 0, "lsub", DefaultPrinter });
-	instructions.push_back({ lushr, 0, "lushr", DefaultPrinter });
-	instructions.push_back({ lxor, 0, "lxor", DefaultPrinter });
-	instructions.push_back({ monitorenter, 0, "monitorenter", DefaultPrinter });
-	instructions.push_back({ monitorexit, 0, "monitorexit", DefaultPrinter });
-	instructions.push_back({ multianewarray, 3, "multianewarray", DefaultPrinter }); // Look into custom printer
-	instructions.push_back({ newarray, 1, "newarray", DefaultPrinter }); // TODO: Look into printing the type
-	instructions.push_back({ nop, 0, "nop", DefaultPrinter });
-	instructions.push_back({ pop, 0, "pop", DefaultPrinter });
-	instructions.push_back({ pop2, 0, "pop2", DefaultPrinter });
+	instructions.push_back({ lor, 0, "lor" });
+	instructions.push_back({ lrem, 0, "lrem" });
+	instructions.push_back({ lreturn, 0, "lreturn" });
+	instructions.push_back({ lshl, 0, "lshl" });
+	instructions.push_back({ lshr, 0, "lshr" });
+	instructions.push_back({ lstore, 1, "lstore", SignedBytePrinter });
+	instructions.push_back({ lstore_0, 0, "lstore_0" });
+	instructions.push_back({ lstore_1, 0, "lstore_1" });
+	instructions.push_back({ lstore_2, 0, "lstore_2" });
+	instructions.push_back({ lstore_3, 0, "lstore_3" });
+	instructions.push_back({ lsub, 0, "lsub" });
+	instructions.push_back({ lushr, 0, "lushr" });
+	instructions.push_back({ lxor, 0, "lxor" });
+	instructions.push_back({ monitorenter, 0, "monitorenter" });
+	instructions.push_back({ monitorexit, 0, "monitorexit" });
+	instructions.push_back({ multianewarray, 3, "multianewarray", SignedBytePrinter }); // Look into custom printer
+	instructions.push_back({ newarray, 1, "newarray", SignedBytePrinter }); // TODO: Look into printing the type
+	instructions.push_back({ nop, 0, "nop" });
+	instructions.push_back({ pop, 0, "pop" });
+	instructions.push_back({ pop2, 0, "pop2" });
 	instructions.push_back({ putstatic, 2, "putstatic", ShortIndices });
-	instructions.push_back({ ret, 1, "ret", DefaultPrinter });
-	instructions.push_back({ saload, 0, "saload", DefaultPrinter });
-	instructions.push_back({ sastore, 0, "sastore", DefaultPrinter });
+	instructions.push_back({ ret, 1, "ret", SignedBytePrinter });
+	instructions.push_back({ saload, 0, "saload" });
+	instructions.push_back({ sastore, 0, "sastore" });
 	instructions.push_back({ sipush, 2, "sipush", ShortIndices });
-	instructions.push_back({ swap, 0, "swap", DefaultPrinter });
+	instructions.push_back({ swap, 0, "swap" });
 	// TODO: Add custom printer for tableswitch
 	// TODO: Add custom printer for wide
 
