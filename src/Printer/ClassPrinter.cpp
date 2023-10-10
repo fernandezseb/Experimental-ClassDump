@@ -264,7 +264,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 	for (uint32_t index = 0; index < code->codeLength; index++) {
 		uint8_t opcode = code->code[index];
 		bool found = false;
-		for (Instruction instruction : this->instructions) {
+		for (const Instruction& instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
 				std::string indexStr = std::to_string(index) + ": ";
 				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr 
@@ -283,6 +283,59 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 				found = true;
 				break;
 			}
+		}
+		if (!found) {
+			if (opcode == 0xab) {
+
+				uint8_t instructionIndex = index;
+				// std::cout << "Current index is: " <<  (unsigned int) index + 1 << std::endl;
+				++index;
+				// Next byte is 4 byte aligned
+				while (index % 4 != 0) {
+					index++;
+				}
+				// std::cout << "Next index is: " << (unsigned int)index << std::endl;
+				uint8_t buffer[4] = { code->code[index++], code->code[index++] , code->code[index++] , code->code[index++] };
+				int32_t defaultOffset = (int32_t)buffer[3] | (int32_t)buffer[2] << 8 | (int32_t)buffer[1] << 16 | (int32_t)buffer[0] << 24;
+				int32_t defaultAddress = instructionIndex + defaultOffset;
+				// std::cout << "default is: " << defaultAddress << std::endl;
+
+				int8_t buffer2[4] = {code->code[index++], code->code[index++] , code->code[index++] , code->code[index++]};
+				int32_t nPairs = (int32_t)buffer2[3] | (int32_t)buffer2[2] << 8 | (int32_t)buffer2[1] << 16 | (int32_t)buffer2[0] << 24;
+				// std::cout << "The amount of npairs is: " << nPairs << std::endl;
+
+				std::string indexStr = std::to_string(instructionIndex) + ": ";
+				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr
+					<< std::left << std::setfill(' ') << std::setw(15) << "lookupswitch";
+
+				std::cout << " { // " << nPairs << std::endl;
+
+				for (int32_t currentPair = 0; currentPair < nPairs; currentPair++) {
+					uint8_t buffer[4] = { code->code[index++], code->code[index++] , code->code[index++] , code->code[index++] };
+					int32_t matchKey = (int32_t)buffer[3] | (int32_t)buffer[2] << 8 | (int32_t)buffer[1] << 16 | (int32_t)buffer[0] << 24;
+
+					int8_t buffer2[4] = { code->code[index++], code->code[index++] , code->code[index++] , code->code[index++] };
+					int32_t offset = (int32_t)buffer2[3] | (int32_t)buffer2[2] << 8 | (int32_t)buffer2[1] << 16 | (int32_t)buffer2[0] << 24;
+					//std::cout << "";
+
+					std::cout << std::right << std::setfill(' ') << std::setw(24) << (matchKey);
+
+					std::cout << ": " << (instructionIndex + offset);
+					std::cout << std::endl;
+				}
+
+				std::cout << std::right << std::setfill(' ') << std::setw(24) << "default";
+
+				std::cout << ": " << (defaultAddress) << std::endl;
+
+				std::cout << "            }";
+
+				// We don't want to be on the next instruction yet
+				index -= 1;
+
+				found = true;
+			}
+
 		}
 		if (!found) {
 			std::cout << "Instruction with opcode: " << (int)opcode << " unrecognized" << std::endl;
@@ -497,7 +550,6 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ lload_3, 0, "lload_3" });
 	instructions.push_back({ lmul, 0, "lmul" });
 	instructions.push_back({ lneg, 0, "lneg" });
-	// TODO: implementlookupswitch
 	instructions.push_back({ lor, 0, "lor" });
 	instructions.push_back({ lrem, 0, "lrem" });
 	instructions.push_back({ lreturn, 0, "lreturn" });
