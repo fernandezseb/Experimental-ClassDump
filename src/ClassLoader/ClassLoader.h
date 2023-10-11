@@ -2,6 +2,7 @@
 
 #include "../Core.h"
 #include "ConstantPool.h"
+#include "ByteArray.h"
 
 // MAGIC NUMBER
 #define MAGIC_NUMBER       0xCAFEBABE
@@ -150,24 +151,21 @@ public:
 
 class ClassLoader {
 private:
-	uint64_t bytePtr;
+	//uint64_t bytePtr;
 private:
-	uint8_t readUnsignedByte(uint8_t* bytes);
-	uint16_t readUnsignedShort(uint8_t* bytes);
-	uint32_t readUnsignedInt(uint8_t* bytes);
-	void checkMagicNumber(uint8_t* bytes);
-	ConstantPool readConstantPool(uint8_t* bytes);
-	ConstantPoolItem* readConstantPoolItem(uint8_t tag, uint8_t* bytes);
-	ExceptionTableEntry readExceptionTableEntry(uint8_t* bytes);
-	std::vector<ExceptionTableEntry> readExceptionTable(uint8_t* bytes);
-	void readStackMapTable(uint8_t* bytes);
-	std::vector<AttributeInfo*> readAttributes(uint8_t* bytes, ConstantPool& constantPool);
+	void checkMagicNumber(ByteArray& byteArray);
+	ConstantPool readConstantPool(ByteArray& byteArray);
+	ConstantPoolItem* readConstantPoolItem(uint8_t tag, ByteArray& byteArray);
+	ExceptionTableEntry readExceptionTableEntry(ByteArray& byteArray);
+	std::vector<ExceptionTableEntry> readExceptionTable(ByteArray& byteArray);
+	void readStackMapTable(ByteArray& byteArray);
+	std::vector<AttributeInfo*> readAttributes(ByteArray& byteArray, ConstantPool& constantPool);
 	void parseDescriptor(const std::string& descriptor, MethodInfo& method);
 public:
 	ClassLoader();
-	ClassInfo readClass(uint8_t* bytes);
+	ClassInfo readClass(ByteArray& byteArray);
 	ClassInfo readClass(const std::string& className);
-	std::vector<uint16_t> readInterfaces(uint8_t* bytes, uint16_t interfacesCount);
-	std::vector<FieldInfo> readFields(uint8_t* bytes, ConstantPool& constantPool);
-	std::vector<MethodInfo> readMethods(uint8_t* bytes, ConstantPool& constantPool);
+	std::vector<uint16_t> readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
+	std::vector<FieldInfo> readFields(ByteArray& byteArray, ConstantPool& constantPool);
+	std::vector<MethodInfo> readMethods(ByteArray& byteArray, ConstantPool& constantPool);
 };
