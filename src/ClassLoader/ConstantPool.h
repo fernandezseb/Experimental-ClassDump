@@ -129,6 +129,7 @@ struct CPLongInfo : public ConstantPoolItem {
 		: ConstantPoolItem(tag), highBytes(highBytes), lowBytes(lowBytes)
 	{
 	}
+	std::string toString();
 };
 
 struct CPDoubleInfo : public ConstantPoolItem {

@@ -124,3 +124,9 @@ std::string CPDoubleInfo::toString()
 	double d = *reinterpret_cast<double*> (&bytes);
 	return std::to_string((double)d) + "d";
 }
+
+std::string CPLongInfo::toString()
+{
+	int64_t bytes = ((int64_t)highBytes << 32) + (int64_t)lowBytes;
+	return std::to_string(bytes) + "l";
+}
