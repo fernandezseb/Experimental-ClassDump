@@ -105,4 +105,5 @@ Even though it is not set in stone, I will be trying to implement as much featur
 * Showing the data to which the code is referring inline
 * Finish all attribute parsing
 * Complete all flag parsing
-* The last opcodes that are not implemented yet
+* The last opcodes that are not implemented yet: lookuptable, wide
+* Print StackMapTable (other method/code attributes)

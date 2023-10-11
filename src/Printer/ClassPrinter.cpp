@@ -268,7 +268,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 			if (((uint8_t)instruction.opcode) == opcode) {
 				std::string indexStr = std::to_string(index) + ": ";
 				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr 
-					<< std::left << std::setfill(' ') << std::setw(15) << instruction.name;
+					<< std::left << std::setfill(' ') << std::setw(13) << instruction.name;
 				
 				std::vector<uint8_t> args;
 				if (instruction.args > 0) {
@@ -306,7 +306,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 				std::string indexStr = std::to_string(instructionIndex) + ": ";
 				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr
-					<< std::left << std::setfill(' ') << std::setw(15) << "lookupswitch";
+					<< std::left << std::setfill(' ') << std::setw(13) << "lookupswitch";
 
 				std::cout << " { // " << nPairs << std::endl;
 
@@ -469,6 +469,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ fsub, 0, "fsub" });
 	instructions.push_back({ getfield, 2, "getfield", ShortIndices });
 	instructions.push_back({ getstatic, 2, "getstatic", ShortIndices });
+	// TODO: we must add the current address to the offset provided by the instruction (GOTO)
 	instructions.push_back({ i_goto, 2, "goto", ShortIndices }); // SIGNED BRANCHOFFSET
 	instructions.push_back({ goto_w, 4, "goto_w", ShortIndices }); // 32 bit SIGNED
 	instructions.push_back({ i2b, 0, "i2b" });
@@ -505,7 +506,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ ifle, 2, "ifle",SignedBytePrinter }); // SIGNED  16 bit offset
 	instructions.push_back({ ifnonnull, 2, "ifnonnull",SignedBytePrinter }); // SIGNED  16 bit offset
 	instructions.push_back({ ifnull, 2, "ifnull",SignedBytePrinter }); // SIGNED  16 bit offset
-	instructions.push_back({ iinc, 2, "iinc", SignedBytePrinter }); // 1 UNSIGNED BYTE LOCAL VARIABLE AND SIGNED BYTE
+	instructions.push_back({ iinc, 2, "iinc", SignedBytePrinter }); // 1 UNSIGNED BYTE LOCAL VARIABLE AND SIGNED BYTE, we need to print both
 	instructions.push_back({ iload, 1, "iload", SignedBytePrinter }); // UNSIGNED BYTE LOCAL VARIABLE
 	instructions.push_back({ iload_0, 0, "iload_0" });
 	instructions.push_back({ iload_1, 0, "iload_1" });
