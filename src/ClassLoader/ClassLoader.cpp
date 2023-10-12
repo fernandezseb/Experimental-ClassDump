@@ -200,7 +200,7 @@ ClassInfo ClassLoader::readClass(const std::string& className)
     }
     catch (const std::exception& ex) {
         std::cout << "Canonical path for " << className << " threw exception:\n"
-            << ex.what() << '\n';
+            << ex.what() << std::endl;
         exit(-1);
     }
     return ClassInfo();

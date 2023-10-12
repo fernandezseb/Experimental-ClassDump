@@ -56,7 +56,7 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray) {
             }
         }
         else {
-            std::cout << "Unknown frame type detected:" << (unsigned int)frameType;
+            std::cout << "Unknown frame type detected:" << (unsigned int)frameType << std::endl;
             exit(1);
         }
     }
