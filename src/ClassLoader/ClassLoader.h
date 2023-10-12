@@ -26,6 +26,7 @@ public:
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
 	bool isPrivate;
+	AttributeCollection attributes;
 	std::vector<AccessFlag> getAccessFlags() const;
 };
 
@@ -54,6 +55,7 @@ public:
 	bool isPublic;
 	bool isStatic;
 	bool isConstructor;
+	AttributeCollection attributes;
 	std::vector<AccessFlag> getAccessFlags() const;
 	std::string returnType;
 	std::vector<std::string> args;

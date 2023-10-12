@@ -234,7 +234,7 @@ std::vector<FieldInfo> ClassLoader::readFields(ByteArray& byteArray, ConstantPoo
         fieldInfo.descriptorIndex = descriptorIndex;
         fieldInfo.nameIndex = nameIndex;
         fieldInfo.isPrivate = ((accessFlags & ACC_PRIVATE) == ACC_PRIVATE);
-        // TODO: Parse attributes and add to FieldInfo
+        fieldInfo.attributes = attributeInfo;
         fields.push_back(fieldInfo);
     }
 
@@ -266,6 +266,7 @@ std::vector<MethodInfo> ClassLoader::readMethods(ByteArray& byteArray, ConstantP
         // TODO: Fix these
         info.code = 0;
         info.isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
+        info.attributes = attributes;
         if (!info.isNative) {
             info.code = (AttributeCode*) attributes.findAttributeWithName(constantPool, "Code");
         }
