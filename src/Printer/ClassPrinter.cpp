@@ -231,6 +231,13 @@ void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 	}
 }
 
+void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	for (uint8_t arg : args) {
+		std::cout << " " << std::to_string(arg);
+	}
+}
+
 void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp)
 {
 	for (uint8_t arg : args) {
@@ -415,7 +422,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ aaload, 0, "aaload"});
 	instructions.push_back({ aastore, 0, "aastore"});
 	instructions.push_back({ aconst_null, 0, "aconst_null" });
-	instructions.push_back({ aload, 1, "aload", SignedBytePrinter }); // UNSIGNED BYTE INDEX TO LOCAL VARIABLE
+	instructions.push_back({ aload, 1, "aload", UnsignedBytePrinter });
 	instructions.push_back({ aload_0, 0, "aload_0"});
 	instructions.push_back({ aload_1, 0, "aload_1"});
 	instructions.push_back({ aload_2, 0, "aload_2" });
@@ -424,7 +431,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ areturn, 0, "areturn"});
 	instructions.push_back({ aload_1, 0, "aload_1" });
 	instructions.push_back({ arraylength, 0, "arraylength" });
-	instructions.push_back({ astore, 1, "astore", SignedBytePrinter }); // UNSIGNED BYTE LOCAL VARIABLE
+	instructions.push_back({ astore, 1, "astore", UnsignedBytePrinter });
 	instructions.push_back({ astore_0, 0, "astore_0" });
 	instructions.push_back({ astore_1, 0, "astore_1"});
 	instructions.push_back({ astore_2, 0, "astore_2" });
@@ -485,7 +492,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ fconst_1, 0, "fconst_1" });
 	instructions.push_back({ fconst_2, 0, "fconst_2" });
 	instructions.push_back({ fdiv, 0, "fdiv" });
-	instructions.push_back({ fload, 1, "fload", SignedBytePrinter }); // UNSIGNED BYTE: LOCAL VARIABLE
+	instructions.push_back({ fload, 1, "fload", UnsignedBytePrinter });
 	instructions.push_back({ fload_0, 0, "fload_0" });
 	instructions.push_back({ fload_1, 0, "fload_1" });
 	instructions.push_back({ fload_2, 0, "fload_2" });
@@ -494,7 +501,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ fneg, 0, "fneg" });
 	instructions.push_back({ frem, 0, "frem" });
 	instructions.push_back({ freturn, 0, "freturn" });
-	instructions.push_back({ fstore, 1, "fstore", SignedBytePrinter }); // UNSIGNED BYTE LOCAL VARIABLE
+	instructions.push_back({ fstore, 1, "fstore", UnsignedBytePrinter });
 	instructions.push_back({ fstore_0, 0, "fstore_0" });
 	instructions.push_back({ fstore_1, 0, "fstore_1" });
 	instructions.push_back({ fstore_2, 0, "fstore_2" });
@@ -540,7 +547,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ ifnonnull, 2, "ifnonnull",SignedBytePrinter }); // SIGNED  16 bit offset
 	instructions.push_back({ ifnull, 2, "ifnull",SignedBytePrinter }); // SIGNED  16 bit offset
 	instructions.push_back({ iinc, 2, "iinc", SignedBytePrinter }); // 1 UNSIGNED BYTE LOCAL VARIABLE AND SIGNED BYTE, we need to print both
-	instructions.push_back({ iload, 1, "iload", SignedBytePrinter }); // UNSIGNED BYTE LOCAL VARIABLE
+	instructions.push_back({ iload, 1, "iload", UnsignedBytePrinter });
 	instructions.push_back({ iload_0, 0, "iload_0" });
 	instructions.push_back({ iload_1, 0, "iload_1" });
 	instructions.push_back({ iload_2, 0, "iload_2" });
@@ -556,7 +563,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ ireturn, 0, "ireturn" });
 	instructions.push_back({ ishl , 0, "ishl" });
 	instructions.push_back({ ishr, 0, "ishr" });
-	instructions.push_back({ istore, 1, "istore", SignedBytePrinter }); // UNSIGNED BYTE LOCAL VARIABLE
+	instructions.push_back({ istore, 1, "istore", UnsignedBytePrinter });
 	instructions.push_back({ istore_0, 0, "istore_0"});
 	instructions.push_back({ istore_1, 0, "istore_1" });
 	instructions.push_back({ istore_2, 0, "istore_2" });

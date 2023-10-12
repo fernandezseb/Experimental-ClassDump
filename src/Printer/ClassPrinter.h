@@ -222,6 +222,7 @@ enum Opcode : uint8_t {
 
 void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
 void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
+void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
 void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp);
 void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp);
 void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
