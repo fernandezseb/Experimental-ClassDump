@@ -14,7 +14,7 @@ struct ExceptionTableEntry {
 struct AttributeInfo {
 	uint16_t attributeNameIndex;
 	uint32_t attributeLength;
-	virtual std::string toString(const ConstantPool& cp) { return ""; }
+	virtual std::string toString(const ConstantPool& cp) const { return ""; }
 };
 
 class AttributeCollection {
@@ -40,15 +40,11 @@ struct AttributeCode : public AttributeInfo {
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
 	AttributeCollection attributes;
-	AttributeLineNumberTable* lineNumberTable;
-	AttributeLocalVariableTable* localVariableTable;
 };
 
 struct AttributeSourceFile : public AttributeInfo {
 	uint16_t sourceFileIndex;
-	std::string toString(const ConstantPool& cp) {
-		return "SourceFile: \"" + cp.getString(sourceFileIndex) + "\"";
-	}
+	std::string toString(const ConstantPool& cp) const;
 };
 
 struct LineNumberTableEntry {
@@ -58,6 +54,7 @@ struct LineNumberTableEntry {
 
 struct AttributeLineNumberTable :public AttributeInfo {
 	std::vector<LineNumberTableEntry*> entries;
+	std::string toString(const ConstantPool& cp) const;
 };
 
 struct LocalVariableTableEntry {
@@ -70,6 +67,8 @@ struct LocalVariableTableEntry {
 
 struct AttributeLocalVariableTable :public AttributeInfo {
 	std::vector<LocalVariableTableEntry*> entries;
+
+	std::string toString(const ConstantPool& cp) const;
 };
 
 class AttributeParser {

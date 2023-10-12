@@ -344,25 +344,10 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		std::cout << std::endl;
 	}
 
-	if (code->lineNumberTable != NULL) {
-		std::cout << "      LineNumberTable:" << std::endl;
-		for (LineNumberTableEntry* entry : code->lineNumberTable->entries) {
-			std::cout << "        line " << entry->lineNumber << ": " << entry->startPc << std::endl;
-		}
-	}
 
-	if (code->localVariableTable != NULL) {
-		std::cout << "      LocalVariableTable:" << std::endl;
-		std::cout << "        Start  Length  Slot  Name   Signature" << std::endl;
-
-		for (LocalVariableTableEntry* entry : code->localVariableTable->entries) {
-			std::cout << "        " << std::right << std::setfill(' ') << std::setw(5) << entry->startPc;
-			std::cout << "  " << std::right << std::setfill(' ') << std::setw(6) << entry->length;
-			std::cout << "  " << std::right << std::setfill(' ') << std::setw(4) << entry->index;
-			std::cout << "  " << std::right << std::setfill(' ') << std::setw(4) << cp.getString(entry->nameIndex);
-			std::cout << "   " << std::left << std::setfill(' ') << std::setw(10) << cp.getString(entry->descriptorIndex);
-			std::cout << std::endl;
-		}
+	for (const AttributeInfo* att : code->attributes.attributes) {
+		std::cout << "      " << cp.getString(att->attributeNameIndex) << ":" << std::endl;
+		std::cout << att->toString(cp);
 	}
 
 }
@@ -676,6 +661,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "}" << std::endl;
 
 	for (AttributeInfo* att : classInfo.attributes.attributes) {
-		std::cout << att->toString(cp) << std::endl;
+		std::cout << att->toString(cp);
 	}
 }

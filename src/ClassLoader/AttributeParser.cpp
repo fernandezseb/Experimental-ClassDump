@@ -123,9 +123,6 @@ AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, Consta
             att->code = code;
             att->exceptionTable = exceptions;
             att->attributes = attribs;
-            AttributeLineNumberTable* lineNumberTable = (AttributeLineNumberTable*)attribs.findAttributeWithName(constantPool, "LineNumberTable");
-            att->lineNumberTable = lineNumberTable;
-            att->localVariableTable = (AttributeLocalVariableTable*)attribs.findAttributeWithName(constantPool, "LocalVariableTable");
 
             attributes.push_back(att);
         }
@@ -202,4 +199,36 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool& constant
 AttributeCollection::AttributeCollection(std::vector<AttributeInfo*> attributes)
 {
     this->attributes = attributes;
+}
+
+std::string AttributeLocalVariableTable::toString(const ConstantPool& cp) const {
+    std::stringstream ss;
+    ss << "        Start  Length  Slot  Name   Signature\n";
+
+    for (LocalVariableTableEntry* entry : entries) {
+        ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry->startPc;
+        ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry->length;
+        ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry->index;
+        ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp.getString(entry->nameIndex);
+        ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp.getString(entry->descriptorIndex);
+        ss << std::endl;
+    }
+    return ss.str();
+}
+
+std::string AttributeLineNumberTable::toString(const ConstantPool& cp) const {
+    std::string out = "";
+    for (LineNumberTableEntry* entry : entries) {
+        out += "        line " +
+            std::to_string(entry->lineNumber)
+            + ": "
+            + std::to_string(entry->startPc)
+            + "\n";
+    }
+
+    return out;
+}
+
+std::string AttributeSourceFile::toString(const ConstantPool& cp) const {
+    return "SourceFile: \"" + cp.getString(sourceFileIndex) + "\"\n";
 }
