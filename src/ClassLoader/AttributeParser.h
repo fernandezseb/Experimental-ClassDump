@@ -17,6 +17,15 @@ struct AttributeInfo {
 	virtual std::string toString(const ConstantPool& cp) { return ""; }
 };
 
+class AttributeCollection {
+public:
+	std::vector<AttributeInfo*> attributes;
+	AttributeInfo* findAttributeWithName(ConstantPool& constantPool, const std::string& name) const;
+
+	AttributeCollection(std::vector<AttributeInfo*> attributes);
+	AttributeCollection() {}
+};
+
 struct AttributeConstantValue : public AttributeInfo {
 	uint16_t constantValueIndex;
 };
@@ -30,7 +39,7 @@ struct AttributeCode : public AttributeInfo {
 	uint32_t codeLength;
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
-	std::vector<AttributeInfo*> attributes;
+	AttributeCollection attributes;
 	AttributeLineNumberTable* lineNumberTable;
 	AttributeLocalVariableTable* localVariableTable;
 };
@@ -68,5 +77,5 @@ public:
 	static ExceptionTableEntry readExceptionTableEntry(ByteArray& byteArray);
 	static std::vector<ExceptionTableEntry> readExceptionTable(ByteArray& byteArray);
 	static void readStackMapTable(ByteArray& byteArray);
-	static std::vector<AttributeInfo*> readAttributes(ByteArray& byteArray, ConstantPool& constantPool);
+	static AttributeCollection readAttributes(ByteArray& byteArray, ConstantPool& constantPool);
 };

@@ -1,19 +1,5 @@
 #include "AttributeParser.h"
 
-// TODO: De-duplicate this stuff
-static AttributeInfo* findAttributeWithName(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool, std::string name)
-{
-    AttributeInfo* attrib = 0;
-
-    for (AttributeInfo* attrib : attributes) {
-        if (constantPool.getString(attrib->attributeNameIndex) == name) {
-            return attrib;
-        }
-    }
-
-    return attrib;
-}
-
 void AttributeParser::readStackMapTable(ByteArray& byteArray) {
     uint16_t numberOfEntries = byteArray.readUnsignedShort();
     //printf("[%" PRIu16 "] \n", numberOfEntries);
@@ -103,7 +89,7 @@ std::vector<ExceptionTableEntry> AttributeParser::readExceptionTable(ByteArray& 
     return table;
 }
 
-std::vector<AttributeInfo*> AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool& constantPool)
+AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool& constantPool)
 {
     std::vector<AttributeInfo*> attributes;
 
@@ -125,7 +111,7 @@ std::vector<AttributeInfo*> AttributeParser::readAttributes(ByteArray& byteArray
             byteArray.copyBytes(code, codeLength);
 
             std::vector<ExceptionTableEntry> exceptions = readExceptionTable(byteArray);
-            std::vector<AttributeInfo*> attribs = readAttributes(byteArray, constantPool);
+            AttributeCollection attribs = readAttributes(byteArray, constantPool);
 
 
             AttributeCode* att = new AttributeCode();
@@ -137,9 +123,9 @@ std::vector<AttributeInfo*> AttributeParser::readAttributes(ByteArray& byteArray
             att->code = code;
             att->exceptionTable = exceptions;
             att->attributes = attribs;
-            AttributeLineNumberTable* lineNumberTable = (AttributeLineNumberTable*)findAttributeWithName(attribs, constantPool, "LineNumberTable");
+            AttributeLineNumberTable* lineNumberTable = (AttributeLineNumberTable*)attribs.findAttributeWithName(constantPool, "LineNumberTable");
             att->lineNumberTable = lineNumberTable;
-            att->localVariableTable = (AttributeLocalVariableTable*)findAttributeWithName(attribs, constantPool, "LocalVariableTable");
+            att->localVariableTable = (AttributeLocalVariableTable*)attribs.findAttributeWithName(constantPool, "LocalVariableTable");
 
             attributes.push_back(att);
         }
@@ -197,5 +183,23 @@ std::vector<AttributeInfo*> AttributeParser::readAttributes(ByteArray& byteArray
         }
     }
 
-    return attributes;
+    return AttributeCollection(attributes);
+}
+
+AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool& constantPool, const std::string& name) const
+{
+    AttributeInfo* attrib = 0;
+
+    for (AttributeInfo* attrib : attributes) {
+        if (constantPool.getString(attrib->attributeNameIndex) == name) {
+            return attrib;
+        }
+    }
+
+    return attrib;
+}
+
+AttributeCollection::AttributeCollection(std::vector<AttributeInfo*> attributes)
+{
+    this->attributes = attributes;
 }

@@ -86,14 +86,12 @@ public:
 	std::vector<FieldInfo> fields;
 	std::vector<MethodInfo> methods;
 	std::vector<AccessFlag> getAccessFlags() const;
-	std::vector<AttributeInfo*> attributes;
+	AttributeCollection attributes;
 	std::string sourceFile;
 	bool isPublic;
 };
 
 class ClassLoader {
-private:
-	//uint64_t bytePtr;
 private:
 	void checkMagicNumber(ByteArray& byteArray);
 	ConstantPool readConstantPool(ByteArray& byteArray);

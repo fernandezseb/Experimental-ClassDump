@@ -675,7 +675,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "}" << std::endl;
 
-	for (AttributeInfo* att : classInfo.attributes) {
+	for (AttributeInfo* att : classInfo.attributes.attributes) {
 		std::cout << att->toString(cp) << std::endl;
 	}
 }

@@ -4,19 +4,6 @@
 #include "DescriptorParser.h"
 #include "md5/md5.h"
 
-static AttributeInfo* findAttributeWithName(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool, std::string name)
-{
-    AttributeInfo* attrib = 0;
-
-    for (AttributeInfo* attrib : attributes) {
-        if (constantPool.getString(attrib->attributeNameIndex) == name) {
-            return attrib;
-        }
-    }
-
-    return attrib;
-}
-
 void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
     if (magic != MAGIC_NUMBER) {
@@ -153,11 +140,6 @@ ClassLoader::ClassLoader()
 {
 }
 
-inline static AttributeSourceFile* getSourceFileAttribute(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool)
-{
-    return (AttributeSourceFile*)findAttributeWithName(attributes, constantPool, "SourceFile");
-}
-
 ClassInfo ClassLoader::readClass(ByteArray& byteArray)
 {
     checkMagicNumber(byteArray);
@@ -175,10 +157,9 @@ ClassInfo ClassLoader::readClass(ByteArray& byteArray)
     classInfo.methods = readMethods(byteArray, classInfo.constantPool);
     classInfo.isPublic = ((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
 
-    std::vector<AttributeInfo*> attributeInfo = AttributeParser::readAttributes(byteArray, classInfo.constantPool);
+    AttributeCollection attributeInfo = AttributeParser::readAttributes(byteArray, classInfo.constantPool);
     classInfo.attributes = attributeInfo;
-    // TODO: Don't crash when this is not defined
-    AttributeSourceFile* sourceFile = getSourceFileAttribute(attributeInfo, classInfo.constantPool);
+    AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo.findAttributeWithName(classInfo.constantPool, "SourceFile");
 
     if (sourceFile != NULL) {
         classInfo.sourceFile = classInfo.constantPool.getString(sourceFile->sourceFileIndex);
@@ -247,7 +228,7 @@ std::vector<FieldInfo> ClassLoader::readFields(ByteArray& byteArray, ConstantPoo
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        std::vector<AttributeInfo*> attributeInfo = AttributeParser::readAttributes(byteArray, constantPool);
+        AttributeCollection attributeInfo = AttributeParser::readAttributes(byteArray, constantPool);
         FieldInfo fieldInfo;
         fieldInfo.accessFlags = accessFlags;
         fieldInfo.descriptorIndex = descriptorIndex;
@@ -258,11 +239,6 @@ std::vector<FieldInfo> ClassLoader::readFields(ByteArray& byteArray, ConstantPoo
     }
 
     return fields;
-}
-
-inline static AttributeCode* getCodeAttribute(std::vector<AttributeInfo*> attributes, ConstantPool& constantPool) 
-{
-    return (AttributeCode*) findAttributeWithName(attributes, constantPool, "Code");
 }
 
 void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& method)
@@ -282,7 +258,7 @@ std::vector<MethodInfo> ClassLoader::readMethods(ByteArray& byteArray, ConstantP
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        std::vector<AttributeInfo*> attributes = AttributeParser::readAttributes(byteArray, constantPool);
+        AttributeCollection attributes = AttributeParser::readAttributes(byteArray, constantPool);
         MethodInfo info;
         info.accessFlags = accessFlags;
         info.nameIndex = nameIndex;
@@ -291,7 +267,7 @@ std::vector<MethodInfo> ClassLoader::readMethods(ByteArray& byteArray, ConstantP
         info.code = 0;
         info.isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
         if (!info.isNative) {
-            info.code = getCodeAttribute(attributes, constantPool);
+            info.code = (AttributeCode*) attributes.findAttributeWithName(constantPool, "Code");
         }
         info.isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
         info.isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
