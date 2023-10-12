@@ -250,6 +250,54 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp)
 	}
 }
 
+void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	std::string type;
+	uint8_t arg = args[0];
+	switch (arg) {
+	case 4:
+		type = "boolean";
+		break;
+	case 5:
+		type = "char";
+		break;
+	case 6:
+		type = "float";
+		break;
+	case 7:
+		type = "double";
+		break;
+	case 8:
+		type = "byte";
+		break;
+	case 9:
+		type = "short";
+		break;
+	case 10:
+		type = "int";
+		break;
+	case 11:
+		type = "long";
+		break;
+	default:
+		type = "unknown";
+		break;
+	}
+
+	std::cout << " " << type;
+}
+
+void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+{
+	uint8_t byte1 = args[0];
+	uint8_t byte2 = args[1];
+	uint8_t dimensions = args[2];
+
+	uint16_t shortIndex = (byte1 << 8) | byte2;
+
+	std::cout << " #" << (unsigned int)shortIndex << ",  " << (unsigned int)dimensions;
+}
+
 void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool& cp)
 {
 	int argsSize = method->args.size();
@@ -355,7 +403,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 ClassPrinter::ClassPrinter()
 {
 	instructions.push_back({nop, 0, "nop"});
-	instructions.push_back({ bipush, 1, "bipush", SignedBytePrinter}); // SIGN EXTENDED
+	instructions.push_back({ bipush, 1, "bipush", SignedBytePrinter});
 	instructions.push_back({ istore_0, 0, "istore_0"});
 	instructions.push_back({ istore_1, 0, "istore_1"});
 	instructions.push_back({ istore_2, 0, "istore_2"});
@@ -551,8 +599,8 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ lxor, 0, "lxor" });
 	instructions.push_back({ monitorenter, 0, "monitorenter" });
 	instructions.push_back({ monitorexit, 0, "monitorexit" });
-	instructions.push_back({ multianewarray, 3, "multianewarray", SignedBytePrinter }); // Look into custom printer
-	instructions.push_back({ newarray, 1, "newarray", SignedBytePrinter }); // TODO: Look into printing the type
+	instructions.push_back({ multianewarray, 3, "multianewarray", MultiArrayPrinter });
+	instructions.push_back({ newarray, 1, "newarray", ArrayTypePrinter });
 	instructions.push_back({ nop, 0, "nop" });
 	instructions.push_back({ pop, 0, "pop" });
 	instructions.push_back({ pop2, 0, "pop2" });
