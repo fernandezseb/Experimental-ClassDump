@@ -10,7 +10,5 @@
 
 #include <sys/stat.h>
 #include <filesystem>
-#include <algorithm>
 #include <sstream>
 #include <iterator>
-#include <numeric>
