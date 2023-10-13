@@ -1,11 +1,18 @@
 #include "ByteArray.h"
 
-ByteArray::ByteArray(uint64_t size) {
-	bytes = new uint8_t[size];
+ByteArray::ByteArray(uint64_t size) :
+	bytes(new uint8_t[size]), allocated(true) {
+}
+
+ByteArray::ByteArray(uint8_t* bytes, uint64_t size) :
+	bytes(bytes), size(size)
+{
 }
 
 ByteArray::~ByteArray() {
-	delete[] bytes;
+	if (allocated) {
+		delete[] bytes;
+	}
 }
 
 uint8_t ByteArray::readUnsignedByte()
@@ -29,8 +36,25 @@ uint32_t ByteArray::readUnsignedInt()
 	return (uint32_t)value;
 }
 
+int32_t ByteArray::readSignedInt()
+{
+	uint8_t buffer[4] = { bytes[bytePtr++], bytes[bytePtr++] , bytes[bytePtr++] , bytes[bytePtr++] };
+	int32_t value = (int32_t)buffer[3] | (int32_t)buffer[2] << 8 | (int32_t)buffer[1] << 16 | (int32_t)buffer[0] << 24;
+	return (int32_t)value;
+}
+
 void ByteArray::copyBytes(uint8_t* target, uint64_t size)
 {
 	memcpy(target, &bytes[bytePtr], sizeof(uint8_t) * size);
 	bytePtr += size;
+}
+
+void ByteArray::setPtr(uint64_t ptr)
+{
+	this->bytePtr = ptr;
+}
+
+bool ByteArray::atEnd()
+{
+	return (bytePtr == size - 1);
 }
