@@ -6,9 +6,18 @@ std::string joinStrings(std::vector<std::string> const& strings, std::string del
 		return std::string();
 	}
 
-	return std::accumulate(strings.begin() + 1, strings.end(), strings[0],
-		[&delim](std::string x, std::string y) {
-			return x + delim + y;
+	std::stringstream ss;
+
+	ss << strings[0];
+
+	if (strings.size() > 1) {
+		std::vector<std::string>::const_iterator it = strings.begin() + 1;
+		while (it != strings.end()) {
+			ss << delim;
+			ss << *it;
+			it++;
 		}
-	);
+	}
+
+	return ss.str();
 }
