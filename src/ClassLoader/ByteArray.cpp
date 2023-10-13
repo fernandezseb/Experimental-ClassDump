@@ -54,7 +54,12 @@ void ByteArray::setPtr(uint64_t ptr)
 	this->bytePtr = ptr;
 }
 
+uint64_t ByteArray::getPtr()
+{
+	return bytePtr - 1;
+}
+
 bool ByteArray::atEnd()
 {
-	return (bytePtr == size - 1);
+	return (bytePtr == size);
 }

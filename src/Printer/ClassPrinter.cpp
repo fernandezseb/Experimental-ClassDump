@@ -316,19 +316,21 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		<< ", args_size=" << std::to_string(argsSize)
 		<< std::endl;
 
-	for (uint32_t index = 0; index < code->codeLength; index++) {
-		uint8_t opcode = code->code[index];
+	ByteArray byteArray(code->code, code->codeLength);
+
+	while (!byteArray.atEnd()) {
+		uint8_t opcode = byteArray.readUnsignedByte();
 		bool found = false;
 		for (const Instruction& instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
-				std::string indexStr = std::to_string(index) + ": ";
+				std::string indexStr = std::to_string(byteArray.getPtr()) + ": ";
 				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr 
 					<< std::left << std::setfill(' ') << std::setw(13) << instruction.name;
 				
 				std::vector<uint8_t> args;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
-						args.push_back(code->code[++index]);
+						args.push_back(byteArray.readUnsignedByte());
 					}
 				}
 				if (instruction.printFunction != NULL) {
@@ -342,20 +344,14 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		if (!found) {
 			if (opcode == 0xab) {
 
-				uint8_t instructionIndex = index;
-				++index;
+				uint32_t instructionIndex = byteArray.getPtr();
 				// Next byte is 4 byte aligned
-				while (index % 4 != 0) {
-					index++;
+				while ((byteArray.getPtr()+1) % 4 != 0) {
+					byteArray.readUnsignedByte();
 				}
 
-				ByteArray byteArray(code->code, code->codeLength);
-				byteArray.setPtr(index);
-
-	
 				int32_t defaultOffset = byteArray.readSignedInt();
 				int32_t defaultAddress = instructionIndex + defaultOffset;
-
 				int32_t nPairs = byteArray.readSignedInt();
 
 				std::string indexStr = std::to_string(instructionIndex) + ": ";
@@ -366,7 +362,6 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 				for (int32_t currentPair = 0; currentPair < nPairs; currentPair++) {
 					int32_t matchKey = byteArray.readSignedInt();
-
 					int32_t offset = byteArray.readSignedInt();
 
 					std::cout << std::right << std::setfill(' ') << std::setw(24) << (matchKey);
@@ -376,13 +371,8 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 				}
 
 				std::cout << std::right << std::setfill(' ') << std::setw(24) << "default";
-
 				std::cout << ": " << (defaultAddress) << std::endl;
-
 				std::cout << "            }";
-
-				// We don't want to be on the next instruction yet
-				index -= 1;
 
 				found = true;
 			}
