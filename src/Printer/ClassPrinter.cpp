@@ -2,77 +2,22 @@
 
 #include "Util.h"
 
-std::string ClassPrinter::getTypeAsString(ConstantType type) {
-	switch (type) {
-	case CT_UTF8:
-		return "Utf8";
-	case CT_INTEGER:
-		return "Integer";
-	case CT_FLOAT:
-		return "Float";
-	case CT_LONG:
-		return "Long";
-	case CT_DOUBLE:
-		return "Double";
-	case CT_CLASS:
-		return "Class";
-	case CT_STRING:
-		return "String";
-	case CT_FIELDREF:
-		return "Fieldref";
-	case CT_METHODREF:
-		return "Methodref";
-	case CT_INTERFACEMETHOD:
-		return "Interfacemethod";
-	case CT_NAMEANDTYPE:
-		return "NameAndType";
-	case CT_METHODHANDLE:
-		return "MethodHandle";
-	case CT_METHODTYPE:
-		return "Methodtype";
-	case CT_INVOKEDYNAMIC:
-		return "InvokeDynamic";
-	default:
-		return "Unknown";
+const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
+	if (constantTypes.find(type) != constantTypes.end()) {
+		return constantTypes.at(type);
+	}
+	else {
+		Unknown;
 	}
 }
 
-std::string ClassPrinter::getTypeAsString(AccessFlag flag)
+const std::string& ClassPrinter::getTypeAsString(AccessFlag flag) const
 {
-	switch (flag) {
-	case ACC_PUBLIC:
-		return "ACC_PUBLIC";
-	case ACC_PRIVATE:
-		return "ACC_PRIVATE";
-	case ACC_PROTECTED:
-		return "ACC_PROTECTED";
-	case ACC_STATIC:
-		return "ACC_STATIC";
-	case ACC_FINAL:
-		return "ACC_FINAL";
-	case ACC_SUPER:
-		return "ACC_SUPER";
-	case ACC_BRIDGE:
-		return "ACC_BRIDGE";
-	case ACC_VARARGS:
-		return "ACC_VARARGS";
-	case ACC_NATIVE:
-		return "ACC_NATIVE";
-	case ACC_INTERFACE:
-		return "ACC_INTERFACE";
-	case ACC_ABSTRACT:
-		return "ACC_ABSTRACT";
-	case ACC_STRICT:
-		return "ACC_STRICT";
-	case ACC_SYNTHETIC:
-		return "ACC_SYNTHETIC";
-	case ACC_ANNOTATION:
-		return "ACC_ANNOTATION";
-	case ACC_ENUM:
-		return "ACC_ENUM";
-	default:
-		return "UNKNOWN";
-	// TOOD: Add synchronized
+	if (accessFlags.find(flag) != accessFlags.end()) {
+		return accessFlags.at(flag);
+	}
+	else {
+		return Unknown;
 	}
 }
 

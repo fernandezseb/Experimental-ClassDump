@@ -220,6 +220,18 @@ enum Opcode : uint8_t {
 	impdep2    = 0xff
 };
 
+// Type strings
+#define T_VOID    "void"
+#define T_BYTE    "byte"
+#define T_CHAR    "char"
+#define T_DOUBLE  "double"
+#define T_FLOAT   "float"
+#define T_INT     "int"
+#define T_LONG    "long"
+#define T_SHORT   "short"
+#define T_BOOLEAN "boolean"
+#define T_DOUBLE  "double"
+
 void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
 void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
 void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
@@ -238,8 +250,44 @@ struct Instruction {
 class ClassPrinter {
 private:
 	std::vector<Instruction> instructions;
-	static std::string getTypeAsString(ConstantType type);
-	static std::string getTypeAsString(AccessFlag flag);
+	const std::string Unknown = "(unknown)";
+	const std::map<ConstantType, const std::string> constantTypes =
+	{
+		{CT_UTF8,    "Utf8"},
+		{CT_INTEGER, "Integer"},
+		{CT_FLOAT,   "Float"},
+		{CT_LONG,    "Long"},
+		{CT_DOUBLE,  "Double"},
+		{CT_CLASS,   "Class"},
+		{CT_STRING,  "String"},
+		{CT_FIELDREF, "Fieldref"},
+		{CT_METHODREF,"Methodref"},
+		{CT_INTERFACEMETHOD, "Interfacemethod"},
+		{CT_NAMEANDTYPE,  "NameAndType"},
+		{CT_METHODHANDLE, "MethodHandle"},
+		{CT_METHODTYPE, "Methodtype"},
+		{CT_INVOKEDYNAMIC, "InvokeDynamic"}
+	};
+	const std::map<AccessFlag, const std::string> accessFlags = {
+		{ACC_PUBLIC, "ACC_PUBLIC"},
+		{ACC_PRIVATE, "ACC_PRIVATE"},
+		{ACC_PROTECTED, "ACC_PROTECTED"},
+		{ACC_STATIC, "AC_STATIC"},
+		{ACC_FINAL, "ACC_FINAL"},
+		{ACC_SUPER, "ACC_SUPER"},
+		{ACC_BRIDGE, "ACC_BRIDGE"},
+		{ACC_VARARGS, "ACC_VARARGS"},
+		{ACC_NATIVE, "ACC_NATIVE"},
+		{ACC_INTERFACE, "ACC_INTERFACE"},
+		{ACC_ABSTRACT, "ACC_ABSTRACT"},
+		{ACC_STRICT, "ACC_STRICT"},
+		{ACC_SYNTHETIC, "ACC_SYNTHETIC"},
+		{ACC_ANNOTATION, "ACC_ANNOTATION"},
+		{ACC_ENUM, "ACC_ENUM"}
+		// TODO: Add synchronized
+	};
+	const std::string& getTypeAsString(ConstantType type) const;
+	const std::string& getTypeAsString(AccessFlag flag) const;
 	static std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
