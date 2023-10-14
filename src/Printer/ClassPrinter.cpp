@@ -23,7 +23,7 @@ const std::string& ClassPrinter::getTypeAsString(AccessFlag flag) const
 
 std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 {
-	std::string output = "";
+	std::stringstream output;
 	int arrCount = 0;
 	bool inClass = false;
 
@@ -35,48 +35,21 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 			inClass = false;
 		}
 		else if (inClass) {
-			output += c;
+			output << c;
 		}
 		else if (c == '[') {
 			arrCount++;
 		}
-		else if (c == 'V') {
-			output += "void";
-		}
-		else if (c == 'B') {
-			output += "byte";
-		}
-		else if (c == 'C') {
-			output += "char";
-		}
-		else if (c == 'D') {
-			output += "double";
-		}
-		else if (c == 'F') {
-			output += "float";
-		}
-		else if (c == 'I') {
-			output += "int";
-		}
-		else if (c == 'J') {
-			output += "long";
-		}
-		else if (c == 'S') {
-			output += "short";
-		}
-		else if (c == 'Z') {
-			output += "boolean";
-		}
-		else if (c == 'D') {
-			output += "double";
+		else {
+			output << types.at(c);
 		}
 	}
 
 	for (int curr = 0; curr < arrCount; curr++) {
-		output += "[]";
+		output << "[]";
 	}
 
-	return output;
+	return output.str();
 }
 
 std::string ClassPrinter::getAsExternalClassName(std::string className)
@@ -208,31 +181,31 @@ void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 	uint8_t arg = args[0];
 	switch (arg) {
 	case 4:
-		type = "boolean";
+		type = T_BOOLEAN;
 		break;
 	case 5:
-		type = "char";
+		type = T_CHAR;
 		break;
 	case 6:
-		type = "float";
+		type = T_FLOAT;
 		break;
 	case 7:
-		type = "double";
+		type = T_DOUBLE;
 		break;
 	case 8:
-		type = "byte";
+		type = T_BYTE;
 		break;
 	case 9:
-		type = "short";
+		type = T_SHORT;
 		break;
 	case 10:
-		type = "int";
+		type = T_INT;
 		break;
 	case 11:
-		type = "long";
+		type = T_LONG;
 		break;
 	default:
-		type = "unknown";
+		type = "(unknown)";
 		break;
 	}
 

@@ -286,9 +286,21 @@ private:
 		{ACC_ENUM, "ACC_ENUM"}
 		// TODO: Add synchronized
 	};
+	const std::map<char, const std::string> types = {
+		{'V', T_VOID},
+		{'B', T_BYTE},
+		{'C', T_CHAR},
+		{'D', T_DOUBLE},
+		{'F', T_FLOAT},
+		{'I', T_INT},
+		{'J', T_LONG},
+		{'S', T_SHORT},
+		{'Z', T_BOOLEAN},
+		{'D', T_DOUBLE}
+	};
 	const std::string& getTypeAsString(ConstantType type) const;
 	const std::string& getTypeAsString(AccessFlag flag) const;
-	static std::string getAsExternalReturnType(std::string returnType);
+	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
 	void printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp);
