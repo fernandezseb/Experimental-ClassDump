@@ -12,22 +12,22 @@ void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     }
 }
 
-ConstantPool ClassLoader::readConstantPool(ByteArray& byteArray)
+ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
 {
-    ConstantPool constantPool;
+    ConstantPool* constantPool = new ConstantPool();
 
     uint16_t cpCount = byteArray.readUnsignedShort();
 
     uint16_t arrCount = cpCount - 1;
 
-    constantPool.constants = std::vector<ConstantPoolItem*>(arrCount);
+    constantPool->constants = std::vector<ConstantPoolItem*>(arrCount);
 
     for (uint32_t currentConstantIndex = 0; currentConstantIndex < arrCount; currentConstantIndex++) {
         uint8_t tag = byteArray.readUnsignedByte();
 
         ConstantPoolItem* constantPoolItem = readConstantPoolItem(tag, byteArray);
 
-        constantPool.constants[currentConstantIndex] = constantPoolItem;
+        constantPool->constants[currentConstantIndex] = constantPoolItem;
 
         // if tag is long or double we need to increment by 2
         if (tag == CT_LONG || tag == CT_DOUBLE) {
@@ -140,35 +140,35 @@ ClassLoader::ClassLoader()
 {
 }
 
-ClassInfo ClassLoader::readClass(ByteArray& byteArray)
+ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 {
     checkMagicNumber(byteArray);
 
-    ClassInfo classInfo;
-    classInfo.minorVersion = byteArray.readUnsignedShort();
-    classInfo.majorVersion = byteArray.readUnsignedShort();
-    classInfo.constantPool = readConstantPool(byteArray);
-    classInfo.accessFlags = byteArray.readUnsignedShort();
-    classInfo.thisClass = byteArray.readUnsignedShort();
-    classInfo.superClass = byteArray.readUnsignedShort();
+    ClassInfo* classInfo = new ClassInfo();
+    classInfo->minorVersion = byteArray.readUnsignedShort();
+    classInfo->majorVersion = byteArray.readUnsignedShort();
+    classInfo->constantPool = readConstantPool(byteArray);
+    classInfo->accessFlags = byteArray.readUnsignedShort();
+    classInfo->thisClass = byteArray.readUnsignedShort();
+    classInfo->superClass = byteArray.readUnsignedShort();
     uint16_t interfacesCount = byteArray.readUnsignedShort();
-    classInfo.interfaces = readInterfaces(byteArray, interfacesCount);
-    classInfo.fields = readFields(byteArray, classInfo.constantPool);
-    classInfo.methods = readMethods(byteArray, classInfo.constantPool);
-    classInfo.isPublic = ((classInfo.accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
+    classInfo->interfaces = readInterfaces(byteArray, interfacesCount);
+    classInfo->fields = readFields(byteArray, classInfo->constantPool);
+    classInfo->methods = readMethods(byteArray, classInfo->constantPool);
+    classInfo->isPublic = ((classInfo->accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
 
-    AttributeCollection attributeInfo = AttributeParser::readAttributes(byteArray, classInfo.constantPool);
-    classInfo.attributes = attributeInfo;
-    AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo.findAttributeWithName(classInfo.constantPool, "SourceFile");
+    AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, classInfo->constantPool);
+    classInfo->attributes = attributeInfo;
+    AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo->findAttributeWithName(classInfo->constantPool, "SourceFile");
 
     if (sourceFile != NULL) {
-        classInfo.sourceFile = classInfo.constantPool.getString(sourceFile->sourceFileIndex);
+        classInfo->sourceFile = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
     }
 
     return classInfo;
 }
 
-ClassInfo ClassLoader::readClass(const std::string& className)
+ClassInfo* ClassLoader::readClass(const std::string& className)
 {
 
     try {
@@ -189,11 +189,11 @@ ClassInfo ClassLoader::readClass(const std::string& className)
 
         std::string checksum =  md5(bytes.bytes, size);
 
-        ClassInfo classInfo = readClass(bytes);
-        classInfo.filePath = absolutePath;
-        classInfo.size = size;
-        classInfo.lastModified = attr.st_mtime;
-        classInfo.md5 = checksum;
+        ClassInfo* classInfo = readClass(bytes);
+        classInfo->filePath = absolutePath;
+        classInfo->size = size;
+        classInfo->lastModified = attr.st_mtime;
+        classInfo->md5 = checksum;
         myFile.close();
 
         return classInfo;
@@ -203,7 +203,7 @@ ClassInfo ClassLoader::readClass(const std::string& className)
             << ex.what() << std::endl;
         exit(-1);
     }
-    return ClassInfo();
+    return new ClassInfo();
 }
 
 std::vector<uint16_t> ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)
@@ -218,9 +218,9 @@ std::vector<uint16_t> ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t
     return interfaces;
 }
 
-std::vector<FieldInfo> ClassLoader::readFields(ByteArray& byteArray, ConstantPool& constantPool)
+std::vector<FieldInfo*> ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constantPool)
 {
-    std::vector<FieldInfo> fields;
+    std::vector<FieldInfo*> fields;
 
     uint16_t fieldsCount = byteArray.readUnsignedShort();
 
@@ -228,29 +228,29 @@ std::vector<FieldInfo> ClassLoader::readFields(ByteArray& byteArray, ConstantPoo
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        AttributeCollection attributeInfo = AttributeParser::readAttributes(byteArray, constantPool);
-        FieldInfo fieldInfo;
-        fieldInfo.accessFlags = accessFlags;
-        fieldInfo.descriptorIndex = descriptorIndex;
-        fieldInfo.nameIndex = nameIndex;
-        fieldInfo.isPrivate = ((accessFlags & ACC_PRIVATE) == ACC_PRIVATE);
-        fieldInfo.attributes = attributeInfo;
+        AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, constantPool);
+        FieldInfo* fieldInfo = new FieldInfo;
+        fieldInfo->accessFlags = accessFlags;
+        fieldInfo->descriptorIndex = descriptorIndex;
+        fieldInfo->nameIndex = nameIndex;
+        fieldInfo->isPrivate = ((accessFlags & ACC_PRIVATE) == ACC_PRIVATE);
+        fieldInfo->attributes = attributeInfo;
         fields.push_back(fieldInfo);
     }
 
     return fields;
 }
 
-void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo& method)
+void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo* method)
 {
     Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
-    method.returnType = desc.returnType;
-    method.args = desc.args;
+    method->returnType = desc.returnType;
+    method->args = desc.args;
 }
 
-std::vector<MethodInfo> ClassLoader::readMethods(ByteArray& byteArray, ConstantPool& constantPool)
+std::vector<MethodInfo*> ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool)
 {
-    std::vector<MethodInfo> methods;
+    std::vector<MethodInfo*> methods;
 
     uint16_t methodsCount = byteArray.readUnsignedShort();
 
@@ -258,25 +258,25 @@ std::vector<MethodInfo> ClassLoader::readMethods(ByteArray& byteArray, ConstantP
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        AttributeCollection attributes = AttributeParser::readAttributes(byteArray, constantPool);
-        MethodInfo info;
-        info.accessFlags = accessFlags;
-        info.nameIndex = nameIndex;
-        info.descriptorIndex = descriptorIndex;
+        AttributeCollection* attributes = AttributeParser::readAttributes(byteArray, constantPool);
+        MethodInfo* info = new MethodInfo;
+        info->accessFlags = accessFlags;
+        info->nameIndex = nameIndex;
+        info->descriptorIndex = descriptorIndex;
         // TODO: Fix these
-        info.code = 0;
-        info.isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
-        info.attributes = attributes;
-        if (!info.isNative) {
-            info.code = (AttributeCode*) attributes.findAttributeWithName(constantPool, "Code");
+        info->code = 0;
+        info->isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
+        info->attributes = attributes;
+        if (!info->isNative) {
+            info->code = (AttributeCode*) attributes->findAttributeWithName(constantPool, "Code");
         }
-        info.isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
-        info.isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
+        info->isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
+        info->isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
 
-        parseDescriptor(constantPool.getString(descriptorIndex), info);
+        parseDescriptor(constantPool->getString(descriptorIndex), info);
 
-        std::string name = constantPool.getString(nameIndex);
-        info.isConstructor = (name == "<init>");
+        std::string name = constantPool->getString(nameIndex);
+        info->isConstructor = (name == "<init>");
 
         methods.push_back(info);
     }

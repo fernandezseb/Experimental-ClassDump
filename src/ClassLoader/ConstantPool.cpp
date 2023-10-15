@@ -39,11 +39,22 @@ CPClassInfo* ConstantPool::getClassInfo(uint16_t index) const
 	}
 }
 
+ConstantPool::~ConstantPool()
+{
+	for (int i = 0; i < this->constants.size(); i++) {
+		ConstantPoolItem* item = this->constants[i];
+		if (item != 0) {
+			delete item;
+			item = nullptr;
+		}
+	}
+}
+
 std::string ConstantPoolItem::toString() {
 	return "";
 }
 
-std::string ConstantPoolItem::toExpandedString(const ConstantPool& cp)
+std::string ConstantPoolItem::toExpandedString(const ConstantPool* cp)
 {
 	return "";
 }
@@ -55,18 +66,18 @@ std::string CPMethodRef::toString() {
 	return str;
 }
 
-std::string CPMethodRef::toExpandedString(const ConstantPool& cp)
+std::string CPMethodRef::toExpandedString(const ConstantPool* cp)
 {
-	return cp.constants[classIndex - 1]->toExpandedString(cp) + "." + cp.constants[nameAndTypeIndex - 1]->toExpandedString(cp);
+	return cp->constants[classIndex - 1]->toExpandedString(cp) + "." + cp->constants[nameAndTypeIndex - 1]->toExpandedString(cp);
 }
 
 std::string CPClassInfo::toString() {
 	return "#" + std::to_string(nameIndex);
 }
 
-std::string CPClassInfo::toExpandedString(const ConstantPool& cp)
+std::string CPClassInfo::toExpandedString(const ConstantPool* cp)
 {
-	return cp.getString(nameIndex);
+	return cp->getString(nameIndex);
 }
 
 std::string CPIntegerInfo::toString() {
@@ -84,22 +95,22 @@ std::string CPNameAndTypeInfo::toString() {
 	return str;
 }
 
-std::string CPNameAndTypeInfo::toExpandedString(const ConstantPool& cp)
+std::string CPNameAndTypeInfo::toExpandedString(const ConstantPool* cp)
 {
-	std::string name = cp.getString(nameIndex);
+	std::string name = cp->getString(nameIndex);
 	if (name == "<init>") {
 		name = "\"" + name + "\"";
 	}
-	return  name + ":" + cp.getString(descriptorIndex);
+	return  name + ":" + cp->getString(descriptorIndex);
 }
 
 std::string CPStringInfo::toString() {
 	return "#" + std::to_string(stringIndex);
 }
 
-std::string CPStringInfo::toExpandedString(const ConstantPool& cp)
+std::string CPStringInfo::toExpandedString(const ConstantPool* cp)
 {
-	return cp.getString(stringIndex);
+	return cp->getString(stringIndex);
 }
 
 std::string CPFieldRef::toString()
@@ -107,9 +118,9 @@ std::string CPFieldRef::toString()
 	return "#" + std::to_string(classIndex) + "." + "#" + std::to_string(nameAndTypeIndex);
 }
 
-std::string CPFieldRef::toExpandedString(const ConstantPool& cp)
+std::string CPFieldRef::toExpandedString(const ConstantPool* cp)
 {
-	return cp.getClassInfo(classIndex)->toExpandedString(cp) + "." + cp.constants[nameAndTypeIndex - 1]->toExpandedString(cp);
+	return cp->getClassInfo(classIndex)->toExpandedString(cp) + "." + cp->constants[nameAndTypeIndex - 1]->toExpandedString(cp);
 }
 
 std::string CPFloatInfo::toString()

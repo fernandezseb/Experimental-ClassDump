@@ -7,7 +7,7 @@ const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
 		return constantTypes.at(type);
 	}
 	else {
-		Unknown;
+		return Unknown;
 	}
 }
 
@@ -58,46 +58,46 @@ std::string ClassPrinter::getAsExternalClassName(std::string className)
 	return className;
 }
 
-void ClassPrinter::printField(const FieldInfo& fieldInfo, const ConstantPool& cp)
+void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp)
 {
-	std::string descriptor = cp.getString(fieldInfo.descriptorIndex);
-	std::string name = cp.getString(fieldInfo.nameIndex);
+	std::string descriptor = cp->getString(fieldInfo->descriptorIndex);
+	std::string name = cp->getString(fieldInfo->nameIndex);
 	std::cout << "  ";
-	if (fieldInfo.isPrivate) {
+	if (fieldInfo->isPrivate) {
 		std::cout << "private ";
 	}
 	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) << " " << name << ";" << std::endl;
 	std::cout << "    descriptor: " << descriptor << std::endl;
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
-	for (AccessFlag flag : fieldInfo.getAccessFlags()) {
+	for (AccessFlag flag : fieldInfo->getAccessFlags()) {
 		flags.push_back(getTypeAsString(flag));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
 	std::cout << std::endl;
 }
 
-void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
+void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
 {
-	if (!methodInfo.isConstructor) {
-		std::cout << getAsExternalClassName(getAsExternalReturnType(methodInfo.returnType)) << " ";
+	if (!methodInfo->isConstructor) {
+		std::cout << getAsExternalClassName(getAsExternalReturnType(methodInfo->returnType)) << " ";
 	}
 
-	if (methodInfo.isConstructor) {
+	if (methodInfo->isConstructor) {
 		// TODO: Reuse classname
-		const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-		const std::string className = cp.getString(classPtr->nameIndex);
+		const CPClassInfo* classPtr = cp->getClassInfo(classInfo.thisClass);
+		const std::string className = cp->getString(classPtr->nameIndex);
 		std::cout << className;
 	}
 	else
 	{
-		std::cout << cp.getString(methodInfo.nameIndex);
+		std::cout << cp->getString(methodInfo->nameIndex);
 	}
 	std::cout << "(";
 
 	std::vector<std::string> args;
 
-	for (std::string arg : methodInfo.args) {
+	for (std::string arg : methodInfo->args) {
 		args.push_back(getAsExternalReturnType(arg));
 	}
 
@@ -106,42 +106,38 @@ void ClassPrinter::printMethodSignature(const MethodInfo& methodInfo, const Clas
 	std::cout << ");" << std::endl;
 }
 
-void ClassPrinter::printMethod(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp)
+void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
 {
 	std::cout << "  ";
-	if (methodInfo.isPublic) {
+	if (methodInfo->isPublic) {
 		std::cout << "public ";
 	}
-	if (methodInfo.isStatic) {
+	if (methodInfo->isStatic) {
 		std::cout << "static ";
 	}
-	if (methodInfo.isNative) {
+	if (methodInfo->isNative) {
 		std::cout << "native ";
 	}
 	printMethodSignature(methodInfo, classInfo, cp);
-	std::cout << "    descriptor: " << cp.getString(methodInfo.descriptorIndex) << std::endl;
+	std::cout << "    descriptor: " << cp->getString(methodInfo->descriptorIndex) << std::endl;
 	
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
-	for (AccessFlag flag : methodInfo.getAccessFlags()) {
+	for (AccessFlag flag : methodInfo->getAccessFlags()) {
 		flags.push_back(getTypeAsString(flag));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
 
-	if (methodInfo.isNative) {
+	if (methodInfo->isNative) {
 	}
 	else {
 		std::cout << "    Code: " << std::endl;
-		printCode(methodInfo.code, &methodInfo, cp);
+		printCode(methodInfo->code, methodInfo, cp);
 	}
 	std::cout << std::endl;
 }
 
-void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
-{
-}
-
-void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (uint8_t arg : args) {
 		int8_t signedInt = *reinterpret_cast<int8_t*>(&arg);
@@ -149,21 +145,21 @@ void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 	}
 }
 
-void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (uint8_t arg : args) {
 		std::cout << " " << std::to_string(arg);
 	}
 }
 
-void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp)
+void ByteIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (uint8_t arg : args) {
 		std::cout << " #" << (unsigned int) arg;
 	}
 }
 
-void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp)
+void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (int i = 0; i < args.size(); i += 2) {
 		uint8_t byte1 = args[i];
@@ -175,7 +171,7 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp)
 	}
 }
 
-void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	std::string type;
 	uint8_t arg = args[0];
@@ -212,7 +208,7 @@ void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 	std::cout << " " << type;
 }
 
-void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
+void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	uint8_t byte1 = args[0];
 	uint8_t byte2 = args[1];
@@ -223,7 +219,7 @@ void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool& cp)
 	std::cout << " #" << (unsigned int)shortIndex << ",  " << (unsigned int)dimensions;
 }
 
-void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool& cp)
+void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool* cp)
 {
 	int argsSize = method->args.size();
 	if (!method->isStatic) {
@@ -304,8 +300,8 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 	}
 
 
-	for (const AttributeInfo* att : code->attributes.attributes) {
-		std::cout << "      " << cp.getString(att->attributeNameIndex) << ":" << std::endl;
+	for (const AttributeInfo* att : code->attributes->attributes) {
+		std::cout << "      " << cp->getString(att->attributeNameIndex) << ":" << std::endl;
 		std::cout << att->toString(cp);
 	}
 
@@ -543,19 +539,19 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		std::cout << "  Compiled from \"" << classInfo.sourceFile << "\"" << std::endl;
 	}
 
-	const ConstantPool& cp = classInfo.constantPool;
-	const CPClassInfo* classPtr = cp.getClassInfo(classInfo.thisClass);
-	const CPClassInfo* superClassPtr = cp.getClassInfo(classInfo.superClass);
+	const ConstantPool* const cp = classInfo.constantPool;
+	const CPClassInfo* const classPtr = cp->getClassInfo(classInfo.thisClass);
+	const CPClassInfo* const superClassPtr = cp->getClassInfo(classInfo.superClass);
 
 	if (classInfo.isPublic) {
 		std::cout << "public ";
 	}
 
-	std::cout << "class " << cp.getString(classPtr->nameIndex);
+	std::cout << "class " << cp->getString(classPtr->nameIndex);
 
-	std::string superClassName =  cp.getString(superClassPtr->nameIndex);
+	std::string superClassName =  cp->getString(superClassPtr->nameIndex);
 	if (superClassName != "java/lang/Object") {
-		std::cout << " extends " << getAsExternalClassName(cp.getString(superClassPtr->nameIndex));
+		std::cout << " extends " << getAsExternalClassName(cp->getString(superClassPtr->nameIndex));
 	}
 
 	if (classInfo.interfaces.size() > 0) {
@@ -566,8 +562,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		std::vector<std::string> names;
 
 		for (uint16_t index : classInfo.interfaces) {
-			CPClassInfo* classPtr = cp.getClassInfo(index);
-			names.push_back(cp.getString(classPtr->nameIndex));
+			CPClassInfo* classPtr = cp->getClassInfo(index);
+			names.push_back(cp->getString(classPtr->nameIndex));
 		}
 
 		std::cout << getAsExternalClassName(joinStrings(names, ", "));
@@ -587,7 +583,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "Constant pool:" << std::endl;
 	int current = 1;
-	for (ConstantPoolItem* item : cp.constants) {
+	for (ConstantPoolItem* item : cp->constants) {
 		if (item == 0) {
 			current++;
 			continue;
@@ -608,18 +604,18 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "{" << std::endl;
 
 	// Fields
-	for (const FieldInfo fieldInfo : classInfo.fields) {
+	for (FieldInfo* fieldInfo : classInfo.fields) {
 		printField(fieldInfo, cp);
 	}
 
 	// Methods
-	for (const MethodInfo& methodInfo : classInfo.methods) {
+	for (const MethodInfo* methodInfo : classInfo.methods) {
 		printMethod(methodInfo, classInfo, cp);
 	}
 
 	std::cout << "}" << std::endl;
 
-	for (AttributeInfo* att : classInfo.attributes.attributes) {
+	for (AttributeInfo* att : classInfo.attributes->attributes) {
 		std::cout << att->toString(cp);
 	}
 }

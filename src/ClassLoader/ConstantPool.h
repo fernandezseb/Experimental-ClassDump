@@ -49,12 +49,17 @@ struct ConstantPoolItem {
 	{
 	}
 
+	virtual ~ConstantPoolItem()
+	{
+
+	}
+
 	ConstantType getType() {
 		return (ConstantType)tag;
 	}
 
 	virtual std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct ConstantPoolNamedReference : public ConstantPoolItem {
@@ -73,7 +78,7 @@ struct CPMethodRef : public ConstantPoolNamedReference {
 	}
 
 	std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPFieldRef : public ConstantPoolNamedReference {
@@ -82,7 +87,7 @@ struct CPFieldRef : public ConstantPoolNamedReference {
 	{
 	}
 	std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPInterfaceRef : public ConstantPoolNamedReference {
@@ -100,7 +105,7 @@ struct CPClassInfo : public ConstantPoolItem {
 	}
 
 	std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPIntegerInfo : public ConstantPoolItem {
@@ -149,6 +154,12 @@ struct CPUTF8Info : public ConstantPoolItem {
 		: ConstantPoolItem(tag), length(length), bytes(bytes)
 	{
 	}
+	virtual ~CPUTF8Info() {
+		if (bytes != 0) {
+			free(bytes);
+			bytes = nullptr;
+		}
+	}
 	std::string toString();
 };
 
@@ -161,7 +172,7 @@ struct CPNameAndTypeInfo : public ConstantPoolItem {
 	}
 
 	std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPStringInfo : public ConstantPoolItem {
@@ -172,7 +183,7 @@ struct CPStringInfo : public ConstantPoolItem {
 	}
 
 	std::string toString();
-	virtual std::string toExpandedString(const ConstantPool& cp);
+	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 class ConstantPool {
@@ -182,4 +193,5 @@ public:
 	std::vector<ConstantPoolItem*> constants;
 	std::string getString(uint16_t index) const;
 	CPClassInfo* getClassInfo(uint16_t index) const;
+	~ConstantPool();
 };

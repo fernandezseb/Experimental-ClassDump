@@ -89,7 +89,7 @@ std::vector<ExceptionTableEntry> AttributeParser::readExceptionTable(ByteArray& 
     return table;
 }
 
-AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool& constantPool)
+AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool)
 {
     std::vector<AttributeInfo*> attributes;
 
@@ -99,7 +99,7 @@ AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, Consta
         uint16_t attributeNameIndex = byteArray.readUnsignedShort();
         uint32_t attributeLength = byteArray.readUnsignedInt();
 
-        std::string name = constantPool.getString(attributeNameIndex);
+        std::string name = constantPool->getString(attributeNameIndex);
 
         if (name == "Code") {
             uint16_t maxStack = byteArray.readUnsignedShort();
@@ -111,7 +111,7 @@ AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, Consta
             byteArray.copyBytes(code, codeLength);
 
             std::vector<ExceptionTableEntry> exceptions = readExceptionTable(byteArray);
-            AttributeCollection attribs = readAttributes(byteArray, constantPool);
+            AttributeCollection* attribs = readAttributes(byteArray, constantPool);
 
 
             AttributeCode* att = new AttributeCode();
@@ -180,15 +180,15 @@ AttributeCollection AttributeParser::readAttributes(ByteArray& byteArray, Consta
         }
     }
 
-    return AttributeCollection(attributes);
+    return new AttributeCollection(attributes);
 }
 
-AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool& constantPool, const std::string& name) const
+AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constantPool, const std::string& name) const
 {
     AttributeInfo* attrib = 0;
 
     for (AttributeInfo* attrib : attributes) {
-        if (constantPool.getString(attrib->attributeNameIndex) == name) {
+        if (constantPool->getString(attrib->attributeNameIndex) == name) {
             return attrib;
         }
     }
@@ -201,7 +201,7 @@ AttributeCollection::AttributeCollection(std::vector<AttributeInfo*> attributes)
     this->attributes = attributes;
 }
 
-std::string AttributeLocalVariableTable::toString(const ConstantPool& cp) const {
+std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const {
     std::stringstream ss;
     ss << "        Start  Length  Slot  Name   Signature\n";
 
@@ -209,14 +209,14 @@ std::string AttributeLocalVariableTable::toString(const ConstantPool& cp) const 
         ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry->startPc;
         ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry->length;
         ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry->index;
-        ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp.getString(entry->nameIndex);
-        ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp.getString(entry->descriptorIndex);
+        ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp->getString(entry->nameIndex);
+        ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp->getString(entry->descriptorIndex);
         ss << std::endl;
     }
     return ss.str();
 }
 
-std::string AttributeLineNumberTable::toString(const ConstantPool& cp) const {
+std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const {
     std::string out = "";
     for (LineNumberTableEntry* entry : entries) {
         out += "        line " +
@@ -229,6 +229,6 @@ std::string AttributeLineNumberTable::toString(const ConstantPool& cp) const {
     return out;
 }
 
-std::string AttributeSourceFile::toString(const ConstantPool& cp) const {
-    return "SourceFile: \"" + cp.getString(sourceFileIndex) + "\"\n";
+std::string AttributeSourceFile::toString(const ConstantPool* cp) const {
+    return "SourceFile: \"" + cp->getString(sourceFileIndex) + "\"\n";
 }

@@ -26,7 +26,14 @@ public:
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
 	bool isPrivate;
-	AttributeCollection attributes;
+	FieldInfo() : attributes(nullptr) {}
+	~FieldInfo() {
+		if (attributes != 0) {
+			delete attributes;
+			attributes = nullptr;
+		}
+	}
+	AttributeCollection* attributes;
 	std::vector<AccessFlag> getAccessFlags() const;
 };
 
@@ -47,6 +54,17 @@ private:
 		ACC_SYNTHETIC
 	};
 public:
+	MethodInfo() :
+		attributes(nullptr)
+	{
+
+	}
+	~MethodInfo() {
+		if (attributes != 0) {
+			delete attributes;
+			attributes = nullptr;
+		}
+	}
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
@@ -55,7 +73,7 @@ public:
 	bool isPublic;
 	bool isStatic;
 	bool isConstructor;
-	AttributeCollection attributes;
+	AttributeCollection* attributes;
 	std::vector<AccessFlag> getAccessFlags() const;
 	std::string returnType;
 	std::vector<std::string> args;
@@ -64,31 +82,60 @@ public:
 class ClassInfo {
 private:
 	const std::vector<AccessFlag> classFlags = {
-		ACC_PUBLIC, 
-		ACC_FINAL, 
-		ACC_SUPER, 
-		ACC_INTERFACE, 
+		ACC_PUBLIC,
+		ACC_FINAL,
+		ACC_SUPER,
+		ACC_INTERFACE,
 		ACC_ABSTRACT,
 		ACC_SYNTHETIC,
 		ACC_ANNOTATION,
 		ACC_ENUM
 	};
 public:
+	ClassInfo() :
+		constantPool(nullptr),
+		attributes(nullptr)
+	{
+	}
+	~ClassInfo() {
+		if (constantPool != 0) {
+			delete constantPool;
+		}
+		if (attributes != 0) {
+			delete attributes;
+		}
+
+		for (int i = 0; i < this->fields.size(); i++) {
+			FieldInfo* item = this->fields[i];
+			if (item != 0) {
+				delete item;
+				item = nullptr;
+			}
+		}
+
+		for (int i = 0; i < this->methods.size(); i++) {
+			MethodInfo* item = this->methods[i];
+			if (item != 0) {
+				delete item;
+				item = nullptr;
+			}
+		}
+	}
 	std::wstring filePath;
 	uint64_t size;
 	time_t lastModified;
 	std::string md5;
 	uint16_t minorVersion;
 	uint16_t majorVersion;
-	ConstantPool constantPool;
+	ConstantPool* constantPool;
 	uint16_t accessFlags;
 	uint16_t thisClass;
 	uint16_t superClass;
 	std::vector<uint16_t> interfaces;
-	std::vector<FieldInfo> fields;
-	std::vector<MethodInfo> methods;
+	std::vector<FieldInfo*> fields;
+	std::vector<MethodInfo*> methods;
 	std::vector<AccessFlag> getAccessFlags() const;
-	AttributeCollection attributes;
+	AttributeCollection* attributes;
 	std::string sourceFile;
 	bool isPublic;
 };
@@ -96,14 +143,14 @@ public:
 class ClassLoader {
 private:
 	void checkMagicNumber(ByteArray& byteArray);
-	ConstantPool readConstantPool(ByteArray& byteArray);
+	ConstantPool* readConstantPool(ByteArray& byteArray);
 	ConstantPoolItem* readConstantPoolItem(uint8_t tag, ByteArray& byteArray);
-	void parseDescriptor(const std::string& descriptor, MethodInfo& method);
+	void parseDescriptor(const std::string& descriptor, MethodInfo* method);
 public:
 	ClassLoader();
-	ClassInfo readClass(ByteArray& byteArray);
-	ClassInfo readClass(const std::string& className);
+	ClassInfo* readClass(ByteArray& byteArray);
+	ClassInfo* readClass(const std::string& className);
 	std::vector<uint16_t> readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
-	std::vector<FieldInfo> readFields(ByteArray& byteArray, ConstantPool& constantPool);
-	std::vector<MethodInfo> readMethods(ByteArray& byteArray, ConstantPool& constantPool);
+	std::vector<FieldInfo*> readFields(ByteArray& byteArray, ConstantPool* constantPool);
+	std::vector<MethodInfo*> readMethods(ByteArray& byteArray, ConstantPool* constantPool);
 };

@@ -232,19 +232,18 @@ enum Opcode : uint8_t {
 #define T_BOOLEAN "boolean"
 #define T_DOUBLE  "double"
 
-void DefaultPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
-void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
-void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
-void ByteIndices(std::vector<uint8_t> args, const ConstantPool& cp);
-void ShortIndices(std::vector<uint8_t> args, const ConstantPool& cp);
-void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool& cp);
-void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool& cp);
+void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
+void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
+void ByteIndices(std::vector<uint8_t> args, const ConstantPool* cp);
+void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp);
+void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
+void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp);
 
 struct Instruction {
 	Opcode opcode;
 	uint8_t args;
 	const char* name;
-	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool& cp) = NULL;
+	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool* cp) = NULL;
 };
 
 class ClassPrinter {
@@ -302,10 +301,10 @@ private:
 	const std::string& getTypeAsString(AccessFlag flag) const;
 	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
-	void printField(const FieldInfo& fieldInfo, const ConstantPool& cp);
-	void printMethodSignature(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp);
-	void printMethod(const MethodInfo& methodInfo, const ClassInfo& classInfo, const ConstantPool& cp);
-	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool& cp);
+	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp);
+	void printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp);
+	void printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp);
+	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp);
 public:
 	ClassPrinter();
 	void printClass(const ClassInfo& classInfo);
