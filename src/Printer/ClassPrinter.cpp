@@ -571,8 +571,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	}
 	std::cout << std::endl;
 
-	std::cout << "  minor version" << " " << classInfo.minorVersion  << std::endl;
-	std::cout << "  major version" << " " << classInfo.majorVersion  << std::endl;
+	std::cout << "  minor version:" << " " << classInfo.minorVersion  << std::endl;
+	std::cout << "  major version:" << " " << classInfo.majorVersion  << std::endl;
 
 	std::cout << "  flags: ";
 	std::vector<std::string> flags;
