@@ -50,6 +50,16 @@ ConstantPool::~ConstantPool()
 	}
 }
 
+ConstantPoolItem::ConstantPoolItem(uint8_t tag) :
+	tag(tag)
+{
+}
+
+ConstantPoolItem::~ConstantPoolItem()
+{
+
+}
+
 std::string ConstantPoolItem::toString() {
 	return "";
 }
@@ -82,6 +92,13 @@ std::string CPClassInfo::toExpandedString(const ConstantPool* cp)
 
 std::string CPIntegerInfo::toString() {
 	return std::to_string((int)bytes);
+}
+
+CPUTF8Info::~CPUTF8Info() {
+	if (bytes != 0) {
+		free(bytes);
+		bytes = nullptr;
+	}
 }
 
 std::string CPUTF8Info::toString() {

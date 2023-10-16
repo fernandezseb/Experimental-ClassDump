@@ -11,31 +11,25 @@ struct ExceptionTableEntry {
 	uint16_t catchType;
 };
 
-struct AttributeInfo {
+class AttributeInfo {
+public:
 	uint16_t attributeNameIndex;
 	uint32_t attributeLength;
-	virtual std::string toString(const ConstantPool* cp) const { return ""; }
+public:
 	virtual ~AttributeInfo() {
 	}
+	
+	virtual std::string toString(const ConstantPool* cp) const { return ""; }
 };
 
-class AttributeCollection {
-public:
+struct AttributeCollection {
 	std::vector<AttributeInfo*> attributes;
-	AttributeInfo* findAttributeWithName(ConstantPool* constantPool, const std::string& name) const;
 
 	AttributeCollection(std::vector<AttributeInfo*> attributes);
-	AttributeCollection() {
-	}
-	~AttributeCollection() {
-		for (int i = 0; i < this->attributes.size(); i++) {
-			AttributeInfo* item = this->attributes[i];
-			if (item != 0) {
-				delete item;
-				item = nullptr;
-			}
-		}
-	}
+	AttributeCollection();
+	~AttributeCollection();
+	
+	AttributeInfo* findAttributeWithName(ConstantPool* constantPool, const std::string& name) const;
 };
 
 struct AttributeConstantValue : public AttributeInfo {
@@ -52,18 +46,9 @@ struct AttributeCode : public AttributeInfo {
 	uint8_t* code;
 	std::vector<ExceptionTableEntry> exceptionTable;
 	AttributeCollection* attributes;
-	AttributeCode() : attributes(nullptr) {};
-	virtual ~AttributeCode() {
-		if (code != 0) {
-			free(code);
-			code = nullptr;
-		}
 
-		if (attributes != 0) {
-			delete attributes;
-			attributes = nullptr;
-		}
-	}
+	AttributeCode();;
+	virtual ~AttributeCode();
 };
 
 struct AttributeSourceFile : public AttributeInfo {
@@ -78,17 +63,10 @@ struct LineNumberTableEntry {
 
 struct AttributeLineNumberTable :public AttributeInfo {
 	std::vector<LineNumberTableEntry*> entries;
-	std::string toString(const ConstantPool* cp) const;
 
-	virtual ~AttributeLineNumberTable() {
-		for (int i = 0; i < this->entries.size(); i++) {
-			LineNumberTableEntry* item = this->entries[i];
-			if (item != 0) {
-				delete item;
-				item = nullptr;
-			}
-		}
-	}
+	virtual ~AttributeLineNumberTable();
+
+	std::string toString(const ConstantPool* cp) const;
 };
 
 struct LocalVariableTableEntry {
@@ -102,16 +80,9 @@ struct LocalVariableTableEntry {
 struct AttributeLocalVariableTable :public AttributeInfo {
 	std::vector<LocalVariableTableEntry*> entries;
 
+	virtual ~AttributeLocalVariableTable();
+
 	std::string toString(const ConstantPool* cp) const;
-	virtual ~AttributeLocalVariableTable() {
-		for (int i = 0; i < this->entries.size(); i++) {
-			LocalVariableTableEntry* item = this->entries[i];
-			if (item != 0) {
-				delete item;
-				item = nullptr;
-			}
-		}
-	}
 };
 
 class AttributeParser {

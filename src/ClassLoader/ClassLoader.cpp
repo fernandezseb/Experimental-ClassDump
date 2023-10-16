@@ -284,6 +284,38 @@ std::vector<MethodInfo*> ClassLoader::readMethods(ByteArray& byteArray, Constant
     return methods;
 }
 
+ClassInfo::ClassInfo() :
+    constantPool(nullptr),
+    attributes(nullptr)
+{
+}
+
+ClassInfo::~ClassInfo()
+{
+    if (constantPool != 0) {
+        delete constantPool;
+    }
+    if (attributes != 0) {
+        delete attributes;
+    }
+
+    for (int i = 0; i < this->fields.size(); i++) {
+        FieldInfo* item = this->fields[i];
+        if (item != 0) {
+            delete item;
+            item = nullptr;
+        }
+    }
+
+    for (int i = 0; i < this->methods.size(); i++) {
+        MethodInfo* item = this->methods[i];
+        if (item != 0) {
+            delete item;
+            item = nullptr;
+        }
+    }
+}
+
 std::vector<AccessFlag> ClassInfo::getAccessFlags() const
 {
     std::vector<AccessFlag> flags;
@@ -296,6 +328,20 @@ std::vector<AccessFlag> ClassInfo::getAccessFlags() const
     return flags;
 }
 
+MethodInfo::MethodInfo() :
+    attributes(nullptr),
+    code(0)
+{
+
+}
+
+MethodInfo::~MethodInfo() {
+    if (attributes != 0) {
+        delete attributes;
+        attributes = nullptr;
+    }
+}
+
 std::vector<AccessFlag> MethodInfo::getAccessFlags() const
 {
     std::vector<AccessFlag> flags;
@@ -306,6 +352,15 @@ std::vector<AccessFlag> MethodInfo::getAccessFlags() const
     }
 
     return flags;
+}
+
+FieldInfo::FieldInfo() : attributes(nullptr) {}
+
+FieldInfo::~FieldInfo() {
+    if (attributes != 0) {
+        delete attributes;
+        attributes = nullptr;
+    }
 }
 
 std::vector<AccessFlag> FieldInfo::getAccessFlags() const

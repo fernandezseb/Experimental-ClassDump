@@ -26,14 +26,10 @@ public:
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
 	bool isPrivate;
-	FieldInfo() : attributes(nullptr) {}
-	~FieldInfo() {
-		if (attributes != 0) {
-			delete attributes;
-			attributes = nullptr;
-		}
-	}
 	AttributeCollection* attributes;
+public:
+	FieldInfo();
+	~FieldInfo();
 	std::vector<AccessFlag> getAccessFlags() const;
 };
 
@@ -54,17 +50,6 @@ private:
 		ACC_SYNTHETIC
 	};
 public:
-	MethodInfo() :
-		attributes(nullptr)
-	{
-
-	}
-	~MethodInfo() {
-		if (attributes != 0) {
-			delete attributes;
-			attributes = nullptr;
-		}
-	}
 	uint16_t accessFlags;
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
@@ -74,9 +59,13 @@ public:
 	bool isStatic;
 	bool isConstructor;
 	AttributeCollection* attributes;
-	std::vector<AccessFlag> getAccessFlags() const;
 	std::string returnType;
 	std::vector<std::string> args;
+public:
+	MethodInfo();
+	~MethodInfo();
+
+	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassInfo {
@@ -92,35 +81,6 @@ private:
 		ACC_ENUM
 	};
 public:
-	ClassInfo() :
-		constantPool(nullptr),
-		attributes(nullptr)
-	{
-	}
-	~ClassInfo() {
-		if (constantPool != 0) {
-			delete constantPool;
-		}
-		if (attributes != 0) {
-			delete attributes;
-		}
-
-		for (int i = 0; i < this->fields.size(); i++) {
-			FieldInfo* item = this->fields[i];
-			if (item != 0) {
-				delete item;
-				item = nullptr;
-			}
-		}
-
-		for (int i = 0; i < this->methods.size(); i++) {
-			MethodInfo* item = this->methods[i];
-			if (item != 0) {
-				delete item;
-				item = nullptr;
-			}
-		}
-	}
 	std::wstring filePath;
 	uint64_t size;
 	time_t lastModified;
@@ -134,10 +94,15 @@ public:
 	std::vector<uint16_t> interfaces;
 	std::vector<FieldInfo*> fields;
 	std::vector<MethodInfo*> methods;
-	std::vector<AccessFlag> getAccessFlags() const;
+
 	AttributeCollection* attributes;
 	std::string sourceFile;
 	bool isPublic;
+public:
+	ClassInfo();
+	virtual ~ClassInfo();
+
+	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassLoader {
@@ -148,6 +113,7 @@ private:
 	void parseDescriptor(const std::string& descriptor, MethodInfo* method);
 public:
 	ClassLoader();
+
 	ClassInfo* readClass(ByteArray& byteArray);
 	ClassInfo* readClass(const std::string& className);
 	std::vector<uint16_t> readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
