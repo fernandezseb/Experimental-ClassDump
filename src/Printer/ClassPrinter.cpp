@@ -120,7 +120,7 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	}
 	printMethodSignature(methodInfo, classInfo, cp);
 	std::cout << "    descriptor: " << cp->getString(methodInfo->descriptorIndex) << std::endl;
-	
+
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
 	for (AccessFlag flag : methodInfo->getAccessFlags()) {
@@ -152,10 +152,22 @@ void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 	}
 }
 
+void SignedShort(std::vector<uint8_t> args, const ConstantPool* cp)
+{
+	for (int i = 0; i < args.size(); i += 2) {
+		uint8_t byte1 = args[i];
+		uint8_t byte2 = args[i + 1];
+
+		int16_t shortIndex = (byte1 << 8) | byte2;
+
+		std::cout << " " << (unsigned int)shortIndex;
+	}
+}
+
 void ByteIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (uint8_t arg : args) {
-		std::cout << " #" << (unsigned int) arg;
+		std::cout << " #" << (unsigned int)arg;
 	}
 }
 
@@ -225,7 +237,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 	if (!method->isStatic) {
 		argsSize++;
 	}
-	std::cout << "      stack=" << code->maxStack << ", " 
+	std::cout << "      stack=" << code->maxStack << ", "
 		<< "locals=" << code->maxLocals
 		<< ", args_size=" << std::to_string(argsSize)
 		<< std::endl;
@@ -238,9 +250,9 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		for (const Instruction& instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
 				std::string indexStr = std::to_string(byteArray.getPtr()) + ": ";
-				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr 
+				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr
 					<< std::left << std::setfill(' ') << std::setw(13) << instruction.name;
-				
+
 				std::vector<uint8_t> args;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
@@ -250,7 +262,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 				if (instruction.printFunction != NULL) {
 					instruction.printFunction(args, cp);
 				}
-				
+
 				found = true;
 				break;
 			}
@@ -260,7 +272,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 				uint32_t instructionIndex = byteArray.getPtr();
 				// Next byte is 4 byte aligned
-				while ((byteArray.getPtr()+1) % 4 != 0) {
+				while ((byteArray.getPtr() + 1) % 4 != 0) {
 					byteArray.readUnsignedByte();
 				}
 
@@ -309,34 +321,34 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 
 ClassPrinter::ClassPrinter()
 {
-	instructions.push_back({nop, 0, "nop"});
-	instructions.push_back({ bipush, 1, "bipush", SignedBytePrinter});
-	instructions.push_back({ istore_0, 0, "istore_0"});
-	instructions.push_back({ istore_1, 0, "istore_1"});
-	instructions.push_back({ istore_2, 0, "istore_2"});
-	instructions.push_back({ istore_3, 0, "istore_3"});
-	instructions.push_back({ i_return, 0, "return"});
-	instructions.push_back({ i_new, 2, "new", ShortIndices});
-	instructions.push_back({ dup, 0, "dup"});
-	instructions.push_back({ invokespecial, 2, "invokespecial", ShortIndices});
-	instructions.push_back({ aaload, 0, "aaload"});
-	instructions.push_back({ aastore, 0, "aastore"});
+	instructions.push_back({ nop, 0, "nop" });
+	instructions.push_back({ bipush, 1, "bipush", SignedBytePrinter });
+	instructions.push_back({ istore_0, 0, "istore_0" });
+	instructions.push_back({ istore_1, 0, "istore_1" });
+	instructions.push_back({ istore_2, 0, "istore_2" });
+	instructions.push_back({ istore_3, 0, "istore_3" });
+	instructions.push_back({ i_return, 0, "return" });
+	instructions.push_back({ i_new, 2, "new", ShortIndices });
+	instructions.push_back({ dup, 0, "dup" });
+	instructions.push_back({ invokespecial, 2, "invokespecial", ShortIndices });
+	instructions.push_back({ aaload, 0, "aaload" });
+	instructions.push_back({ aastore, 0, "aastore" });
 	instructions.push_back({ aconst_null, 0, "aconst_null" });
 	instructions.push_back({ aload, 1, "aload", UnsignedBytePrinter });
-	instructions.push_back({ aload_0, 0, "aload_0"});
-	instructions.push_back({ aload_1, 0, "aload_1"});
+	instructions.push_back({ aload_0, 0, "aload_0" });
+	instructions.push_back({ aload_1, 0, "aload_1" });
 	instructions.push_back({ aload_2, 0, "aload_2" });
 	instructions.push_back({ aload_3, 0, "aload_3" });
 	instructions.push_back({ anewarray, 2, "anewarray", ShortIndices });
-	instructions.push_back({ areturn, 0, "areturn"});
+	instructions.push_back({ areturn, 0, "areturn" });
 	instructions.push_back({ aload_1, 0, "aload_1" });
 	instructions.push_back({ arraylength, 0, "arraylength" });
 	instructions.push_back({ astore, 1, "astore", UnsignedBytePrinter });
 	instructions.push_back({ astore_0, 0, "astore_0" });
-	instructions.push_back({ astore_1, 0, "astore_1"});
+	instructions.push_back({ astore_1, 0, "astore_1" });
 	instructions.push_back({ astore_2, 0, "astore_2" });
 	instructions.push_back({ astore_3, 0, "astore_3" });
-	instructions.push_back({ aload_0, 0, "aload_0"});
+	instructions.push_back({ aload_0, 0, "aload_0" });
 	instructions.push_back({ ldc, 1, "ldc", SignedBytePrinter });
 	instructions.push_back({ ldc_w, 2, "ldc_w", ShortIndices });
 	instructions.push_back({ ldc2_w, 2, "ldc2_w", ShortIndices });
@@ -359,7 +371,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ dconst_0, 0, "dconst_0" });
 	instructions.push_back({ dconst_1, 0, "dconst_1" });
 	instructions.push_back({ ddiv, 0, "ddiv" });
-	instructions.push_back({ dload, 1, "dload" }); // INDEX AND INDEX+1 IS UNSIGNED BYTE
+	instructions.push_back({ dload, 1, "dload", UnsignedBytePrinter });
 	instructions.push_back({ dload_0, 0, "dload_0" });
 	instructions.push_back({ dload_1, 0, "dload_1" });
 	instructions.push_back({ dload_2, 0, "dload_2" });
@@ -368,7 +380,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ dneg, 0, "dneg" });
 	instructions.push_back({ drem, 0, "drem" });
 	instructions.push_back({ dreturn, 0, "dreturn" });
-	instructions.push_back({ dstore, 1, "dstore", SignedBytePrinter }); // UNSIGNED BYTE INDEX AND INDEX+1
+	instructions.push_back({ dstore, 1, "dstore", UnsignedBytePrinter });
 	instructions.push_back({ dstore_0, 0, "dstore_0" });
 	instructions.push_back({ dstore_1, 0, "dstore_1" });
 	instructions.push_back({ dstore_2, 0, "dstore_2" });
@@ -464,7 +476,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ ishl , 0, "ishl" });
 	instructions.push_back({ ishr, 0, "ishr" });
 	instructions.push_back({ istore, 1, "istore", UnsignedBytePrinter });
-	instructions.push_back({ istore_0, 0, "istore_0"});
+	instructions.push_back({ istore_0, 0, "istore_0" });
 	instructions.push_back({ istore_1, 0, "istore_1" });
 	instructions.push_back({ istore_2, 0, "istore_2" });
 	instructions.push_back({ istore_3, 0, "istore_3" });
@@ -484,7 +496,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ lconst_0, 0, "lconst_0" });
 	instructions.push_back({ lconst_1, 0, "lconst_1" });
 	instructions.push_back({ i_ldiv, 0, "ldiv" });
-	instructions.push_back({ lload, 1, "lload", SignedBytePrinter }); // UNSIGNED BYTTE AND INDEX+1 UNSIGNED BYTE
+	instructions.push_back({ lload, 1, "lload", UnsignedBytePrinter });
 	instructions.push_back({ lload_0, 0, "lload_0" });
 	instructions.push_back({ lload_1, 0, "lload_1" });
 	instructions.push_back({ lload_2, 0, "lload_2" });
@@ -496,7 +508,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ lreturn, 0, "lreturn" });
 	instructions.push_back({ lshl, 0, "lshl" });
 	instructions.push_back({ lshr, 0, "lshr" });
-	instructions.push_back({ lstore, 1, "lstore", SignedBytePrinter }); // INDEX AND INDEX+1 UNSIGNED BYTES
+	instructions.push_back({ lstore, 1, "lstore", UnsignedBytePrinter });
 	instructions.push_back({ lstore_0, 0, "lstore_0" });
 	instructions.push_back({ lstore_1, 0, "lstore_1" });
 	instructions.push_back({ lstore_2, 0, "lstore_2" });
@@ -515,7 +527,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ ret, 1, "ret", SignedBytePrinter });
 	instructions.push_back({ saload, 0, "saload" });
 	instructions.push_back({ sastore, 0, "sastore" });
-	instructions.push_back({ sipush, 2, "sipush", ShortIndices }); // SIGNED 16 bit value
+	instructions.push_back({ sipush, 2, "sipush", SignedShort });
 	instructions.push_back({ swap, 0, "swap" });
 	// TODO: Add custom printer for tableswitch
 	// TODO: Add custom printer for wide
@@ -549,7 +561,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "class " << cp->getString(classPtr->nameIndex);
 
-	std::string superClassName =  cp->getString(superClassPtr->nameIndex);
+	std::string superClassName = cp->getString(superClassPtr->nameIndex);
 	if (superClassName != "java/lang/Object") {
 		std::cout << " extends " << getAsExternalClassName(cp->getString(superClassPtr->nameIndex));
 	}
@@ -571,8 +583,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	}
 	std::cout << std::endl;
 
-	std::cout << "  minor version:" << " " << classInfo.minorVersion  << std::endl;
-	std::cout << "  major version:" << " " << classInfo.majorVersion  << std::endl;
+	std::cout << "  minor version:" << " " << classInfo.minorVersion << std::endl;
+	std::cout << "  major version:" << " " << classInfo.majorVersion << std::endl;
 
 	std::cout << "  flags: ";
 	std::vector<std::string> flags;
