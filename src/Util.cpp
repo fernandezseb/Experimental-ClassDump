@@ -21,3 +21,25 @@ std::string joinStrings(std::vector<std::string> const& strings, std::string del
 
 	return ss.str();
 }
+
+std::string joinStrings(std::string* strings, size_t size, std::string delim)
+{
+	if (size == 0) {
+		return std::string();
+	}
+
+	std::stringstream ss;
+
+	ss << strings[0];
+
+	if (size > 1) {
+		size_t index = 1;
+		while (index < size) {
+			ss << delim;
+			ss << strings[index];
+			++index;
+		}
+	}
+
+	return ss.str();
+}

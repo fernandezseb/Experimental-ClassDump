@@ -566,19 +566,21 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		std::cout << " extends " << getAsExternalClassName(cp->getString(superClassPtr->nameIndex));
 	}
 
-	if (classInfo.interfaces.size() > 0) {
+	if (classInfo.interfacesCount > 0) {
 		std::cout << " implements ";
 
+		//std::string *names = (std::string*) malloc(sizeof(std::string) * classInfo.interfacesCount);
+		std::string* names = new std::string[classInfo.interfacesCount];
 
-		// TODO: OPTIMIZE: Replace vector by array 
-		std::vector<std::string> names;
-
-		for (uint16_t index : classInfo.interfaces) {
+		for (size_t currentIndex = 0; currentIndex < classInfo.interfacesCount; ++currentIndex) {
+			uint16_t index = classInfo.interfaces[currentIndex];
 			CPClassInfo* classPtr = cp->getClassInfo(index);
-			names.push_back(cp->getString(classPtr->nameIndex));
+			names[currentIndex] = cp->getString(classPtr->nameIndex);
 		}
 
-		std::cout << getAsExternalClassName(joinStrings(names, ", "));
+		std::cout << getAsExternalClassName(joinStrings(names, classInfo.interfacesCount, ", "));
+
+		delete[] names;
 
 	}
 	std::cout << std::endl;

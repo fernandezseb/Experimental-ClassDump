@@ -151,8 +151,11 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     classInfo->accessFlags = byteArray.readUnsignedShort();
     classInfo->thisClass = byteArray.readUnsignedShort();
     classInfo->superClass = byteArray.readUnsignedShort();
+    
     uint16_t interfacesCount = byteArray.readUnsignedShort();
     classInfo->interfaces = readInterfaces(byteArray, interfacesCount);
+    classInfo->interfacesCount = interfacesCount;
+
     classInfo->fields = readFields(byteArray, classInfo->constantPool);
     classInfo->methods = readMethods(byteArray, classInfo->constantPool);
     classInfo->isPublic = ((classInfo->accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
@@ -206,13 +209,13 @@ ClassInfo* ClassLoader::readClass(const std::string& className)
     return new ClassInfo();
 }
 
-std::vector<uint16_t> ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)
+uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)
 {
-    std::vector<uint16_t> interfaces;
+    uint16_t* interfaces = (uint16_t*) malloc(sizeof(uint16_t) * interfacesCount);
 
     for (uint16_t currentInterface = 0; currentInterface < interfacesCount; currentInterface++) {
         uint16_t interfaceIndex = byteArray.readUnsignedShort();
-        interfaces.push_back(interfaceIndex);
+        interfaces[currentInterface] = interfaceIndex;
     }
 
     return interfaces;
@@ -297,6 +300,12 @@ ClassInfo::~ClassInfo()
     }
     if (attributes != 0) {
         delete attributes;
+    }
+
+    if (interfacesCount > 0) {
+        if (interfaces != 0) {
+            free(interfaces);
+        }
     }
 
     for (int i = 0; i < this->fields.size(); i++) {

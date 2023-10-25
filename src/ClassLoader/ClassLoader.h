@@ -91,8 +91,12 @@ public:
 	uint16_t accessFlags;
 	uint16_t thisClass;
 	uint16_t superClass;
-	std::vector<uint16_t> interfaces;
+	
+	uint16_t* interfaces;
+	uint16_t interfacesCount;
+
 	std::vector<FieldInfo*> fields;
+
 	std::vector<MethodInfo*> methods;
 
 	AttributeCollection* attributes;
@@ -116,7 +120,7 @@ public:
 
 	ClassInfo* readClass(ByteArray& byteArray);
 	ClassInfo* readClass(const std::string& className);
-	std::vector<uint16_t> readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
+	uint16_t* readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
 	std::vector<FieldInfo*> readFields(ByteArray& byteArray, ConstantPool* constantPool);
 	std::vector<MethodInfo*> readMethods(ByteArray& byteArray, ConstantPool* constantPool);
 };
