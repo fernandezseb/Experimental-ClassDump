@@ -311,10 +311,12 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		std::cout << std::endl;
 	}
 
-
-	for (const AttributeInfo* att : code->attributes->attributes) {
-		std::cout << "      " << cp->getString(att->attributeNameIndex) << ":" << std::endl;
-		std::cout << att->toString(cp);
+	for (size_t currentAttrib = 0; currentAttrib < code->attributes->attributesCount; ++currentAttrib) {
+		AttributeInfo* att = code->attributes->attributes[currentAttrib];
+		if (att != 0) {
+			std::cout << "      " << cp->getString(att->attributeNameIndex) << ":" << std::endl;
+			std::cout << att->toString(cp);
+		}
 	}
 
 }
@@ -629,7 +631,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "}" << std::endl;
 
-	for (AttributeInfo* att : classInfo.attributes->attributes) {
+	for (size_t currentAttrib = 0; currentAttrib < classInfo.attributes->attributesCount; ++currentAttrib) {
+		AttributeInfo* att = classInfo.attributes->attributes[currentAttrib];
 		std::cout << att->toString(cp);
 	}
 }

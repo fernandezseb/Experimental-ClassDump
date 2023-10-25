@@ -4,7 +4,8 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constant
 {
 	AttributeInfo* attrib = 0;
 
-	for (AttributeInfo* attrib : attributes) {
+	for (int currentAttrib = 0; currentAttrib < attributesCount; ++currentAttrib) {
+		attrib = attributes[currentAttrib];
 		if (constantPool->getString(attrib->attributeNameIndex) == name) {
 			return attrib;
 		}
@@ -13,16 +14,17 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constant
 	return attrib;
 }
 
-AttributeCollection::AttributeCollection(std::vector<AttributeInfo*> attributes)
+AttributeCollection::AttributeCollection(AttributeInfo** attributes, size_t attributesCount)
 {
 	this->attributes = attributes;
+	this->attributesCount = attributesCount;
 }
 
 AttributeCollection::AttributeCollection() {
 }
 
 AttributeCollection::~AttributeCollection() {
-	for (int i = 0; i < this->attributes.size(); i++) {
+	for (int i = 0; i < this->attributesCount; i++) {
 		AttributeInfo* item = this->attributes[i];
 		if (item != 0) {
 			delete item;
@@ -188,9 +190,8 @@ std::vector<ExceptionTableEntry> AttributeParser::readExceptionTable(ByteArray& 
 
 AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool)
 {
-	std::vector<AttributeInfo*> attributes;
-
 	uint16_t attributesCount = byteArray.readUnsignedShort();
+	AttributeInfo** attributes = (AttributeInfo**) malloc(attributesCount * sizeof(AttributeInfo*));
 
 	for (int currentAttrib = 0; currentAttrib < attributesCount; currentAttrib++) {
 		uint16_t attributeNameIndex = byteArray.readUnsignedShort();
@@ -221,7 +222,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->exceptionTable = exceptions;
 			att->attributes = attribs;
 
-			attributes.push_back(att);
+			attributes[currentAttrib] = att;
 		}
 		else if (name == "LineNumberTable") {
 			uint16_t lineNumberTableLength = byteArray.readUnsignedShort();
@@ -236,7 +237,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 				entry->lineNumber = lineNumber;
 				att->entries.push_back(entry);
 			}
-			attributes.push_back(att);
+			attributes[currentAttrib] = att;
 		}
 		else if (name == "LocalVariableTable") {
 			uint16_t localVariableTableLength = byteArray.readUnsignedShort();
@@ -257,7 +258,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 				entry->index = index;
 				att->entries.push_back(entry);
 			}
-			attributes.push_back(att);
+			attributes[currentAttrib] = att;
 		}
 		else if (name == "SourceFile") {
 			uint16_t sourceFileIndex = byteArray.readUnsignedShort();
@@ -266,10 +267,11 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->attributeLength = attributeLength;
 			att->sourceFileIndex = sourceFileIndex;
 
-			attributes.push_back(att);
+			attributes[currentAttrib] = att;
 		}
 		else if (name == "StackMapTable") {
 			readStackMapTable(byteArray);
+			attributes[currentAttrib] = 0;
 		}
 		else {
 			std::cout << "Attribute parsing not implemented yet for type: " << name << std::endl;
@@ -277,5 +279,5 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		}
 	}
 
-	return new AttributeCollection(attributes);
+	return new AttributeCollection(attributes, attributesCount);
 }

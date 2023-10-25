@@ -23,9 +23,10 @@ public:
 };
 
 struct AttributeCollection {
-	std::vector<AttributeInfo*> attributes;
+	AttributeInfo** attributes;
+	size_t attributesCount;
 
-	AttributeCollection(std::vector<AttributeInfo*> attributes);
+	AttributeCollection(AttributeInfo** attributes, size_t attributesCount);
 	AttributeCollection();
 	~AttributeCollection();
 	
