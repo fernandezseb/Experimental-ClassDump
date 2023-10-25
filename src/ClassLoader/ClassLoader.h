@@ -81,7 +81,7 @@ private:
 		ACC_ENUM
 	};
 public:
-	std::wstring filePath;
+	wchar_t* filePath;
 	uint64_t size;
 	time_t lastModified;
 	std::string md5;

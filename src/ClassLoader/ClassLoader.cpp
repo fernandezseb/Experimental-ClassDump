@@ -176,7 +176,10 @@ ClassInfo* ClassLoader::readClass(const std::string& className)
 
     try {
         std::filesystem::path path = std::filesystem::canonical(className);
-        std::wstring absolutePath = path.c_str();
+        const wchar_t* absolutePath = path.c_str();
+
+        wchar_t* pathstr = (wchar_t*)malloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
+        wcscpy(pathstr, absolutePath);
 
         std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
 
@@ -193,7 +196,7 @@ ClassInfo* ClassLoader::readClass(const std::string& className)
         std::string checksum =  md5(bytes.bytes, size);
 
         ClassInfo* classInfo = readClass(bytes);
-        classInfo->filePath = absolutePath;
+        classInfo->filePath = pathstr;
         classInfo->size = size;
         classInfo->lastModified = attr.st_mtime;
         classInfo->md5 = checksum;
@@ -322,6 +325,10 @@ ClassInfo::~ClassInfo()
             delete item;
             item = nullptr;
         }
+    }
+
+    if (filePath != 0) {
+        free(filePath);
     }
 }
 
