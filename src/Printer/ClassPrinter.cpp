@@ -2,6 +2,8 @@
 
 #include "Util.h"
 
+static const std::string ACC_SYNCHRONIZED_STR = "ACC_SYNCHRONIZED";
+
 const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
 	if (constantTypes.find(type) != constantTypes.end()) {
 		return constantTypes.at(type);
@@ -11,10 +13,14 @@ const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
 	}
 }
 
-const std::string& ClassPrinter::getTypeAsString(AccessFlag flag) const
+const std::string& ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) const
 {
 	if (accessFlags.find(flag) != accessFlags.end()) {
-		return accessFlags.at(flag);
+		const std::string& str = accessFlags.at(flag);
+		if (type == METHOD && flag == ACC_SYNCHRONIZED) {
+			return ACC_SYNCHRONIZED_STR;
+		}
+		return str;
 	}
 	else {
 		return Unknown;
@@ -71,7 +77,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
 	for (AccessFlag flag : fieldInfo->getAccessFlags()) {
-		flags.push_back(getTypeAsString(flag));
+		flags.push_back(getTypeAsString(flag, FIELD));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
 	std::cout << std::endl;
@@ -110,6 +116,7 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
 {
 	std::cout << "  ";
+	// TODO: Maybe we can print these based on a lookup table and in a fixed order, e.g. does the flags list match?
 	if (methodInfo->isPublic) {
 		std::cout << "public ";
 	}
@@ -119,17 +126,20 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	if (methodInfo->isNative) {
 		std::cout << "native ";
 	}
+	if (methodInfo->isAbstract) {
+		std::cout << "abstract ";
+	}
 	printMethodSignature(methodInfo, classInfo, cp);
 	std::cout << "    descriptor: " << cp->getString(methodInfo->descriptorIndex) << std::endl;
 
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
 	for (AccessFlag flag : methodInfo->getAccessFlags()) {
-		flags.push_back(getTypeAsString(flag));
+		flags.push_back(getTypeAsString(flag, METHOD));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
 
-	if (methodInfo->isNative) {
+	if (methodInfo->isNative || methodInfo->isAbstract) {
 	}
 	else {
 		std::cout << "    Code: " << std::endl;
@@ -594,7 +604,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "  flags: ";
 	std::vector<std::string> flags;
 	for (AccessFlag flag : classInfo.getAccessFlags()) {
-		flags.push_back(getTypeAsString(flag));
+		flags.push_back(getTypeAsString(flag, CLASS));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
 

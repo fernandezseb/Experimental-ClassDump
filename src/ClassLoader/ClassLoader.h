@@ -58,6 +58,7 @@ public:
 	bool isPublic;
 	bool isStatic;
 	bool isConstructor;
+	bool isAbstract;
 	AttributeCollection* attributes;
 	char* returnType;
 	char** args;

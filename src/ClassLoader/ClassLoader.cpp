@@ -291,6 +291,7 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
         }
         info->isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
         info->isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
+        info->isAbstract = ((accessFlags & ACC_ABSTRACT) == ACC_ABSTRACT);
 
         parseDescriptor(constantPool->getString(descriptorIndex), info);
 

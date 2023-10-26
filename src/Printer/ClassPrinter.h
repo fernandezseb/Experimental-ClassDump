@@ -250,6 +250,9 @@ class ClassPrinter {
 private:
 	std::vector<Instruction> instructions;
 	const std::string Unknown = "(unknown)";
+	enum AccessFlagType {
+		CLASS, METHOD, FIELD
+	};
 	const std::map<ConstantType, const std::string> constantTypes =
 	{
 		{CT_UTF8,    "Utf8"},
@@ -282,8 +285,7 @@ private:
 		{ACC_STRICT, "ACC_STRICT"},
 		{ACC_SYNTHETIC, "ACC_SYNTHETIC"},
 		{ACC_ANNOTATION, "ACC_ANNOTATION"},
-		{ACC_ENUM, "ACC_ENUM"}
-		// TODO: Add synchronized
+		{ACC_ENUM, "ACC_ENUM"},
 	};
 	const std::map<char, const std::string> types = {
 		{'V', T_VOID},
@@ -298,7 +300,7 @@ private:
 		{'D', T_DOUBLE}
 	};
 	const std::string& getTypeAsString(ConstantType type) const;
-	const std::string& getTypeAsString(AccessFlag flag) const;
+	const std::string& getTypeAsString(AccessFlag flag, AccessFlagType type) const;
 	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp);
