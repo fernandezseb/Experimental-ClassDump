@@ -250,8 +250,25 @@ class ClassPrinter {
 private:
 
 	std::vector<Instruction> instructions;
-	const std::string Unknown = "(unknown)";
-	const std::string ACC_SYNCHRONIZED_STR = "ACC_SYNCHRONIZED";
+	const std::string Unknown        = "(unknown)";
+	const char* ACC_PUBLIC_STR       = "ACC_PUBLIC";
+	const char* ACC_PRIVATE_STR      = "ACC_PRIVATE";
+	const char* ACC_PROTECTED_STR    = "ACC_PROTECTED";
+	const char* ACC_STATIC_STR       = "ACC_STATIC";
+	const char* ACC_FINAL_STR        = "ACC_FINAL";
+	const char* ACC_SUPER_STR        = "ACC_SUPER";
+	const char* ACC_BRIDGE_STR       = "ACC_BRIDGE";
+	const char* ACC_VARARGS_STR      = "ACC_VARARGS";
+	const char* ACC_NATIVE_STR       = "ACC_NATIVE";
+	const char* ACC_INTERFACE_STR    = "ACC_INTERFACE";
+	const char* ACC_ABSTRACT_STR     = "ACC_ABSTRACT";
+	const char* ACC_STRICT_STR       = "ACC_STRICT";
+	const char* ACC_SYNTHETIC_STR    = "ACC_SYNTHETIC";
+	const char* ACC_ANNOTATION_STR   = "ACC_ANNOTATION";
+	const char* ACC_ENUM_STR         = "ACC_ENUM";
+	const char* ACC_SYNCHRONIZED_STR = "ACC_SYNCHRONIZED";
+	const char* ACC_VOLATILE_STR     = "ACC_VOLATILE";
+	const char* ACC_TRANSIENT_STR = "ACC_TRANSIENT";
 	enum AccessFlagType {
 		CLASS, METHOD, FIELD
 	};
@@ -272,22 +289,42 @@ private:
 		{CT_METHODTYPE, "Methodtype"},
 		{CT_INVOKEDYNAMIC, "InvokeDynamic"}
 	};
-	const std::map<AccessFlag, const std::string> accessFlags = {
-		{ACC_PUBLIC, "ACC_PUBLIC"},
-		{ACC_PRIVATE, "ACC_PRIVATE"},
-		{ACC_PROTECTED, "ACC_PROTECTED"},
-		{ACC_STATIC, "ACC_STATIC"},
-		{ACC_FINAL, "ACC_FINAL"},
-		{ACC_SUPER, "ACC_SUPER"},
-		{ACC_BRIDGE, "ACC_BRIDGE"},
-		{ACC_VARARGS, "ACC_VARARGS"},
-		{ACC_NATIVE, "ACC_NATIVE"},
-		{ACC_INTERFACE, "ACC_INTERFACE"},
-		{ACC_ABSTRACT, "ACC_ABSTRACT"},
-		{ACC_STRICT, "ACC_STRICT"},
-		{ACC_SYNTHETIC, "ACC_SYNTHETIC"},
-		{ACC_ANNOTATION, "ACC_ANNOTATION"},
-		{ACC_ENUM, "ACC_ENUM"},
+	const std::map<AccessFlag, const char*> accessFlagsField = {
+		{ACC_PUBLIC, ACC_PUBLIC_STR},
+		{ACC_PRIVATE, ACC_PRIVATE_STR},
+		{ACC_PROTECTED, ACC_PROTECTED_STR},
+		{ACC_STATIC, ACC_STATIC_STR},
+		{ACC_FINAL, ACC_FINAL_STR},
+		{ACC_VOLATILE, ACC_VOLATILE_STR},
+		{ACC_TRANSIENT, ACC_TRANSIENT_STR},
+		{ACC_SYNTHETIC, ACC_SYNTHETIC_STR},
+		{ACC_ENUM, ACC_ENUM_STR}
+	};
+
+	const std::map<AccessFlag, const char*> accessFlagsMethod = {
+		{ACC_PUBLIC, ACC_PUBLIC_STR},
+		{ACC_PRIVATE, ACC_PRIVATE_STR},
+		{ACC_PROTECTED, ACC_PROTECTED_STR},
+		{ACC_STATIC, ACC_STATIC_STR},
+		{ACC_FINAL, ACC_FINAL_STR},
+		{ACC_SYNCHRONIZED, ACC_SYNCHRONIZED_STR},
+		{ACC_BRIDGE, ACC_BRIDGE_STR},
+		{ACC_VARARGS, ACC_VARARGS_STR},
+		{ACC_NATIVE, ACC_NATIVE_STR},
+		{ACC_ABSTRACT, ACC_ABSTRACT_STR},
+		{ACC_STRICT, ACC_STRICT_STR},
+		{ACC_SYNTHETIC, ACC_SYNTHETIC_STR}
+	};
+
+	const std::map<AccessFlag, const char*> accessFlagsClass = {
+		{ACC_PUBLIC, ACC_PUBLIC_STR},
+		{ACC_FINAL, ACC_FINAL_STR},
+		{ACC_SUPER, ACC_SUPER_STR},
+		{ACC_INTERFACE, ACC_INTERFACE_STR},
+		{ACC_ABSTRACT, ACC_ABSTRACT_STR},
+		{ACC_SYNTHETIC, ACC_SYNTHETIC_STR},
+		{ACC_ANNOTATION, ACC_ANNOTATION_STR},
+		{ACC_ENUM, ACC_ENUM_STR}
 	};
 	const std::map<char, const std::string> types = {
 		{'V', T_VOID},
@@ -302,7 +339,7 @@ private:
 		{'D', T_DOUBLE}
 	};
 	const std::string& getTypeAsString(ConstantType type) const;
-	const std::string& getTypeAsString(AccessFlag flag, AccessFlagType type) const;
+	const char* getTypeAsString(AccessFlag flag, AccessFlagType type) const;
 	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp);

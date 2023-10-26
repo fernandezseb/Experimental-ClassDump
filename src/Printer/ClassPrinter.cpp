@@ -11,17 +11,32 @@ const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
 	}
 }
 
-const std::string& ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) const
+const char* ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) const
 {
-	if (accessFlags.find(flag) != accessFlags.end()) {
-		const std::string& str = accessFlags.at(flag);
-		if (type == METHOD && flag == ACC_SYNCHRONIZED) {
-			return ACC_SYNCHRONIZED_STR;
-		}
+	const std::map<AccessFlag, const char*>* flags = 0;
+	switch (type) {
+	case METHOD:
+	{
+		flags = &accessFlagsMethod;
+		break;
+	}
+	case FIELD:
+	{
+		flags = &accessFlagsField;
+		break;
+	}
+	case CLASS:
+	{
+		flags = &accessFlagsClass;
+		break;
+	}
+	}
+	if (flags != 0 && (flags->find(flag) != flags->end())) {
+		const char* str = flags->at(flag);
 		return str;
 	}
 	else {
-		return Unknown;
+		return Unknown.c_str();
 	}
 }
 
