@@ -35,7 +35,7 @@ public:
 
 class MethodInfo {
 private:
-	const std::vector<AccessFlag> methodFlags = {
+	const AccessFlag methodFlags[12] = {
 		ACC_PUBLIC,
 		ACC_PRIVATE,
 		ACC_PROTECTED,
@@ -70,7 +70,7 @@ public:
 
 class ClassInfo {
 private:
-	const std::vector<AccessFlag> classFlags = {
+	const AccessFlag classFlags[8] = {
 		ACC_PUBLIC,
 		ACC_FINAL,
 		ACC_SUPER,
