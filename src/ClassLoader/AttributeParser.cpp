@@ -14,7 +14,7 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constant
 	return attrib;
 }
 
-AttributeCollection::AttributeCollection(AttributeInfo** attributes, size_t attributesCount)
+AttributeCollection::AttributeCollection(AttributeInfo** attributes, uint16_t attributesCount)
 {
 	this->attributes = attributes;
 	this->attributesCount = attributesCount;
@@ -60,32 +60,21 @@ AttributeCode::~AttributeCode() {
 }
 
 AttributeLocalVariableTable::~AttributeLocalVariableTable() {
-	for (int i = 0; i < this->entries.size(); i++) {
-		LocalVariableTableEntry* item = this->entries[i];
-		if (item != 0) {
-			delete item;
-			item = nullptr;
-		}
-	}
+	free(entries);
 }
 
 AttributeLineNumberTable::~AttributeLineNumberTable() {
-	for (int i = 0; i < this->entries.size(); i++) {
-		LineNumberTableEntry* item = this->entries[i];
-		if (item != 0) {
-			delete item;
-			item = nullptr;
-		}
-	}
+	free(entries);
 }
 
 std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const {
 	std::string out = "";
-	for (LineNumberTableEntry* entry : entries) {
+	for (uint16_t currentIndex = 0; currentIndex < size; ++currentIndex) {
+		LineNumberTableEntry& entry = entries[currentIndex];
 		out += "        line " +
-			std::to_string(entry->lineNumber)
+			std::to_string(entry.lineNumber)
 			+ ": "
-			+ std::to_string(entry->startPc)
+			+ std::to_string(entry.startPc)
 			+ "\n";
 	}
 
@@ -96,12 +85,13 @@ std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const 
 	std::stringstream ss;
 	ss << "        Start  Length  Slot  Name   Signature\n";
 
-	for (LocalVariableTableEntry* entry : entries) {
-		ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry->startPc;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry->length;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry->index;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp->getString(entry->nameIndex);
-		ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp->getString(entry->descriptorIndex);
+	for (uint16_t currentIndex = 0; currentIndex < size; ++currentIndex) {
+		LocalVariableTableEntry& entry = entries[currentIndex];
+		ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry.startPc;
+		ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry.length;
+		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry.index;
+		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp->getString(entry.nameIndex);
+		ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp->getString(entry.descriptorIndex);
 		ss << std::endl;
 	}
 	return ss.str();
@@ -247,13 +237,17 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			AttributeLineNumberTable* att = new AttributeLineNumberTable();
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
-			for (int lineNumerTableIndex = 0; lineNumerTableIndex < lineNumberTableLength; lineNumerTableIndex++) {
+			att->size = lineNumberTableLength;
+
+			att->entries = (LineNumberTableEntry*)malloc(sizeof(LineNumberTableEntry) * lineNumberTableLength);
+
+			for (int lineNumberTableIndex = 0; lineNumberTableIndex < lineNumberTableLength; ++lineNumberTableIndex) {
 				uint16_t startPc = byteArray.readUnsignedShort();
 				uint16_t lineNumber = byteArray.readUnsignedShort();
-				LineNumberTableEntry* entry = new LineNumberTableEntry();
-				entry->startPc = startPc;
-				entry->lineNumber = lineNumber;
-				att->entries.push_back(entry);
+				LineNumberTableEntry entry;
+				entry.startPc = startPc;
+				entry.lineNumber = lineNumber;
+				att->entries[lineNumberTableIndex] = entry;
 			}
 			attributes[currentAttrib] = att;
 		}
@@ -262,19 +256,21 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			AttributeLocalVariableTable* att = new AttributeLocalVariableTable();
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
+			att->size = localVariableTableLength;
+			att->entries = (LocalVariableTableEntry*) malloc(sizeof(LocalVariableTableEntry) * localVariableTableLength);
 			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
 				uint16_t startPc = byteArray.readUnsignedShort();
 				uint16_t length = byteArray.readUnsignedShort();
 				uint16_t nameIndex = byteArray.readUnsignedShort();
 				uint16_t descriptorIndex = byteArray.readUnsignedShort();
 				uint16_t index = byteArray.readUnsignedShort();
-				LocalVariableTableEntry* entry = new LocalVariableTableEntry();
-				entry->startPc = startPc;
-				entry->length = length;
-				entry->nameIndex = nameIndex;
-				entry->descriptorIndex = descriptorIndex;
-				entry->index = index;
-				att->entries.push_back(entry);
+				LocalVariableTableEntry entry;
+				entry.startPc = startPc;
+				entry.length = length;
+				entry.nameIndex = nameIndex;
+				entry.descriptorIndex = descriptorIndex;
+				entry.index = index;
+				att->entries[localVariableTableIndex] = entry;
 			}
 			attributes[currentAttrib] = att;
 		}

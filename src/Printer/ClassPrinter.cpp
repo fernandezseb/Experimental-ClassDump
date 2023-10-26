@@ -97,7 +97,8 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 
 	std::vector<std::string> args;
 
-	for (std::string arg : methodInfo->args) {
+	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
+		std::string arg = methodInfo->args[currentArg];
 		args.push_back(getAsExternalReturnType(arg));
 	}
 
@@ -233,7 +234,7 @@ void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 
 void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool* cp)
 {
-	int argsSize = method->args.size();
+	int argsSize = method->argsCount;
 	if (!method->isStatic) {
 		argsSize++;
 	}

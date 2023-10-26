@@ -24,9 +24,9 @@ public:
 
 struct AttributeCollection {
 	AttributeInfo** attributes;
-	size_t attributesCount;
+	uint16_t attributesCount;
 
-	AttributeCollection(AttributeInfo** attributes, size_t attributesCount);
+	AttributeCollection(AttributeInfo** attributes, uint16_t attributesCount);
 	AttributeCollection();
 	~AttributeCollection();
 	
@@ -64,7 +64,8 @@ struct LineNumberTableEntry {
 };
 
 struct AttributeLineNumberTable :public AttributeInfo {
-	std::vector<LineNumberTableEntry*> entries;
+	LineNumberTableEntry* entries;
+	uint16_t size;
 
 	virtual ~AttributeLineNumberTable();
 
@@ -80,7 +81,8 @@ struct LocalVariableTableEntry {
 };
 
 struct AttributeLocalVariableTable :public AttributeInfo {
-	std::vector<LocalVariableTableEntry*> entries;
+	LocalVariableTableEntry* entries;
+	uint16_t size;
 
 	virtual ~AttributeLocalVariableTable();
 

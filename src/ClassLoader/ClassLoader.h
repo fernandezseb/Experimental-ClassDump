@@ -60,7 +60,8 @@ public:
 	bool isConstructor;
 	AttributeCollection* attributes;
 	std::string returnType;
-	std::vector<std::string> args;
+	std::string* args;
+	uint16_t argsCount;
 public:
 	MethodInfo();
 	~MethodInfo();

@@ -258,7 +258,12 @@ void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo* met
 {
     Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
     method->returnType = desc.returnType;
-    method->args = desc.args;
+
+    std::vector<std::string> args = desc.args;
+    std::string* argsArr = new std::string[args.size()];
+    std::copy(args.begin(), args.end(), argsArr);
+    method->args = argsArr;
+    method->argsCount = args.size();
 }
 
 MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount)
@@ -364,6 +369,10 @@ MethodInfo::~MethodInfo() {
     if (attributes != 0) {
         delete attributes;
         attributes = nullptr;
+    }
+
+    if (args != 0) {
+        delete[] args;
     }
 }
 
