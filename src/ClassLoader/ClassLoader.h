@@ -10,7 +10,7 @@
 
 class FieldInfo {
 private:
-	const std::vector<AccessFlag> fieldFlags = {
+	const AccessFlag fieldFlags[9] = {
 		ACC_PUBLIC,
 		ACC_PRIVATE,
 		ACC_PROTECTED,
