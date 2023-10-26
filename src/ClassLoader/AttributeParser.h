@@ -45,7 +45,8 @@ struct AttributeCode : public AttributeInfo {
 	uint16_t maxLocals;
 	uint32_t codeLength;
 	uint8_t* code;
-	std::vector<ExceptionTableEntry> exceptionTable;
+	ExceptionTableEntry* exceptionTable;
+	uint16_t exceptionTableSize;
 	AttributeCollection* attributes;
 
 	AttributeCode();;
@@ -89,7 +90,7 @@ struct AttributeLocalVariableTable :public AttributeInfo {
 class AttributeParser {
 public:
 	static ExceptionTableEntry readExceptionTableEntry(ByteArray& byteArray);
-	static std::vector<ExceptionTableEntry> readExceptionTable(ByteArray& byteArray);
+	static ExceptionTableEntry* readExceptionTable(ByteArray& byteArray, uint16_t* size);
 	static void readStackMapTable(ByteArray& byteArray);
 	static AttributeCollection* readAttributes(ByteArray& byteArray, ConstantPool* constantPool);
 };

@@ -53,6 +53,10 @@ AttributeCode::~AttributeCode() {
 		delete attributes;
 		attributes = nullptr;
 	}
+
+	if (exceptionTable != 0) {
+		free(exceptionTable);
+	}
 }
 
 AttributeLocalVariableTable::~AttributeLocalVariableTable() {
@@ -180,13 +184,21 @@ ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArra
 	return entry;
 }
 
-std::vector<ExceptionTableEntry> AttributeParser::readExceptionTable(ByteArray& byteArray) {
-	std::vector<ExceptionTableEntry> table;
+ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, uint16_t *size) {
 	uint16_t exceptionTableLength = byteArray.readUnsignedShort();
 
-	for (uint16_t currentException = 0; currentException < exceptionTableLength; currentException++) {
-		ExceptionTableEntry entry = readExceptionTableEntry(byteArray);
-		table.push_back(entry);
+	ExceptionTableEntry* table = 0;
+
+	if (exceptionTableLength > 0)
+	{
+		ExceptionTableEntry* table = (ExceptionTableEntry*)
+			malloc(sizeof(ExceptionTableEntry) * exceptionTableLength);
+		*size = exceptionTableLength;
+
+		for (uint16_t currentException = 0; currentException < exceptionTableLength; currentException++) {
+			ExceptionTableEntry entry = readExceptionTableEntry(byteArray);
+			table[currentException] = entry;
+		}
 	}
 
 	return table;
@@ -212,7 +224,8 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			bytePtr += codeLength;*/
 			byteArray.copyBytes(code, codeLength);
 
-			std::vector<ExceptionTableEntry> exceptions = readExceptionTable(byteArray);
+			uint16_t exceptionTableSize;
+			ExceptionTableEntry* exceptions = readExceptionTable(byteArray, &exceptionTableSize);
 			AttributeCollection* attribs = readAttributes(byteArray, constantPool);
 
 
@@ -224,6 +237,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->codeLength = codeLength;
 			att->code = code;
 			att->exceptionTable = exceptions;
+			att->exceptionTableSize = exceptionTableSize;
 			att->attributes = attribs;
 
 			attributes[currentAttrib] = att;
