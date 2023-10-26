@@ -31,6 +31,10 @@ AttributeCollection::~AttributeCollection() {
 			item = nullptr;
 		}
 	}
+
+	if (attributes != 0) {
+		free(attributes);
+	}
 }
 
 std::string AttributeSourceFile::toString(const ConstantPool* cp) const {
