@@ -620,12 +620,14 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	std::cout << "{" << std::endl;
 
 	// Fields
-	for (FieldInfo* fieldInfo : classInfo.fields) {
+	for (uint16_t currentField = 0; currentField < classInfo.fieldsCount; ++currentField) {
+		FieldInfo* fieldInfo = classInfo.fields[currentField];
 		printField(fieldInfo, cp);
 	}
 
 	// Methods
-	for (const MethodInfo* methodInfo : classInfo.methods) {
+	for (uint16_t currentMethod = 0; currentMethod < classInfo.methodCount; ++currentMethod) {
+		MethodInfo* methodInfo = classInfo.methods[currentMethod];
 		printMethod(methodInfo, classInfo, cp);
 	}
 

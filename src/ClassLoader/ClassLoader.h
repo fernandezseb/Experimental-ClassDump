@@ -84,7 +84,7 @@ public:
 	wchar_t* filePath;
 	uint64_t size;
 	time_t lastModified;
-	std::string md5;
+	char md5[33];
 	uint16_t minorVersion;
 	uint16_t majorVersion;
 	ConstantPool* constantPool;
@@ -95,9 +95,11 @@ public:
 	uint16_t* interfaces;
 	uint16_t interfacesCount;
 
-	std::vector<FieldInfo*> fields;
+	FieldInfo** fields;
+	uint16_t fieldsCount;
 
-	std::vector<MethodInfo*> methods;
+	MethodInfo** methods;
+	uint16_t methodCount;
 
 	AttributeCollection* attributes;
 	std::string sourceFile;
@@ -119,8 +121,8 @@ public:
 	ClassLoader();
 
 	ClassInfo* readClass(ByteArray& byteArray);
-	ClassInfo* readClass(const std::string& className);
+	ClassInfo* readClass(const char* className);
 	uint16_t* readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
-	std::vector<FieldInfo*> readFields(ByteArray& byteArray, ConstantPool* constantPool);
-	std::vector<MethodInfo*> readMethods(ByteArray& byteArray, ConstantPool* constantPool);
+	FieldInfo** readFields(ByteArray& byteArray, ConstantPool* constantPool, uint16_t fieldsCount);
+	MethodInfo** readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount);
 };

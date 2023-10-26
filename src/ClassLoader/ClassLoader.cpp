@@ -156,8 +156,14 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     classInfo->interfaces = readInterfaces(byteArray, interfacesCount);
     classInfo->interfacesCount = interfacesCount;
 
-    classInfo->fields = readFields(byteArray, classInfo->constantPool);
-    classInfo->methods = readMethods(byteArray, classInfo->constantPool);
+    uint16_t fieldsCount = byteArray.readUnsignedShort();
+    classInfo->fields = readFields(byteArray, classInfo->constantPool, fieldsCount);
+    classInfo->fieldsCount = fieldsCount;
+
+    uint16_t methodsCount = byteArray.readUnsignedShort();
+    classInfo->methods = readMethods(byteArray, classInfo->constantPool, methodsCount);
+    classInfo->methodCount = methodsCount;
+
     classInfo->isPublic = ((classInfo->accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
 
     AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, classInfo->constantPool);
@@ -171,7 +177,7 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     return classInfo;
 }
 
-ClassInfo* ClassLoader::readClass(const std::string& className)
+ClassInfo* ClassLoader::readClass(const char* className)
 {
 
     try {
@@ -184,7 +190,7 @@ ClassInfo* ClassLoader::readClass(const std::string& className)
         std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
 
         struct stat attr;
-        stat(className.c_str(), &attr);
+        stat(className, &attr);
 
         std::ifstream myFile(path, std::ios::in | std::ios::binary);
         uint64_t size = std::filesystem::file_size(path);
@@ -199,7 +205,7 @@ ClassInfo* ClassLoader::readClass(const std::string& className)
         classInfo->filePath = pathstr;
         classInfo->size = size;
         classInfo->lastModified = attr.st_mtime;
-        classInfo->md5 = checksum;
+        strcpy(classInfo->md5, checksum.c_str());
         myFile.close();
 
         return classInfo;
@@ -224,13 +230,11 @@ uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesC
     return interfaces;
 }
 
-std::vector<FieldInfo*> ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constantPool)
+FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constantPool, uint16_t fieldsCount)
 {
-    std::vector<FieldInfo*> fields;
+    FieldInfo** fields = (FieldInfo**)malloc(sizeof(FieldInfo*) * fieldsCount);
 
-    uint16_t fieldsCount = byteArray.readUnsignedShort();
-
-    for (uint16_t currentField = 0; currentField < fieldsCount; currentField++) {
+    for (uint16_t currentField = 0; currentField < fieldsCount; ++currentField) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
@@ -241,7 +245,7 @@ std::vector<FieldInfo*> ClassLoader::readFields(ByteArray& byteArray, ConstantPo
         fieldInfo->nameIndex = nameIndex;
         fieldInfo->isPrivate = ((accessFlags & ACC_PRIVATE) == ACC_PRIVATE);
         fieldInfo->attributes = attributeInfo;
-        fields.push_back(fieldInfo);
+        fields[currentField] = fieldInfo;
     }
 
     return fields;
@@ -254,13 +258,11 @@ void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo* met
     method->args = desc.args;
 }
 
-std::vector<MethodInfo*> ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool)
+MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount)
 {
-    std::vector<MethodInfo*> methods;
+    MethodInfo** methods = (MethodInfo**)malloc(sizeof(MethodInfo*) * methodCount);
 
-    uint16_t methodsCount = byteArray.readUnsignedShort();
-
-    while (methods.size() < methodsCount) {
+    for (uint16_t currentMethod = 0; currentMethod < methodCount; ++currentMethod) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
@@ -284,7 +286,7 @@ std::vector<MethodInfo*> ClassLoader::readMethods(ByteArray& byteArray, Constant
         std::string name = constantPool->getString(nameIndex);
         info->isConstructor = (name == "<init>");
 
-        methods.push_back(info);
+        methods[currentMethod] = info;
     }
 
     return methods;
@@ -311,21 +313,23 @@ ClassInfo::~ClassInfo()
         }
     }
 
-    for (int i = 0; i < this->fields.size(); i++) {
+    for (int i = 0; i < this->fieldsCount; ++i) {
         FieldInfo* item = this->fields[i];
         if (item != 0) {
             delete item;
             item = nullptr;
         }
     }
+    free(this->fields);
 
-    for (int i = 0; i < this->methods.size(); i++) {
+    for (int i = 0; i < this->methodCount; i++) {
         MethodInfo* item = this->methods[i];
         if (item != 0) {
             delete item;
             item = nullptr;
         }
     }
+    free(this->methods);
 
     if (filePath != 0) {
         free(filePath);

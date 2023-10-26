@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
     if (argc > 1) {
         {
-            const std::string className = argv[1];
+            const char* className = argv[1];
 
             ClassLoader classLoader;
             ClassPrinter classPrinter;
