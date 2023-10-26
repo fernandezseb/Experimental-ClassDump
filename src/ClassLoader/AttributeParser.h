@@ -30,7 +30,7 @@ struct AttributeCollection {
 	AttributeCollection();
 	~AttributeCollection();
 	
-	AttributeInfo* findAttributeWithName(ConstantPool* constantPool, const std::string& name) const;
+	AttributeInfo* findAttributeWithName(ConstantPool* constantPool, const char* name) const;
 };
 
 struct AttributeConstantValue : public AttributeInfo {

@@ -102,7 +102,7 @@ public:
 	uint16_t methodCount;
 
 	AttributeCollection* attributes;
-	std::string sourceFile;
+	char* sourceFile;
 	bool isPublic;
 public:
 	ClassInfo();

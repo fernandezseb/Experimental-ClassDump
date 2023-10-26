@@ -171,7 +171,10 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo->findAttributeWithName(classInfo->constantPool, "SourceFile");
 
     if (sourceFile != NULL) {
-        classInfo->sourceFile = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
+        std::string sourceFileString = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
+        char* sourceFileCharArr = (char*)malloc(sourceFileString.length() + 1);
+        strcpy(sourceFileCharArr, sourceFileString.c_str());
+        classInfo->sourceFile = sourceFileCharArr;;
     }
 
     return classInfo;
@@ -334,6 +337,8 @@ ClassInfo::~ClassInfo()
     if (filePath != 0) {
         free(filePath);
     }
+
+    free(sourceFile);
 }
 
 std::vector<AccessFlag> ClassInfo::getAccessFlags() const

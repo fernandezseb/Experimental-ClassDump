@@ -1,12 +1,12 @@
 #include "AttributeParser.h"
 
-AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constantPool, const std::string& name) const
+AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constantPool, const char* name) const
 {
 	AttributeInfo* attrib = 0;
 
 	for (int currentAttrib = 0; currentAttrib < attributesCount; ++currentAttrib) {
 		attrib = attributes[currentAttrib];
-		if (constantPool->getString(attrib->attributeNameIndex) == name) {
+		if (strcmp(constantPool->getString(attrib->attributeNameIndex), name) == 0) {
 			return attrib;
 		}
 	}
@@ -38,7 +38,7 @@ AttributeCollection::~AttributeCollection() {
 }
 
 std::string AttributeSourceFile::toString(const ConstantPool* cp) const {
-	return "SourceFile: \"" + cp->getString(sourceFileIndex) + "\"\n";
+	return std::string("SourceFile: \"") + cp->getString(sourceFileIndex) + "\"\n";
 }
 
 AttributeCode::AttributeCode() : attributes(nullptr), code(nullptr) {}

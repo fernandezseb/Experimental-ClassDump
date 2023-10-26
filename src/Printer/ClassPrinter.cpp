@@ -577,7 +577,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		for (size_t currentIndex = 0; currentIndex < classInfo.interfacesCount; ++currentIndex) {
 			uint16_t index = classInfo.interfaces[currentIndex];
 			CPClassInfo* classPtr = cp->getClassInfo(index);
-			names[currentIndex] = cp->getString(classPtr->nameIndex);
+			names[currentIndex] = std::string(cp->getString(classPtr->nameIndex));
 		}
 
 		std::cout << getAsExternalClassName(joinStrings(names, classInfo.interfacesCount, ", "));

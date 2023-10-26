@@ -198,6 +198,6 @@ public:
 public:
 	~ConstantPool();
 
-	std::string getString(uint16_t index) const;
+	const char* getString(uint16_t index) const;
 	CPClassInfo* getClassInfo(uint16_t index) const;
 };

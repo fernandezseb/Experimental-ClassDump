@@ -8,7 +8,7 @@ void ConstantPool::checkIndex(uint16_t index) const
 	}
 }
 
-std::string ConstantPool::getString(uint16_t index) const
+const char* ConstantPool::getString(uint16_t index) const
 {
 	checkIndex(index);
 
