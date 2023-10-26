@@ -3,6 +3,7 @@
 #include "Core.h"
 #include "DescriptorParser.h"
 #include "md5/md5.h"
+#include "Util.h"
 
 void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
@@ -254,14 +255,16 @@ FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constant
     return fields;
 }
 
-void ClassLoader::parseDescriptor(const std::string& descriptor, MethodInfo* method)
+void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 {
     Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
-    method->returnType = desc.returnType;
+    method->returnType = toCharPtr(desc.returnType);
 
     std::vector<std::string> args = desc.args;
-    std::string* argsArr = new std::string[args.size()];
-    std::copy(args.begin(), args.end(), argsArr);
+    char** argsArr = (char**) malloc(args.size() * sizeof(char*));
+    for (int currentArg = 0; currentArg < args.size(); ++currentArg) {
+        argsArr[currentArg] = toCharPtr(args[currentArg]);
+    }
     method->args = argsArr;
     method->argsCount = args.size();
 }
@@ -372,7 +375,14 @@ MethodInfo::~MethodInfo() {
     }
 
     if (args != 0) {
-        delete[] args;
+        for (int i = 0; i < argsCount; ++i) {
+            free(args[i]);
+        }
+        free(args);
+    }
+
+    if (returnType != 0) {
+        free(returnType);
     }
 }
 

@@ -59,8 +59,8 @@ public:
 	bool isStatic;
 	bool isConstructor;
 	AttributeCollection* attributes;
-	std::string returnType;
-	std::string* args;
+	char* returnType;
+	char** args;
 	uint16_t argsCount;
 public:
 	MethodInfo();
@@ -117,7 +117,7 @@ private:
 	void checkMagicNumber(ByteArray& byteArray);
 	ConstantPool* readConstantPool(ByteArray& byteArray);
 	ConstantPoolItem* readConstantPoolItem(uint8_t tag, ByteArray& byteArray);
-	void parseDescriptor(const std::string& descriptor, MethodInfo* method);
+	void parseDescriptor(const char* descriptor, MethodInfo* method);
 public:
 	ClassLoader();
 
