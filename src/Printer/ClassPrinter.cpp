@@ -2,8 +2,6 @@
 
 #include "Util.h"
 
-static const std::string ACC_SYNCHRONIZED_STR = "ACC_SYNCHRONIZED";
-
 const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
 	if (constantTypes.find(type) != constantTypes.end()) {
 		return constantTypes.at(type);

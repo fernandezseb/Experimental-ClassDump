@@ -284,14 +284,14 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
         info->descriptorIndex = descriptorIndex;
         // TODO: Fix these
         info->code = 0;
-        info->isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
         info->attributes = attributes;
-        if (!info->isNative) {
+        info->isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
+        info->isAbstract = ((accessFlags & ACC_ABSTRACT) == ACC_ABSTRACT);
+        if (!(info->isNative || info->isAbstract)) {
             info->code = (AttributeCode*) attributes->findAttributeWithName(constantPool, "Code");
         }
         info->isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
         info->isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
-        info->isAbstract = ((accessFlags & ACC_ABSTRACT) == ACC_ABSTRACT);
 
         parseDescriptor(constantPool->getString(descriptorIndex), info);
 

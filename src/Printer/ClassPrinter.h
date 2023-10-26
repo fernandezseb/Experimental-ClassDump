@@ -248,8 +248,10 @@ struct Instruction {
 
 class ClassPrinter {
 private:
+
 	std::vector<Instruction> instructions;
 	const std::string Unknown = "(unknown)";
+	const std::string ACC_SYNCHRONIZED_STR = "ACC_SYNCHRONIZED";
 	enum AccessFlagType {
 		CLASS, METHOD, FIELD
 	};
