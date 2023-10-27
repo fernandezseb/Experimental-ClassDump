@@ -2,6 +2,8 @@
 
 #include "Core.h"
 
+#include <Windows.h>
+
 class Memory {
 public:
 	uint8_t* classMemory;
@@ -10,12 +12,12 @@ public:
 
 	Memory(size_t size) : size(size)
 	{
-		classMemory = (uint8_t*)malloc(size);
+		classMemory = (uint8_t*) VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	}
 
 	~Memory()
 	{
-		free(classMemory);
+		VirtualFree(classMemory, 0, MEM_RELEASE);
 	}
 
 	void* classAlloc(size_t size)
