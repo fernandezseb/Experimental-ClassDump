@@ -255,6 +255,45 @@ void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 	std::cout << " #" << (unsigned int)shortIndex << ",  " << (unsigned int)dimensions;
 }
 
+std::string printAttribute(AttributeInfo* attribute, const ConstantPool* cp)
+{
+	if (attribute->type == SourceFile) {
+		AttributeSourceFile* att = (AttributeSourceFile*)attribute;
+		return std::string("SourceFile: \"") + cp->getString(att->sourceFileIndex) + "\"\n";
+	}
+	else if (attribute->type == LineNumberTable) {
+		AttributeLineNumberTable* att = (AttributeLineNumberTable*)attribute;
+		std::string out = "";
+		for (uint16_t currentIndex = 0; currentIndex < att->size; ++currentIndex) {
+			LineNumberTableEntry& entry = att->entries[currentIndex];
+			out += "        line " +
+				std::to_string(entry.lineNumber)
+				+ ": "
+				+ std::to_string(entry.startPc)
+				+ "\n";
+		}
+
+		return out;
+	}
+	else if (attribute->type == LocalVariableTable) {
+		AttributeLocalVariableTable* att = (AttributeLocalVariableTable*)attribute;
+		std::stringstream ss;
+		ss << "        Start  Length  Slot  Name   Signature\n";
+
+		for (uint16_t currentIndex = 0; currentIndex < att->size; ++currentIndex) {
+			LocalVariableTableEntry& entry = att->entries[currentIndex];
+			ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry.startPc;
+			ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry.length;
+			ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry.index;
+			ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp->getString(entry.nameIndex);
+			ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp->getString(entry.descriptorIndex);
+			ss << std::endl;
+		}
+		return ss.str();
+	}
+	return "";
+}
+
 void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool* cp)
 {
 	int argsSize = method->argsCount;
@@ -339,7 +378,7 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		AttributeInfo* att = code->attributes->attributes[currentAttrib];
 		if (att != 0) {
 			std::cout << "      " << cp->getString(att->attributeNameIndex) << ":" << std::endl;
-			std::cout << att->toString(cp);
+			std::cout << printAttribute(att, cp);
 		}
 	}
 
@@ -659,6 +698,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	for (size_t currentAttrib = 0; currentAttrib < classInfo.attributes->attributesCount; ++currentAttrib) {
 		AttributeInfo* att = classInfo.attributes->attributes[currentAttrib];
-		std::cout << att->toString(cp);
+		std::cout << printAttribute(att, cp);
 	}
 }

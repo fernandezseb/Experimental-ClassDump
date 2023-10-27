@@ -14,99 +14,6 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constant
 	return attrib;
 }
 
-AttributeCollection::AttributeCollection(AttributeInfo** attributes, uint16_t attributesCount)
-{
-	this->attributes = attributes;
-	this->attributesCount = attributesCount;
-}
-
-AttributeCollection::AttributeCollection()
-{
-}
-
-AttributeCollection::~AttributeCollection()
-{
-	for (int i = 0; i < this->attributesCount; i++) {
-		AttributeInfo* item = this->attributes[i];
-		if (item != 0) {
-			delete item;
-			item = nullptr;
-		}
-	}
-
-	if (attributes != 0) {
-		free(attributes);
-	}
-}
-
-std::string AttributeSourceFile::toString(const ConstantPool* cp) const
-{
-	return std::string("SourceFile: \"") + cp->getString(sourceFileIndex) + "\"\n";
-}
-
-AttributeCode::AttributeCode() : attributes(nullptr), code(nullptr) 
-{
-}
-
-AttributeCode::~AttributeCode()
-{
-	if (code != 0) {
-		free(code);
-		code = nullptr;
-	}
-
-	if (attributes != 0) {
-		delete attributes;
-		attributes = nullptr;
-	}
-
-	if (exceptionTable != 0) {
-		free(exceptionTable);
-	}
-}
-
-AttributeLocalVariableTable::~AttributeLocalVariableTable()
-{
-	free(entries);
-}
-
-AttributeLineNumberTable::~AttributeLineNumberTable()
-{
-	free(entries);
-}
-
-std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const
-{
-	std::string out = "";
-	for (uint16_t currentIndex = 0; currentIndex < size; ++currentIndex) {
-		LineNumberTableEntry& entry = entries[currentIndex];
-		out += "        line " +
-			std::to_string(entry.lineNumber)
-			+ ": "
-			+ std::to_string(entry.startPc)
-			+ "\n";
-	}
-
-	return out;
-}
-
-std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const
-{
-	std::stringstream ss;
-	ss << "        Start  Length  Slot  Name   Signature\n";
-
-	for (uint16_t currentIndex = 0; currentIndex < size; ++currentIndex) {
-		LocalVariableTableEntry& entry = entries[currentIndex];
-		ss << "        " << std::right << std::setfill(' ') << std::setw(5) << entry.startPc;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(6) << entry.length;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << entry.index;
-		ss << "  " << std::right << std::setfill(' ') << std::setw(4) << cp->getString(entry.nameIndex);
-		ss << "   " << std::left << std::setfill(' ') << std::setw(10) << cp->getString(entry.descriptorIndex);
-		ss << std::endl;
-	}
-	return ss.str();
-}
-
 void AttributeParser::readStackMapTable(ByteArray& byteArray)
 {
 	uint16_t numberOfEntries = byteArray.readUnsignedShort();
@@ -186,7 +93,7 @@ ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArra
 	return entry;
 }
 
-ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, uint16_t *size)
+ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, uint16_t *size, Memory* memory)
 {
 	uint16_t exceptionTableLength = byteArray.readUnsignedShort();
 
@@ -195,7 +102,7 @@ ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, u
 	if (exceptionTableLength > 0)
 	{
 		ExceptionTableEntry* table = (ExceptionTableEntry*)
-			malloc(sizeof(ExceptionTableEntry) * exceptionTableLength);
+			memory->classAlloc(sizeof(ExceptionTableEntry) * exceptionTableLength);
 		*size = exceptionTableLength;
 
 		for (uint16_t currentException = 0; currentException < exceptionTableLength; currentException++) {
@@ -228,7 +135,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			byteArray.copyBytes(code, codeLength);
 
 			uint16_t exceptionTableSize;
-			ExceptionTableEntry* exceptions = readExceptionTable(byteArray, &exceptionTableSize);
+			ExceptionTableEntry* exceptions = readExceptionTable(byteArray, &exceptionTableSize, memory);
 			AttributeCollection* attribs = readAttributes(byteArray, constantPool, memory);
 
 
@@ -242,15 +149,17 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->exceptionTable = exceptions;
 			att->exceptionTableSize = exceptionTableSize;
 			att->attributes = attribs;
+			att->type = Code;
 
 			attributes[currentAttrib] = att;
 		}
 		else if (name == "LineNumberTable") {
 			uint16_t lineNumberTableLength = byteArray.readUnsignedShort();
-			AttributeLineNumberTable* att = new AttributeLineNumberTable();
+			AttributeLineNumberTable* att = (AttributeLineNumberTable*) memory->classAlloc(sizeof(AttributeLineNumberTable));
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
 			att->size = lineNumberTableLength;
+			att->type = LineNumberTable;
 
 			att->entries = (LineNumberTableEntry*)memory->classAlloc(sizeof(LineNumberTableEntry) * lineNumberTableLength);
 
@@ -266,10 +175,11 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		}
 		else if (name == "LocalVariableTable") {
 			uint16_t localVariableTableLength = byteArray.readUnsignedShort();
-			AttributeLocalVariableTable* att = new AttributeLocalVariableTable();
+			AttributeLocalVariableTable* att = (AttributeLocalVariableTable*) memory->classAlloc(sizeof(AttributeLocalVariableTable));
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
 			att->size = localVariableTableLength;
+			att->type = LocalVariableTable;
 			att->entries = (LocalVariableTableEntry*) memory->classAlloc(sizeof(LocalVariableTableEntry) * localVariableTableLength);
 			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
 				uint16_t startPc = byteArray.readUnsignedShort();
@@ -289,10 +199,11 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		}
 		else if (name == "SourceFile") {
 			uint16_t sourceFileIndex = byteArray.readUnsignedShort();
-			AttributeSourceFile* att = new AttributeSourceFile();
+			AttributeSourceFile* att = (AttributeSourceFile*) memory->classAlloc(sizeof(AttributeSourceFile));
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
 			att->sourceFileIndex = sourceFileIndex;
+			att->type = SourceFile;
 
 			attributes[currentAttrib] = att;
 		}

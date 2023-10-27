@@ -12,24 +12,23 @@ struct ExceptionTableEntry {
 	uint16_t catchType;
 };
 
-class AttributeInfo {
-public:
+enum AttributeType {
+	ConstantValue,
+	Code,
+	SourceFile,
+	LineNumberTable,
+	LocalVariableTable
+};
+
+struct AttributeInfo {
+	AttributeType type;
 	uint16_t attributeNameIndex;
 	uint32_t attributeLength;
-public:
-	virtual ~AttributeInfo() {
-	}
-	
-	virtual std::string toString(const ConstantPool* cp) const { return ""; }
 };
 
 struct AttributeCollection {
 	AttributeInfo** attributes;
 	uint16_t attributesCount;
-
-	AttributeCollection(AttributeInfo** attributes, uint16_t attributesCount);
-	AttributeCollection();
-	~AttributeCollection();
 	
 	AttributeInfo* findAttributeWithName(ConstantPool* constantPool, const char* name) const;
 };
@@ -49,14 +48,10 @@ struct AttributeCode : public AttributeInfo {
 	ExceptionTableEntry* exceptionTable;
 	uint16_t exceptionTableSize;
 	AttributeCollection* attributes;
-
-	AttributeCode();;
-	virtual ~AttributeCode();
 };
 
 struct AttributeSourceFile : public AttributeInfo {
 	uint16_t sourceFileIndex;
-	std::string toString(const ConstantPool* cp) const;
 };
 
 struct LineNumberTableEntry {
@@ -64,13 +59,9 @@ struct LineNumberTableEntry {
 	uint16_t lineNumber;
 };
 
-struct AttributeLineNumberTable :public AttributeInfo {
+struct AttributeLineNumberTable : public AttributeInfo {
 	LineNumberTableEntry* entries;
 	uint16_t size;
-
-	virtual ~AttributeLineNumberTable();
-
-	std::string toString(const ConstantPool* cp) const;
 };
 
 struct LocalVariableTableEntry {
@@ -81,19 +72,15 @@ struct LocalVariableTableEntry {
 	uint16_t index;
 };
 
-struct AttributeLocalVariableTable :public AttributeInfo {
+struct AttributeLocalVariableTable : public AttributeInfo {
 	LocalVariableTableEntry* entries;
 	uint16_t size;
-
-	virtual ~AttributeLocalVariableTable();
-
-	std::string toString(const ConstantPool* cp) const;
 };
 
 class AttributeParser {
 public:
 	static ExceptionTableEntry readExceptionTableEntry(ByteArray& byteArray);
-	static ExceptionTableEntry* readExceptionTable(ByteArray& byteArray, uint16_t* size);
+	static ExceptionTableEntry* readExceptionTable(ByteArray& byteArray, uint16_t* size, Memory* memory);
 	static void readStackMapTable(ByteArray& byteArray);
 	static AttributeCollection* readAttributes(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory);
 };
