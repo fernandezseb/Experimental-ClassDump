@@ -44,9 +44,9 @@ std::string joinStrings(std::string* strings, size_t size, std::string delim)
 	return ss.str();
 }
 
-char* toCharPtr(const std::string& str)
+char* toCharPtr(const std::string& str, Memory* memory)
 {
-	char* charPtr = (char*)malloc(str.length() + 1);
+	char* charPtr = (char*)memory->classAlloc(str.length() + 1);
 	
 	strcpy(charPtr, str.c_str());
 	

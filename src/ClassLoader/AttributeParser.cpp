@@ -20,10 +20,12 @@ AttributeCollection::AttributeCollection(AttributeInfo** attributes, uint16_t at
 	this->attributesCount = attributesCount;
 }
 
-AttributeCollection::AttributeCollection() {
+AttributeCollection::AttributeCollection()
+{
 }
 
-AttributeCollection::~AttributeCollection() {
+AttributeCollection::~AttributeCollection()
+{
 	for (int i = 0; i < this->attributesCount; i++) {
 		AttributeInfo* item = this->attributes[i];
 		if (item != 0) {
@@ -37,13 +39,17 @@ AttributeCollection::~AttributeCollection() {
 	}
 }
 
-std::string AttributeSourceFile::toString(const ConstantPool* cp) const {
+std::string AttributeSourceFile::toString(const ConstantPool* cp) const
+{
 	return std::string("SourceFile: \"") + cp->getString(sourceFileIndex) + "\"\n";
 }
 
-AttributeCode::AttributeCode() : attributes(nullptr), code(nullptr) {}
+AttributeCode::AttributeCode() : attributes(nullptr), code(nullptr) 
+{
+}
 
-AttributeCode::~AttributeCode() {
+AttributeCode::~AttributeCode()
+{
 	if (code != 0) {
 		free(code);
 		code = nullptr;
@@ -59,15 +65,18 @@ AttributeCode::~AttributeCode() {
 	}
 }
 
-AttributeLocalVariableTable::~AttributeLocalVariableTable() {
+AttributeLocalVariableTable::~AttributeLocalVariableTable()
+{
 	free(entries);
 }
 
-AttributeLineNumberTable::~AttributeLineNumberTable() {
+AttributeLineNumberTable::~AttributeLineNumberTable()
+{
 	free(entries);
 }
 
-std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const {
+std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const
+{
 	std::string out = "";
 	for (uint16_t currentIndex = 0; currentIndex < size; ++currentIndex) {
 		LineNumberTableEntry& entry = entries[currentIndex];
@@ -81,7 +90,8 @@ std::string AttributeLineNumberTable::toString(const ConstantPool* cp) const {
 	return out;
 }
 
-std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const {
+std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const
+{
 	std::stringstream ss;
 	ss << "        Start  Length  Slot  Name   Signature\n";
 
@@ -97,7 +107,8 @@ std::string AttributeLocalVariableTable::toString(const ConstantPool* cp) const 
 	return ss.str();
 }
 
-void AttributeParser::readStackMapTable(ByteArray& byteArray) {
+void AttributeParser::readStackMapTable(ByteArray& byteArray)
+{
 	uint16_t numberOfEntries = byteArray.readUnsignedShort();
 	//printf("[%" PRIu16 "] \n", numberOfEntries);
 	for (uint16_t currentEntry = 0; currentEntry < numberOfEntries; currentEntry++) {
@@ -159,7 +170,8 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray) {
 	}
 }
 
-ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArray) {
+ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArray)
+{
 	uint16_t startPc = byteArray.readUnsignedShort();
 	uint16_t endPc = byteArray.readUnsignedShort();
 	uint16_t handlerPc = byteArray.readUnsignedShort();
@@ -174,7 +186,8 @@ ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArra
 	return entry;
 }
 
-ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, uint16_t *size) {
+ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, uint16_t *size)
+{
 	uint16_t exceptionTableLength = byteArray.readUnsignedShort();
 
 	ExceptionTableEntry* table = 0;
@@ -194,10 +207,10 @@ ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, u
 	return table;
 }
 
-AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool)
+AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
 {
 	uint16_t attributesCount = byteArray.readUnsignedShort();
-	AttributeInfo** attributes = (AttributeInfo**) malloc(attributesCount * sizeof(AttributeInfo*));
+	AttributeInfo** attributes = (AttributeInfo**) memory->classAlloc(attributesCount * sizeof(AttributeInfo*));
 
 	for (int currentAttrib = 0; currentAttrib < attributesCount; currentAttrib++) {
 		uint16_t attributeNameIndex = byteArray.readUnsignedShort();
@@ -209,17 +222,17 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			uint16_t maxStack = byteArray.readUnsignedShort();
 			uint16_t maxLocals = byteArray.readUnsignedShort();
 			uint32_t codeLength = byteArray.readUnsignedInt();
-			uint8_t* code = (uint8_t*)malloc(sizeof(uint8_t) * codeLength);
+			uint8_t* code = (uint8_t*)memory->classAlloc(sizeof(uint8_t) * codeLength);
 			/*memcpy(code, &bytes[bytePtr], sizeof(uint8_t) * codeLength);
 			bytePtr += codeLength;*/
 			byteArray.copyBytes(code, codeLength);
 
 			uint16_t exceptionTableSize;
 			ExceptionTableEntry* exceptions = readExceptionTable(byteArray, &exceptionTableSize);
-			AttributeCollection* attribs = readAttributes(byteArray, constantPool);
+			AttributeCollection* attribs = readAttributes(byteArray, constantPool, memory);
 
 
-			AttributeCode* att = new AttributeCode();
+			AttributeCode* att = (AttributeCode*)memory->classAlloc(sizeof(AttributeCode));
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
 			att->maxStack = maxStack;
@@ -239,7 +252,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->attributeLength = attributeLength;
 			att->size = lineNumberTableLength;
 
-			att->entries = (LineNumberTableEntry*)malloc(sizeof(LineNumberTableEntry) * lineNumberTableLength);
+			att->entries = (LineNumberTableEntry*)memory->classAlloc(sizeof(LineNumberTableEntry) * lineNumberTableLength);
 
 			for (int lineNumberTableIndex = 0; lineNumberTableIndex < lineNumberTableLength; ++lineNumberTableIndex) {
 				uint16_t startPc = byteArray.readUnsignedShort();
@@ -257,7 +270,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->attributeNameIndex = attributeNameIndex;
 			att->attributeLength = attributeLength;
 			att->size = localVariableTableLength;
-			att->entries = (LocalVariableTableEntry*) malloc(sizeof(LocalVariableTableEntry) * localVariableTableLength);
+			att->entries = (LocalVariableTableEntry*) memory->classAlloc(sizeof(LocalVariableTableEntry) * localVariableTableLength);
 			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
 				uint16_t startPc = byteArray.readUnsignedShort();
 				uint16_t length = byteArray.readUnsignedShort();
@@ -293,5 +306,10 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		}
 	}
 
-	return new AttributeCollection(attributes, attributesCount);
+	AttributeCollection* attributeCollection = (AttributeCollection*)
+		memory->classAlloc(sizeof(AttributeCollection));
+	attributeCollection->attributes = attributes;
+	attributeCollection->attributesCount = attributesCount;
+
+	return attributeCollection;
 }

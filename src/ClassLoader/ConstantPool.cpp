@@ -100,10 +100,6 @@ std::string CPIntegerInfo::toString()
 
 CPUTF8Info::~CPUTF8Info()
 {
-	if (bytes != 0) {
-		free(bytes);
-		bytes = nullptr;
-	}
 }
 
 std::string CPUTF8Info::toString()

@@ -62,12 +62,18 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t size = byteArray.readUnsignedShort();
         uint16_t strBytes = size * sizeof(uint8_t) + 1u;
-        uint8_t* buffer = (uint8_t*)malloc(strBytes);
+        uint8_t* buffer = (uint8_t*)memory->classAlloc(strBytes);
         /*memcpy(buffer, &bytes[bytePtr], sizeof(uint8_t) * size);
         bytePtr += size;*/
         byteArray.copyBytes(buffer, size);
         buffer[strBytes - 1] = '\0';
-        item = new CPUTF8Info(tag, strBytes, buffer);
+        //item = new CPUTF8Info(tag, strBytes, buffer);
+        //CPUTF8Info* itemUtf8 = (CPUTF8Info*) memory->classAlloc(sizeof(CPUTF8Info));
+        CPUTF8Info* itemUtf8 = new CPUTF8Info(tag, strBytes, buffer);
+        itemUtf8->tag = tag;
+        itemUtf8->length = strBytes;
+        itemUtf8->bytes = buffer;
+        item = itemUtf8;
         break;
     }
     case CT_NAMEANDTYPE:
@@ -145,7 +151,10 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 {
     checkMagicNumber(byteArray);
 
+    //void* classMemory = memory->classAlloc(sizeof(ClassInfo));
+
     ClassInfo* classInfo = new ClassInfo();
+
     classInfo->minorVersion = byteArray.readUnsignedShort();
     classInfo->majorVersion = byteArray.readUnsignedShort();
     classInfo->constantPool = readConstantPool(byteArray);
@@ -167,13 +176,13 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 
     classInfo->isPublic = ((classInfo->accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
 
-    AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, classInfo->constantPool);
+    AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, classInfo->constantPool, memory);
     classInfo->attributes = attributeInfo;
     AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo->findAttributeWithName(classInfo->constantPool, "SourceFile");
 
     if (sourceFile != NULL) {
         std::string sourceFileString = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
-        char* sourceFileCharArr = (char*)malloc(sourceFileString.length() + 1);
+        char* sourceFileCharArr = (char*)memory->classAlloc(sourceFileString.length() + 1);
         strcpy(sourceFileCharArr, sourceFileString.c_str());
         classInfo->sourceFile = sourceFileCharArr;;
     }
@@ -183,12 +192,13 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 
 ClassInfo* ClassLoader::readClass(const char* className)
 {
-
+    Memory *mem = new Memory(10000);
+    memory = mem;
     try {
         std::filesystem::path path = std::filesystem::canonical(className);
         const wchar_t* absolutePath = path.c_str();
 
-        wchar_t* pathstr = (wchar_t*)malloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
+        wchar_t* pathstr = (wchar_t*)mem->classAlloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
         wcscpy(pathstr, absolutePath);
 
         std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
@@ -206,6 +216,7 @@ ClassInfo* ClassLoader::readClass(const char* className)
         std::string checksum =  md5(bytes.bytes, size);
 
         ClassInfo* classInfo = readClass(bytes);
+        classInfo->memory = mem;
         classInfo->filePath = pathstr;
         classInfo->size = size;
         classInfo->lastModified = attr.st_mtime;
@@ -224,7 +235,7 @@ ClassInfo* ClassLoader::readClass(const char* className)
 
 uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)
 {
-    uint16_t* interfaces = (uint16_t*) malloc(sizeof(uint16_t) * interfacesCount);
+    uint16_t* interfaces = (uint16_t*) memory->classAlloc(sizeof(uint16_t) * interfacesCount);
 
     for (uint16_t currentInterface = 0; currentInterface < interfacesCount; currentInterface++) {
         uint16_t interfaceIndex = byteArray.readUnsignedShort();
@@ -236,13 +247,13 @@ uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesC
 
 FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constantPool, uint16_t fieldsCount)
 {
-    FieldInfo** fields = (FieldInfo**)malloc(sizeof(FieldInfo*) * fieldsCount);
+    FieldInfo** fields = (FieldInfo**)memory->classAlloc(sizeof(FieldInfo*) * fieldsCount);
 
     for (uint16_t currentField = 0; currentField < fieldsCount; ++currentField) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, constantPool);
+        AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, constantPool, memory);
         FieldInfo* fieldInfo = new FieldInfo;
         fieldInfo->accessFlags = accessFlags;
         fieldInfo->descriptorIndex = descriptorIndex;
@@ -258,12 +269,12 @@ FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constant
 void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 {
     Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
-    method->returnType = toCharPtr(desc.returnType);
+    method->returnType = toCharPtr(desc.returnType, memory);
 
     std::vector<std::string> args = desc.args;
-    char** argsArr = (char**) malloc(args.size() * sizeof(char*));
+    char** argsArr = (char**)memory->classAlloc(args.size() * sizeof(char*));
     for (int currentArg = 0; currentArg < args.size(); ++currentArg) {
-        argsArr[currentArg] = toCharPtr(args[currentArg]);
+        argsArr[currentArg] = toCharPtr(args[currentArg], memory);
     }
     method->args = argsArr;
     method->argsCount = args.size();
@@ -271,14 +282,14 @@ void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 
 MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount)
 {
-    MethodInfo** methods = (MethodInfo**)malloc(sizeof(MethodInfo*) * methodCount);
+    MethodInfo** methods = (MethodInfo**)memory->classAlloc(sizeof(MethodInfo*) * methodCount);
 
     for (uint16_t currentMethod = 0; currentMethod < methodCount; ++currentMethod) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        AttributeCollection* attributes = AttributeParser::readAttributes(byteArray, constantPool);
-        MethodInfo* info = new MethodInfo;
+        AttributeCollection* attributes = AttributeParser::readAttributes(byteArray, constantPool, memory);
+        MethodInfo* info = (MethodInfo*) memory->classAlloc(sizeof(MethodInfo));
         info->accessFlags = accessFlags;
         info->nameIndex = nameIndex;
         info->descriptorIndex = descriptorIndex;
@@ -295,8 +306,8 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
 
         parseDescriptor(constantPool->getString(descriptorIndex), info);
 
-        std::string name = constantPool->getString(nameIndex);
-        info->isConstructor = (name == "<init>");
+        const char* name = constantPool->getString(nameIndex);
+        info->isConstructor = (strcmp(name,"<init>") == 0);
 
         methods[currentMethod] = info;
     }
@@ -312,42 +323,7 @@ ClassInfo::ClassInfo() :
 
 ClassInfo::~ClassInfo()
 {
-    if (constantPool != 0) {
-        delete constantPool;
-    }
-    if (attributes != 0) {
-        delete attributes;
-    }
-
-    if (interfacesCount > 0) {
-        if (interfaces != 0) {
-            free(interfaces);
-        }
-    }
-
-    for (int i = 0; i < this->fieldsCount; ++i) {
-        FieldInfo* item = this->fields[i];
-        if (item != 0) {
-            delete item;
-            item = nullptr;
-        }
-    }
-    free(this->fields);
-
-    for (int i = 0; i < this->methodCount; i++) {
-        MethodInfo* item = this->methods[i];
-        if (item != 0) {
-            delete item;
-            item = nullptr;
-        }
-    }
-    free(this->methods);
-
-    if (filePath != 0) {
-        free(filePath);
-    }
-
-    free(sourceFile);
+    delete memory;
 }
 
 std::vector<AccessFlag> ClassInfo::getAccessFlags() const

@@ -4,6 +4,7 @@
 #include "ConstantPool.h"
 #include "ByteArray.h"
 #include "AttributeParser.h"
+#include "Memory.h"
 
 // MAGIC NUMBER
 #define MAGIC_NUMBER       0xCAFEBABE
@@ -106,6 +107,7 @@ public:
 	AttributeCollection* attributes;
 	char* sourceFile;
 	bool isPublic;
+	Memory *memory;
 public:
 	ClassInfo();
 	virtual ~ClassInfo();
@@ -119,12 +121,12 @@ private:
 	ConstantPool* readConstantPool(ByteArray& byteArray);
 	ConstantPoolItem* readConstantPoolItem(uint8_t tag, ByteArray& byteArray);
 	void parseDescriptor(const char* descriptor, MethodInfo* method);
-public:
-	ClassLoader();
-
-	ClassInfo* readClass(ByteArray& byteArray);
-	ClassInfo* readClass(const char* className);
 	uint16_t* readInterfaces(ByteArray& byteArray, uint16_t interfacesCount);
 	FieldInfo** readFields(ByteArray& byteArray, ConstantPool* constantPool, uint16_t fieldsCount);
 	MethodInfo** readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount);
+	ClassInfo* readClass(ByteArray& byteArray);
+	Memory* memory;
+public:
+	ClassLoader();
+	ClassInfo* readClass(const char* className);
 };

@@ -42,7 +42,7 @@ std::vector<std::string> DescriptorParser::getTypes(const std::string& descripto
 	return parts;
 }
 
-Descriptor DescriptorParser::parseDescriptor(const std::string& descriptor)
+Descriptor DescriptorParser::parseDescriptor(const std::string descriptor)
 {
 	Descriptor desc;
 
