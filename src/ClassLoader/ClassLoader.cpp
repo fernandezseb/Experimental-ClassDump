@@ -15,7 +15,7 @@ void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
 
 ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
 {
-    ConstantPool* constantPool = new ConstantPool();
+    ConstantPool* constantPool = (ConstantPool*)memory->classAlloc(sizeof(ConstantPool));
 
     uint16_t cpCount = byteArray.readUnsignedShort();
 
