@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core.h"
+#include "Core.h"
 #include "ConstantPool.h"
 #include "ByteArray.h"
 #include "AttributeParser.h"

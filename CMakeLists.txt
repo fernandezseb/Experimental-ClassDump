@@ -26,8 +26,10 @@ project(ClassDump
     src/ClassLoader/DescriptorParser.cpp 
     src/ClassLoader/AttributeParser.h
     src/ClassLoader/AttributeParser.cpp
-    src/ClassLoader/ByteArray.h
-    src/ClassLoader/ByteArray.cpp "src/Memory.h")
+    src/ByteArray.h
+    src/ByteArray.cpp
+    src/Memory.h
+    src/Memory.cpp)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)

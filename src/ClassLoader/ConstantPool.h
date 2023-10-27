@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core.h"
+#include "Core.h"
 
 enum ConstantType : uint8_t {
 	CT_UTF8            = 1u,
