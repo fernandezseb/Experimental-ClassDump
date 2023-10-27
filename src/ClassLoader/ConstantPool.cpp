@@ -39,17 +39,6 @@ CPClassInfo* ConstantPool::getClassInfo(uint16_t index) const
 	}
 }
 
-ConstantPool::~ConstantPool()
-{
-	for (int i = 0; i < this->constants.size(); i++) {
-		ConstantPoolItem* item = this->constants[i];
-		if (item != 0) {
-			delete item;
-			item = nullptr;
-		}
-	}
-}
-
 ConstantPoolItem::ConstantPoolItem(uint8_t tag) :
 	tag(tag)
 {

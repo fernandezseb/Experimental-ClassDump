@@ -254,7 +254,7 @@ FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constant
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
         AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, constantPool, memory);
-        FieldInfo* fieldInfo = new FieldInfo;
+        FieldInfo* fieldInfo = (FieldInfo*) memory->classAlloc(sizeof(FieldInfo));
         fieldInfo->accessFlags = accessFlags;
         fieldInfo->descriptorIndex = descriptorIndex;
         fieldInfo->nameIndex = nameIndex;
@@ -328,6 +328,17 @@ ClassInfo::~ClassInfo()
 
 std::vector<AccessFlag> ClassInfo::getAccessFlags() const
 {
+    static const AccessFlag classFlags[8] = {
+        ACC_PUBLIC,
+        ACC_FINAL,
+        ACC_SUPER,
+        ACC_INTERFACE,
+        ACC_ABSTRACT,
+        ACC_SYNTHETIC,
+        ACC_ANNOTATION,
+        ACC_ENUM
+    };
+
     std::vector<AccessFlag> flags;
     for (AccessFlag flag : classFlags) {
         if ((accessFlags & flag) == flag) {
@@ -365,6 +376,20 @@ MethodInfo::~MethodInfo() {
 
 std::vector<AccessFlag> MethodInfo::getAccessFlags() const
 {
+    static const AccessFlag methodFlags[12] = {
+        ACC_PUBLIC,
+        ACC_PRIVATE,
+        ACC_PROTECTED,
+        ACC_STATIC,
+        ACC_FINAL,
+        ACC_SYNCHRONIZED,
+        ACC_BRIDGE,
+        ACC_VARARGS,
+        ACC_NATIVE,
+        ACC_ABSTRACT,
+        ACC_STRICT,
+        ACC_SYNTHETIC
+    };
     std::vector<AccessFlag> flags;
     for (AccessFlag flag : methodFlags) {
         if ((accessFlags & flag) == flag) {
@@ -375,17 +400,20 @@ std::vector<AccessFlag> MethodInfo::getAccessFlags() const
     return flags;
 }
 
-FieldInfo::FieldInfo() : attributes(nullptr) {}
-
-FieldInfo::~FieldInfo() {
-    if (attributes != 0) {
-        delete attributes;
-        attributes = nullptr;
-    }
-}
-
 std::vector<AccessFlag> FieldInfo::getAccessFlags() const
 {
+    static const AccessFlag fieldFlags[9] = {
+        ACC_PUBLIC,
+        ACC_PRIVATE,
+        ACC_PROTECTED,
+        ACC_STATIC,
+        ACC_FINAL,
+        ACC_VOLATILE,
+        ACC_TRANSIENT,
+        ACC_SYNTHETIC,
+        ACC_ENUM
+    };
+
     std::vector<AccessFlag> flags;
     for (AccessFlag flag : fieldFlags) {
         if ((accessFlags & flag) == flag) {

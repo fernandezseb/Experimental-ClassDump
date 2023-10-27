@@ -196,8 +196,6 @@ private:
 public:
 	std::vector<ConstantPoolItem*> constants;
 public:
-	~ConstantPool();
-
 	const char* getString(uint16_t index) const;
 	CPClassInfo* getClassInfo(uint16_t index) const;
 };

@@ -10,18 +10,6 @@
 #define MAGIC_NUMBER       0xCAFEBABE
 
 class FieldInfo {
-private:
-	const AccessFlag fieldFlags[9] = {
-		ACC_PUBLIC,
-		ACC_PRIVATE,
-		ACC_PROTECTED,
-		ACC_STATIC,
-		ACC_FINAL,
-		ACC_VOLATILE,
-		ACC_TRANSIENT,
-		ACC_SYNTHETIC,
-		ACC_ENUM
-	};
 public:
 	uint16_t accessFlags;
 	uint16_t nameIndex;
@@ -29,27 +17,10 @@ public:
 	bool isPrivate;
 	AttributeCollection* attributes;
 public:
-	FieldInfo();
-	~FieldInfo();
 	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class MethodInfo {
-private:
-	const AccessFlag methodFlags[12] = {
-		ACC_PUBLIC,
-		ACC_PRIVATE,
-		ACC_PROTECTED,
-		ACC_STATIC,
-		ACC_FINAL,
-		ACC_SYNCHRONIZED,
-		ACC_BRIDGE,
-		ACC_VARARGS,
-		ACC_NATIVE,
-		ACC_ABSTRACT,
-		ACC_STRICT,
-		ACC_SYNTHETIC
-	};
 public:
 	uint16_t accessFlags;
 	uint16_t nameIndex;
@@ -72,17 +43,6 @@ public:
 };
 
 class ClassInfo {
-private:
-	const AccessFlag classFlags[8] = {
-		ACC_PUBLIC,
-		ACC_FINAL,
-		ACC_SUPER,
-		ACC_INTERFACE,
-		ACC_ABSTRACT,
-		ACC_SYNTHETIC,
-		ACC_ANNOTATION,
-		ACC_ENUM
-	};
 public:
 	wchar_t* filePath;
 	uint64_t size;
