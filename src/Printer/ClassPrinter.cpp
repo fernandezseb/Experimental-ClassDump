@@ -662,7 +662,9 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 
 	std::cout << "Constant pool:" << std::endl;
 	int current = 1;
-	for (ConstantPoolItem* item : cp->constants) {
+
+	for (uint16_t currentIndex = 0; currentIndex < cp->size; ++currentIndex) {
+		ConstantPoolItem* item = cp->constants[currentIndex];
 		if (item == 0) {
 			current++;
 			continue;

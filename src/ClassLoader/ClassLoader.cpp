@@ -21,7 +21,10 @@ ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
 
     uint16_t arrCount = cpCount - 1;
 
-    constantPool->constants = std::vector<ConstantPoolItem*>(arrCount);
+    constantPool->constants = (ConstantPoolItem**) memory->classAlloc(sizeof(ConstantPoolItem*) * arrCount);
+    constantPool->size = arrCount;
+    // TODO: Only set the unused ones to 0
+    memset(constantPool->constants, 0, sizeof(ConstantPoolItem*) * arrCount);
 
     for (uint32_t currentConstantIndex = 0; currentConstantIndex < arrCount; currentConstantIndex++) {
         uint8_t tag = byteArray.readUnsignedByte();
@@ -49,13 +52,23 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        item = new CPMethodRef(tag, classIndex, nameAndTypeIndex);
+        CPMethodRef* methodRef = new CPMethodRef;
+        //item = new CPMethodRef(tag, classIndex, nameAndTypeIndex);
+        methodRef->tag = tag;
+        methodRef->classIndex = classIndex;
+        methodRef->nameAndTypeIndex = nameAndTypeIndex;
+        item = methodRef;
         break;
     }
     case CT_CLASS:
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
-        item = new CPClassInfo(tag, nameIndex);
+        
+        CPClassInfo* classInfo = new CPClassInfo{};
+        classInfo->tag = tag;
+        classInfo->nameIndex = nameIndex;
+        
+        item = classInfo;
         break;
     }
     case CT_UTF8:
@@ -69,7 +82,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         buffer[strBytes - 1] = '\0';
         //item = new CPUTF8Info(tag, strBytes, buffer);
         //CPUTF8Info* itemUtf8 = (CPUTF8Info*) memory->classAlloc(sizeof(CPUTF8Info));
-        CPUTF8Info* itemUtf8 = new CPUTF8Info(tag, strBytes, buffer);
+        CPUTF8Info* itemUtf8 = new CPUTF8Info;
         itemUtf8->tag = tag;
         itemUtf8->length = strBytes;
         itemUtf8->bytes = buffer;
@@ -80,13 +93,21 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        item = new CPNameAndTypeInfo(tag, nameIndex, descriptorIndex);
+        CPNameAndTypeInfo* nameAndtype = new CPNameAndTypeInfo;
+        //item = new CPNameAndTypeInfo(tag, nameIndex, descriptorIndex);
+        nameAndtype->tag = tag;
+        nameAndtype->nameIndex = nameIndex;
+        nameAndtype->descriptorIndex = descriptorIndex;
+        item = nameAndtype;
         break;
     }
     case CT_STRING:
     {
         uint16_t stringIndex = byteArray.readUnsignedShort();
-        item = new CPStringInfo(tag, stringIndex);
+        CPStringInfo* stringInfo = new CPStringInfo;
+        stringInfo->tag = tag;
+        stringInfo->stringIndex = stringIndex;
+        item = stringInfo;
         break;
     }
     case CT_FIELDREF:
@@ -94,7 +115,11 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        item = new CPFieldRef(tag, classIndex, nameAndTypeIndex);
+        CPFieldRef* fieldRef = new CPFieldRef;
+        fieldRef->tag = tag;
+        fieldRef->classIndex = classIndex;
+        fieldRef->nameAndTypeIndex = nameAndTypeIndex;
+        item = fieldRef;
         break;
     }
     case CT_INTERFACEMETHOD:
@@ -102,35 +127,53 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        item = new CPInterfaceRef (tag, classIndex, nameAndTypeIndex);
+        CPInterfaceRef* interfaceRef = new CPInterfaceRef;
+        interfaceRef->tag = tag;
+        interfaceRef->classIndex = classIndex;
+        interfaceRef->nameAndTypeIndex = nameAndTypeIndex;
+        item = interfaceRef;
         break;
     }
     case CT_INTEGER:
     {
         // TODO: Parse the int as the correct type
         uint32_t intBytes = byteArray.readUnsignedInt();
-        item = new CPIntegerInfo(tag, intBytes);
+        CPIntegerInfo* integerInfo = new CPIntegerInfo;
+        integerInfo->tag = tag;
+        integerInfo->bytes = intBytes;
+        item = integerInfo;
         break;
     }
     case CT_FLOAT:
     {
         // TODO: Parse the int as the correct type
         uint32_t floatBytes = byteArray.readUnsignedInt();
-        item = new CPFloatInfo(tag, floatBytes);
+        CPFloatInfo* floatInfo = new CPFloatInfo;
+        floatInfo->tag = tag;
+        floatInfo->bytes = floatBytes;
+        item = floatInfo;
         break;
     }
     case CT_LONG:
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        item = new CPLongInfo(tag, highBytes, lowBytes);
+        CPLongInfo* longInfo = new CPLongInfo;
+        longInfo->tag = tag;
+        longInfo->highBytes = highBytes;
+        longInfo->lowBytes = lowBytes;
+        item = longInfo;
         break;
     }
     case CT_DOUBLE:
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        item = new CPDoubleInfo(tag, highBytes, lowBytes);
+        CPDoubleInfo* doubleInfo = new CPDoubleInfo;
+        doubleInfo->tag = tag;
+        doubleInfo->highBytes = highBytes;
+        doubleInfo->lowBytes = lowBytes;
+        item = doubleInfo;
         break;
     }
     default:

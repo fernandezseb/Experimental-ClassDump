@@ -2,7 +2,7 @@
 
 void ConstantPool::checkIndex(uint16_t index) const
 {
-	if (index > this->constants.size()) {
+	if (index > this->size) {
 		std::cout << "Invalid index into constant pool: %" << index << std::endl;
 		exit(1);
 	}
@@ -37,16 +37,6 @@ CPClassInfo* ConstantPool::getClassInfo(uint16_t index) const
 		CPClassInfo* cpClassInfo = (CPClassInfo*)item;
 		return cpClassInfo;
 	}
-}
-
-ConstantPoolItem::ConstantPoolItem(uint8_t tag) :
-	tag(tag)
-{
-}
-
-ConstantPoolItem::~ConstantPoolItem()
-{
-
 }
 
 std::string ConstantPoolItem::toString()
@@ -85,10 +75,6 @@ std::string CPClassInfo::toExpandedString(const ConstantPool* cp)
 std::string CPIntegerInfo::toString()
 {
 	return std::to_string((int)bytes);
-}
-
-CPUTF8Info::~CPUTF8Info()
-{
 }
 
 std::string CPUTF8Info::toString()

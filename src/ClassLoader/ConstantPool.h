@@ -45,9 +45,6 @@ class ConstantPool;
 struct ConstantPoolItem {
 	uint8_t tag;
 
-	ConstantPoolItem(uint8_t tag);
-	virtual ~ConstantPoolItem();
-
 	ConstantType getType() {
 		return (ConstantType)tag;
 	}
@@ -59,47 +56,24 @@ struct ConstantPoolItem {
 struct ConstantPoolNamedReference : public ConstantPoolItem {
 	uint16_t classIndex;
 	uint16_t nameAndTypeIndex;
-
-	ConstantPoolNamedReference(uint8_t tag, uint16_t classIndex, uint16_t nameAndTypeIndex)
-		: ConstantPoolItem(tag), classIndex(classIndex), nameAndTypeIndex(nameAndTypeIndex) 
-	{
-	}
 };
 
 struct CPMethodRef : public ConstantPoolNamedReference {
-	CPMethodRef(uint8_t tag, uint16_t classIndex, uint16_t nameAndTypeIndex)
-		: ConstantPoolNamedReference(tag, classIndex, nameAndTypeIndex)
-	{
-	}
-
 	std::string toString();
 	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPFieldRef : public ConstantPoolNamedReference {
-	CPFieldRef(uint8_t tag, uint16_t classIndex, uint16_t nameAndTypeIndex)
-		: ConstantPoolNamedReference(tag, classIndex, nameAndTypeIndex)
-	{
-	}
 
 	std::string toString();
 	virtual std::string toExpandedString(const ConstantPool* cp);
 };
 
 struct CPInterfaceRef : public ConstantPoolNamedReference {
-	CPInterfaceRef(uint8_t tag, uint16_t classIndex, uint16_t nameAndTypeIndex)
-		: ConstantPoolNamedReference(tag, classIndex, nameAndTypeIndex)
-	{
-	}
 };
 
 struct CPClassInfo : public ConstantPoolItem {
 	uint16_t nameIndex;
-
-	CPClassInfo(uint8_t tag, uint16_t nameIndex)
-		: ConstantPoolItem(tag), nameIndex(nameIndex)
-	{
-	}
 
 	std::string toString();
 	virtual std::string toExpandedString(const ConstantPool* cp);
@@ -108,21 +82,11 @@ struct CPClassInfo : public ConstantPoolItem {
 struct CPIntegerInfo : public ConstantPoolItem {
 	uint32_t bytes;
 
-	CPIntegerInfo(uint8_t tag, uint32_t bytes)
-		: ConstantPoolItem(tag), bytes(bytes)
-	{
-	}
-
 	std::string toString();
 };
 
 struct CPFloatInfo : public ConstantPoolItem {
 	uint32_t bytes;
-
-	CPFloatInfo(uint8_t tag, uint32_t bytes)
-		: ConstantPoolItem(tag), bytes(bytes)
-	{
-	}
 
 	std::string toString();
 };
@@ -131,22 +95,12 @@ struct CPLongInfo : public ConstantPoolItem {
 	uint32_t highBytes;
 	uint32_t lowBytes;
 
-	CPLongInfo(uint8_t tag, uint32_t highBytes, uint32_t lowBytes)
-		: ConstantPoolItem(tag), highBytes(highBytes), lowBytes(lowBytes)
-	{
-	}
-
 	std::string toString();
 };
 
 struct CPDoubleInfo : public ConstantPoolItem {
 	uint32_t highBytes;
 	uint32_t lowBytes;
-
-	CPDoubleInfo(uint8_t tag, uint32_t highBytes, uint32_t lowBytes)
-		: ConstantPoolItem(tag), highBytes(highBytes), lowBytes(lowBytes)
-	{
-	}
 
 	std::string toString();
 };
@@ -155,23 +109,12 @@ struct CPUTF8Info : public ConstantPoolItem {
 	uint16_t length;
 	uint8_t* bytes;
 
-	CPUTF8Info(uint8_t tag, uint16_t length, uint8_t* bytes)
-		: ConstantPoolItem(tag), length(length), bytes(bytes)
-	{
-	}
-
-	virtual ~CPUTF8Info();
 	std::string toString();
 };
 
 struct CPNameAndTypeInfo : public ConstantPoolItem {
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
-
-	CPNameAndTypeInfo(uint8_t tag, uint16_t nameIndex, uint16_t descriptorIndex)
-		: ConstantPoolItem(tag), nameIndex(nameIndex), descriptorIndex(descriptorIndex)
-	{
-	}
 
 	std::string toString();
 
@@ -181,11 +124,6 @@ struct CPNameAndTypeInfo : public ConstantPoolItem {
 struct CPStringInfo : public ConstantPoolItem {
 	uint16_t stringIndex;
 
-	CPStringInfo(uint8_t tag, uint16_t stringIndex)
-		: ConstantPoolItem(tag), stringIndex(stringIndex)
-	{
-	}
-
 	std::string toString();
 	virtual std::string toExpandedString(const ConstantPool* cp);
 };
@@ -194,7 +132,8 @@ class ConstantPool {
 private:
 	void checkIndex(uint16_t index) const;
 public:
-	std::vector<ConstantPoolItem*> constants;
+	ConstantPoolItem** constants;
+	uint16_t size;
 public:
 	const char* getString(uint16_t index) const;
 	CPClassInfo* getClassInfo(uint16_t index) const;
