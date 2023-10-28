@@ -188,13 +188,6 @@ void SignedShort(std::vector<uint8_t> args, const ConstantPool* cp)
 	}
 }
 
-void ByteIndices(std::vector<uint8_t> args, const ConstantPool* cp)
-{
-	for (uint8_t arg : args) {
-		std::cout << " #" << (unsigned int)arg;
-	}
-}
-
 void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 {
 	for (int i = 0; i < args.size(); i += 2) {
@@ -203,7 +196,22 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 
 		uint16_t shortIndex = (byte1 << 8) | byte2;
 
-		std::cout << " #" << (unsigned int)shortIndex;
+		std::string indexStr = std::string(" #") + std::to_string((unsigned int)shortIndex);
+		std::cout << std::left << std::setfill(' ') << std::setw(25) << indexStr;
+	}
+
+	if (args.size() > 0) {
+		std::cout << "//";
+	}
+	for (int i = 0; i < args.size(); i += 2) {
+		uint8_t byte1 = args[i];
+		uint8_t byte2 = args[i + 1];
+
+		uint16_t shortIndex = (byte1 << 8) | byte2;
+		ConstantPoolItem* item = cp->constants[shortIndex - 1];
+		if (item != 0) {
+			std::cout << " " << ClassPrinter::toStringInline(cp->constants[shortIndex - 1], cp);
+		}
 	}
 }
 
@@ -600,7 +608,7 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ putfield, 2, "putfield", ShortIndices });
 }
 
-std::string toString(const ConstantPoolItem* item, const ConstantPool* cp)
+std::string ClassPrinter::toString(const ConstantPoolItem* item, const ConstantPool* cp)
 {
 	static std::string defaultStr = "";
 	switch (item->getType())
@@ -672,7 +680,7 @@ std::string toString(const ConstantPoolItem* item, const ConstantPool* cp)
 	}
 }
 
-std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp)
+std::string ClassPrinter::toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp)
 {
 	static std::string defaultStr = "";
 	switch (item->getType())
@@ -707,6 +715,59 @@ std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* c
 	{
 		CPClassInfo* classInfo = (CPClassInfo*)item;
 		return cp->getString(classInfo->nameIndex);
+	}
+	default:
+	{
+		return defaultStr;
+	}
+	}
+}
+
+std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const ConstantPool* cp)
+{
+	static std::string defaultStr = "";
+	switch (item->getType())
+	{
+	case CT_NAMEANDTYPE:
+	{
+		return "NameAndType" + ClassPrinter::toExpandedString(item, cp);
+	}
+	case CT_STRING:
+	{
+		return "string " + ClassPrinter::toExpandedString(item, cp);
+	}
+	case CT_FIELDREF:
+	{
+		// TODO: Print the Class name here as well, even if the class is the class itself
+		return "Field " + ClassPrinter::toExpandedString(item, cp);
+	}
+	case CT_METHODREF:
+	{
+		return "Method " + ClassPrinter::toExpandedString(item, cp);
+	}
+	case CT_CLASS:
+	{
+		return "class " + ClassPrinter::toExpandedString(item, cp);
+	}
+	case CT_INTEGER:
+	{
+		return "int " + ClassPrinter::toString(item, cp);
+	}
+	case CT_UTF8:
+	{
+		return ClassPrinter::toString(item, cp);
+	}
+	case CT_FLOAT:
+	{
+		return "float " + ClassPrinter::toString(item, cp);
+	}
+	case CT_DOUBLE:
+	{
+		return "double " + ClassPrinter::toString(item, cp);
+	}
+	case CT_LONG:
+	{
+		return "long " + ClassPrinter::toString(item, cp);
 	}
 	default:
 	{

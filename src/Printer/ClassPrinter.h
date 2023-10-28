@@ -345,8 +345,11 @@ private:
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp);
 	void printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp);
 	void printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp);
+	static std::string toString(const ConstantPoolItem* item, const ConstantPool* cp);
+	static std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp);
 	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp);
 public:
 	ClassPrinter();
 	void printClass(const ClassInfo& classInfo);
+	static std::string toStringInline(const ConstantPoolItem* item, const ConstantPool* cp);
 };
