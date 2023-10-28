@@ -52,8 +52,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPMethodRef* methodRef = new CPMethodRef;
-        //item = new CPMethodRef(tag, classIndex, nameAndTypeIndex);
+        CPMethodRef* methodRef = (CPMethodRef*)memory->classAlloc(sizeof(CPMethodRef));
         methodRef->tag = tag;
         methodRef->classIndex = classIndex;
         methodRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -64,7 +63,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
         
-        CPClassInfo* classInfo = new CPClassInfo{};
+        CPClassInfo* classInfo = (CPClassInfo*)memory->classAlloc(sizeof(CPClassInfo));
         classInfo->tag = tag;
         classInfo->nameIndex = nameIndex;
         
@@ -80,9 +79,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         bytePtr += size;*/
         byteArray.copyBytes(buffer, size);
         buffer[strBytes - 1] = '\0';
-        //item = new CPUTF8Info(tag, strBytes, buffer);
-        //CPUTF8Info* itemUtf8 = (CPUTF8Info*) memory->classAlloc(sizeof(CPUTF8Info));
-        CPUTF8Info* itemUtf8 = new CPUTF8Info;
+        CPUTF8Info* itemUtf8 = (CPUTF8Info*)memory->classAlloc(sizeof(CPUTF8Info));
         itemUtf8->tag = tag;
         itemUtf8->length = strBytes;
         itemUtf8->bytes = buffer;
@@ -93,8 +90,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        CPNameAndTypeInfo* nameAndtype = new CPNameAndTypeInfo;
-        //item = new CPNameAndTypeInfo(tag, nameIndex, descriptorIndex);
+        CPNameAndTypeInfo* nameAndtype = (CPNameAndTypeInfo*)memory->classAlloc(sizeof(CPNameAndTypeInfo));
         nameAndtype->tag = tag;
         nameAndtype->nameIndex = nameIndex;
         nameAndtype->descriptorIndex = descriptorIndex;
@@ -104,7 +100,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     case CT_STRING:
     {
         uint16_t stringIndex = byteArray.readUnsignedShort();
-        CPStringInfo* stringInfo = new CPStringInfo;
+        CPStringInfo* stringInfo = (CPStringInfo*)memory->classAlloc(sizeof(CPStringInfo));
         stringInfo->tag = tag;
         stringInfo->stringIndex = stringIndex;
         item = stringInfo;
@@ -115,7 +111,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPFieldRef* fieldRef = new CPFieldRef;
+        CPFieldRef* fieldRef = (CPFieldRef*)memory->classAlloc(sizeof(CPFieldRef));
         fieldRef->tag = tag;
         fieldRef->classIndex = classIndex;
         fieldRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -127,7 +123,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPInterfaceRef* interfaceRef = new CPInterfaceRef;
+        CPInterfaceRef* interfaceRef = (CPInterfaceRef*)memory->classAlloc(sizeof(CPInterfaceRef));
         interfaceRef->tag = tag;
         interfaceRef->classIndex = classIndex;
         interfaceRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -138,7 +134,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         // TODO: Parse the int as the correct type
         uint32_t intBytes = byteArray.readUnsignedInt();
-        CPIntegerInfo* integerInfo = new CPIntegerInfo;
+        CPIntegerInfo* integerInfo = (CPIntegerInfo*)memory->classAlloc(sizeof(CPIntegerInfo));
         integerInfo->tag = tag;
         integerInfo->bytes = intBytes;
         item = integerInfo;
@@ -148,7 +144,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         // TODO: Parse the int as the correct type
         uint32_t floatBytes = byteArray.readUnsignedInt();
-        CPFloatInfo* floatInfo = new CPFloatInfo;
+        CPFloatInfo* floatInfo = (CPFloatInfo*)memory->classAlloc(sizeof(CPFloatInfo));
         floatInfo->tag = tag;
         floatInfo->bytes = floatBytes;
         item = floatInfo;
@@ -158,7 +154,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        CPLongInfo* longInfo = new CPLongInfo;
+        CPLongInfo* longInfo = (CPLongInfo*)memory->classAlloc(sizeof(CPLongInfo));
         longInfo->tag = tag;
         longInfo->highBytes = highBytes;
         longInfo->lowBytes = lowBytes;
@@ -169,7 +165,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        CPDoubleInfo* doubleInfo = new CPDoubleInfo;
+        CPDoubleInfo* doubleInfo = (CPDoubleInfo*)memory->classAlloc(sizeof(CPDoubleInfo));
         doubleInfo->tag = tag;
         doubleInfo->highBytes = highBytes;
         doubleInfo->lowBytes = lowBytes;
@@ -196,7 +192,7 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 
     //void* classMemory = memory->classAlloc(sizeof(ClassInfo));
 
-    ClassInfo* classInfo = new ClassInfo();
+    ClassInfo* classInfo = (ClassInfo*) memory->classAlloc(sizeof(ClassInfo));
 
     classInfo->minorVersion = byteArray.readUnsignedShort();
     classInfo->majorVersion = byteArray.readUnsignedShort();
