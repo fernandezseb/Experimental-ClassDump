@@ -600,6 +600,121 @@ ClassPrinter::ClassPrinter()
 	instructions.push_back({ putfield, 2, "putfield", ShortIndices });
 }
 
+std::string toString(const ConstantPoolItem* item, const ConstantPool* cp)
+{
+	static std::string defaultStr = "";
+	switch (item->getType())
+	{
+	case CT_NAMEANDTYPE:
+	{
+		CPNameAndTypeInfo* nameAndType = (CPNameAndTypeInfo*)item;
+		std::string str = "#" + std::to_string(nameAndType->nameIndex);
+		str += ".#";
+		str += std::to_string(nameAndType->descriptorIndex);
+		return str;
+	}
+	case CT_STRING:
+	{
+		CPStringInfo* stringInfo = (CPStringInfo*)item;
+		return "#" + std::to_string(stringInfo->stringIndex);
+	}
+	case CT_FIELDREF:
+	{
+		CPFieldRef* fieldRef = (CPFieldRef*)item;
+		return "#" + std::to_string(fieldRef->classIndex) + "." + "#" + std::to_string(fieldRef->nameAndTypeIndex);
+	}
+	case CT_METHODREF:
+	{
+		CPMethodRef* methodRef = (CPMethodRef*)item;
+		std::string str = "#" + std::to_string(methodRef->classIndex);
+		str += ".#";
+		str += std::to_string(methodRef->nameAndTypeIndex);
+		return str;
+	}
+	case CT_CLASS:
+	{
+		CPClassInfo* classInfo = (CPClassInfo*)item;
+		return "#" + std::to_string(classInfo->nameIndex);
+	}
+	case CT_INTEGER:
+	{
+		CPIntegerInfo* integerInfo = (CPIntegerInfo*)item;
+		return std::to_string((int)integerInfo->bytes);
+	}
+	case CT_UTF8:
+	{
+		CPUTF8Info* utf8Info = (CPUTF8Info*)item;
+		return (char*)utf8Info->bytes;
+	}
+	case CT_FLOAT:
+	{
+		CPFloatInfo* floatInfo = (CPFloatInfo*)item;
+		float f = *reinterpret_cast<float*> (&floatInfo->bytes);
+		return std::to_string((float)f) + "f";
+	}
+	case CT_DOUBLE:
+	{
+		CPDoubleInfo* doubleInfo = (CPDoubleInfo*)item;
+		uint64_t bytes = ((uint64_t)doubleInfo->highBytes << 32) + (uint64_t)doubleInfo->lowBytes;
+		double d = *reinterpret_cast<double*> (&bytes);
+		return std::to_string((double)d) + "d";
+	}
+	case CT_LONG:
+	{
+		CPLongInfo* longInfo = (CPLongInfo*)item;
+		int64_t bytes = ((int64_t)longInfo->highBytes << 32) + (int64_t)longInfo->lowBytes;
+		return std::to_string(bytes) + "l";
+	}
+	default:
+	{
+		return defaultStr;
+	}
+	}
+}
+
+std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp)
+{
+	static std::string defaultStr = "";
+	switch (item->getType())
+	{
+	case CT_NAMEANDTYPE:
+	{
+		CPNameAndTypeInfo* nameAndType = (CPNameAndTypeInfo*) item;
+		std::string name = cp->getString(nameAndType->nameIndex);
+		if (name == "<init>") {
+			name = "\"" + name + "\"";
+		}
+		return  name + ":" + cp->getString(nameAndType->descriptorIndex);
+	}
+	case CT_STRING:
+	{
+		CPStringInfo* stringInfo = (CPStringInfo*)item;
+		return cp->getString(stringInfo->stringIndex);
+	}
+	case CT_FIELDREF:
+	{
+		CPFieldRef* fieldRef = (CPFieldRef*)item;
+		return toExpandedString(cp->getClassInfo(fieldRef->classIndex), cp) + "." + toExpandedString(cp->constants[fieldRef->nameAndTypeIndex - 1], cp);
+	}
+	case CT_METHODREF:
+	{
+		CPMethodRef* methodRef = (CPMethodRef*)item;
+		return toExpandedString(cp->constants[methodRef->classIndex - 1],cp) 
+			+ "." 
+			+ toExpandedString(cp->constants[methodRef->nameAndTypeIndex - 1],cp);
+	}
+	case CT_CLASS:
+	{
+		CPClassInfo* classInfo = (CPClassInfo*)item;
+		return cp->getString(classInfo->nameIndex);
+	}
+	default:
+	{
+		return defaultStr;
+	}
+	}
+}
+
 void ClassPrinter::printClass(const ClassInfo& classInfo)
 {
 	std::cout << "Classfile ";
@@ -673,8 +788,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		indexStr = indexStr + std::to_string(current);
 		std::cout << std::right << std::setfill(' ') << std::setw(5) << indexStr;
 		std::cout << " = " << std::left << std::setfill(' ') << std::setw(15) << getTypeAsString(item->getType())
-			<< std::left << std::setfill(' ') << std::setw(15) << item->toString();
-		std::string expanded = item->toExpandedString(cp);
+			<< std::left << std::setfill(' ') << std::setw(15) << toString(item, cp);
+		std::string expanded = toExpandedString(item, cp);
 		if (expanded.size() > 0) {
 			std::cout << "// " << expanded;
 		}
