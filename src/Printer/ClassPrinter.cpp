@@ -2,7 +2,7 @@
 
 #include "Util.h"
 
-const std::string& ClassPrinter::getTypeAsString(ConstantType type) const {
+const char* ClassPrinter::getTypeAsString(ConstantType type) const {
 	if (constantTypes.find(type) != constantTypes.end()) {
 		return constantTypes.at(type);
 	}
@@ -36,7 +36,7 @@ const char* ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) 
 		return str;
 	}
 	else {
-		return Unknown.c_str();
+		return Unknown;
 	}
 }
 
@@ -79,8 +79,8 @@ std::string ClassPrinter::getAsExternalClassName(std::string className)
 
 void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp)
 {
-	std::string descriptor = cp->getString(fieldInfo->descriptorIndex);
-	std::string name = cp->getString(fieldInfo->nameIndex);
+	const char* descriptor = cp->getString(fieldInfo->descriptorIndex);
+	const char* name = cp->getString(fieldInfo->nameIndex);
 	std::cout << "  ";
 	if (fieldInfo->isPrivate) {
 		std::cout << "private ";
@@ -89,11 +89,12 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	std::cout << "    descriptor: " << descriptor << std::endl;
 	std::cout << "    flags: ";
 	std::vector<std::string> flags;
+	flags.reserve(9);
 	for (AccessFlag flag : fieldInfo->getAccessFlags()) {
 		flags.push_back(getTypeAsString(flag, FIELD));
 	}
 	std::cout << joinStrings(flags, ", ") << std::endl;
-	std::cout << std::endl;
+	std::cout << '\n';
 }
 
 void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
@@ -105,7 +106,7 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 	if (methodInfo->isConstructor) {
 		// TODO: Reuse classname
 		const CPClassInfo* classPtr = cp->getClassInfo(classInfo.thisClass);
-		const std::string className = cp->getString(classPtr->nameIndex);
+		const char* className = cp->getString(classPtr->nameIndex);
 		std::cout << className;
 	}
 	else
@@ -117,7 +118,7 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 	std::vector<std::string> args;
 
 	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
-		std::string arg = methodInfo->args[currentArg];
+		const char* arg = methodInfo->args[currentArg];
 		args.push_back(getAsExternalReturnType(arg));
 	}
 
@@ -217,7 +218,7 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 
 void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 {
-	std::string type;
+	const char* type;
 	uint8_t arg = args[0];
 	switch (arg) {
 	case 4:
@@ -775,16 +776,14 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
 {
-	std::cout << "Classfile ";
-	std::wcout << classInfo.filePath;
-	std::cout << std::endl;
+	wprintf(L"Classfile %ls\n", classInfo.filePath);
 
 	char time[50];
 	strftime(time, 50, "%b %d, %Y", localtime(&classInfo.lastModified));
 
-	std::cout << "  Last modified " << time << "; size " << classInfo.size << " bytes" << std::endl;
-	std::cout << "  MD5 checksum " << classInfo.md5 << std::endl;
-
+	printf("  Last modified %s; size %" PRIu64 " bytes\n", time, classInfo.size);
+	printf("  MD5 checksum %s\n", classInfo.md5);
+	
 	if (classInfo.sourceFile != "") {
 		std::cout << "  Compiled from \"" << classInfo.sourceFile << "\"" << std::endl;
 	}
@@ -851,11 +850,11 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		if (expanded.size() > 0) {
 			std::cout << "// " << expanded;
 		}
-		std::cout << std::endl;
+		printf("\n");
 		current++;
 	}
 
-	std::cout << "{" << std::endl;
+	printf("{\n");
 
 	// Fields
 	for (uint16_t currentField = 0; currentField < classInfo.fieldsCount; ++currentField) {
@@ -868,8 +867,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		MethodInfo* methodInfo = classInfo.methods[currentMethod];
 		printMethod(methodInfo, classInfo, cp);
 	}
-
-	std::cout << "}" << std::endl;
+	
+	printf("}\n");
 
 	for (size_t currentAttrib = 0; currentAttrib < classInfo.attributes->attributesCount; ++currentAttrib) {
 		AttributeInfo* att = classInfo.attributes->attributes[currentAttrib];

@@ -17,8 +17,7 @@ AttributeInfo* AttributeCollection::findAttributeWithName(ConstantPool* constant
 void AttributeParser::readStackMapTable(ByteArray& byteArray)
 {
 	uint16_t numberOfEntries = byteArray.readUnsignedShort();
-	//printf("[%" PRIu16 "] \n", numberOfEntries);
-	for (uint16_t currentEntry = 0; currentEntry < numberOfEntries; currentEntry++) {
+	for (uint16_t currentEntry = 0; currentEntry < numberOfEntries; ++currentEntry) {
 		uint8_t frameType = byteArray.readUnsignedByte();
 		if (frameType >= 0 && frameType <= 63) {
 			// same frame
@@ -45,7 +44,7 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray)
 		else if (frameType >= 252 && frameType <= 254) {
 			// append frame
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
-			for (uint16_t currentLocal = 0; currentLocal < (frameType - 251); currentLocal++) {
+			for (uint16_t currentLocal = 0; currentLocal < (frameType - 251); ++currentLocal) {
 				uint8_t tag = byteArray.readUnsignedByte();
 				if (tag == 7 || tag == 8) {
 					uint16_t crap = byteArray.readUnsignedShort();
@@ -56,14 +55,14 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray)
 			// full frame
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			uint16_t numberOfLocals = byteArray.readUnsignedShort();
-			for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; currentLocal++) {
+			for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; ++currentLocal) {
 				uint8_t tag = byteArray.readUnsignedByte();
 				if (tag == 7 || tag == 8) {
 					uint16_t crap = byteArray.readUnsignedShort();
 				}
 			}
 			uint16_t numberOfStackItems = byteArray.readUnsignedShort();
-			for (uint16_t currentLocal = 0; currentLocal < numberOfStackItems; currentLocal++) {
+			for (uint16_t currentLocal = 0; currentLocal < numberOfStackItems; ++currentLocal) {
 				uint8_t tag = byteArray.readUnsignedByte();
 				if (tag == 7 || tag == 8) {
 					uint16_t crap = byteArray.readUnsignedShort();
@@ -119,7 +118,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 	uint16_t attributesCount = byteArray.readUnsignedShort();
 	AttributeInfo** attributes = (AttributeInfo**) memory->classAlloc(attributesCount * sizeof(AttributeInfo*));
 
-	for (int currentAttrib = 0; currentAttrib < attributesCount; currentAttrib++) {
+	for (int currentAttrib = 0; currentAttrib < attributesCount; ++currentAttrib) {
 		uint16_t attributeNameIndex = byteArray.readUnsignedShort();
 		uint32_t attributeLength = byteArray.readUnsignedInt();
 
@@ -181,7 +180,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			att->size = localVariableTableLength;
 			att->type = LocalVariableTable;
 			att->entries = (LocalVariableTableEntry*) memory->classAlloc(sizeof(LocalVariableTableEntry) * localVariableTableLength);
-			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; localVariableTableIndex++) {
+			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTableLength; ++localVariableTableIndex) {
 				uint16_t startPc = byteArray.readUnsignedShort();
 				uint16_t length = byteArray.readUnsignedShort();
 				uint16_t nameIndex = byteArray.readUnsignedShort();

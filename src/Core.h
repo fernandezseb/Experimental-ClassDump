@@ -1,5 +1,8 @@
 #pragma once
 
+#define __STDC_FORMAT_MACROS
+
+#include <inttypes.h>
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

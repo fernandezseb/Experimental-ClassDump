@@ -234,7 +234,6 @@ enum Opcode : uint8_t {
 
 void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
 void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
-void ByteIndices(std::vector<uint8_t> args, const ConstantPool* cp);
 void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp);
 void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
 void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp);
@@ -250,7 +249,7 @@ class ClassPrinter {
 private:
 
 	std::vector<Instruction> instructions;
-	const std::string Unknown        = "(unknown)";
+	const char* Unknown        = "(unknown)";
 	const char* ACC_PUBLIC_STR       = "ACC_PUBLIC";
 	const char* ACC_PRIVATE_STR      = "ACC_PRIVATE";
 	const char* ACC_PROTECTED_STR    = "ACC_PROTECTED";
@@ -272,7 +271,7 @@ private:
 	enum AccessFlagType {
 		CLASS, METHOD, FIELD
 	};
-	const std::map<ConstantType, const std::string> constantTypes =
+	const std::map<ConstantType, const char*> constantTypes =
 	{
 		{CT_UTF8,    "Utf8"},
 		{CT_INTEGER, "Integer"},
@@ -326,7 +325,7 @@ private:
 		{ACC_ANNOTATION, ACC_ANNOTATION_STR},
 		{ACC_ENUM, ACC_ENUM_STR}
 	};
-	const std::map<char, const std::string> types = {
+	const std::map<char, const char*> types = {
 		{'V', T_VOID},
 		{'B', T_BYTE},
 		{'C', T_CHAR},
@@ -338,7 +337,7 @@ private:
 		{'Z', T_BOOLEAN},
 		{'D', T_DOUBLE}
 	};
-	const std::string& getTypeAsString(ConstantType type) const;
+	const char* getTypeAsString(ConstantType type) const;
 	const char* getTypeAsString(AccessFlag flag, AccessFlagType type) const;
 	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
