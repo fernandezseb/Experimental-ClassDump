@@ -220,10 +220,8 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo->findAttributeWithName(classInfo->constantPool, "SourceFile");
 
     if (sourceFile != NULL) {
-        std::string sourceFileString = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
-        char* sourceFileCharArr = (char*)memory->classAlloc(sourceFileString.length() + 1);
-        strcpy(sourceFileCharArr, sourceFileString.c_str());
-        classInfo->sourceFile = sourceFileCharArr;;
+        const char* sourceFileString = classInfo->constantPool->getString(sourceFile->sourceFileIndex);
+        classInfo->sourceFile = (char*)sourceFileString;
     }
 
     return classInfo;

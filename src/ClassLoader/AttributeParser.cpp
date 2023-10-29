@@ -70,7 +70,7 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray)
 			}
 		}
 		else {
-			std::cout << "Unknown frame type detected:" << (unsigned int)frameType << std::endl;
+			printf("Unknown frame type detected : %" PRIu8 "\n", frameType);
 			exit(1);
 		}
 	}
@@ -122,9 +122,9 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		uint16_t attributeNameIndex = byteArray.readUnsignedShort();
 		uint32_t attributeLength = byteArray.readUnsignedInt();
 
-		std::string name = constantPool->getString(attributeNameIndex);
+		const char* name = constantPool->getString(attributeNameIndex);
 
-		if (name == "Code") {
+		if (strcmp(name, "Code") == 0) {
 			uint16_t maxStack = byteArray.readUnsignedShort();
 			uint16_t maxLocals = byteArray.readUnsignedShort();
 			uint32_t codeLength = byteArray.readUnsignedInt();
@@ -152,7 +152,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = att;
 		}
-		else if (name == "LineNumberTable") {
+		else if (strcmp(name, "LineNumberTable") == 0) {
 			uint16_t lineNumberTableLength = byteArray.readUnsignedShort();
 			AttributeLineNumberTable* att = (AttributeLineNumberTable*) memory->classAlloc(sizeof(AttributeLineNumberTable));
 			att->attributeNameIndex = attributeNameIndex;
@@ -172,7 +172,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			}
 			attributes[currentAttrib] = att;
 		}
-		else if (name == "LocalVariableTable") {
+		else if (strcmp(name, "LocalVariableTable") == 0) {
 			uint16_t localVariableTableLength = byteArray.readUnsignedShort();
 			AttributeLocalVariableTable* att = (AttributeLocalVariableTable*) memory->classAlloc(sizeof(AttributeLocalVariableTable));
 			att->attributeNameIndex = attributeNameIndex;
@@ -196,7 +196,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			}
 			attributes[currentAttrib] = att;
 		}
-		else if (name == "SourceFile") {
+		else if (strcmp(name, "SourceFile") == 0) {
 			uint16_t sourceFileIndex = byteArray.readUnsignedShort();
 			AttributeSourceFile* att = (AttributeSourceFile*) memory->classAlloc(sizeof(AttributeSourceFile));
 			att->attributeNameIndex = attributeNameIndex;
@@ -206,12 +206,12 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = att;
 		}
-		else if (name == "StackMapTable") {
+		else if (strcmp(name, "StackMapTable") == 0) {
 			readStackMapTable(byteArray);
 			attributes[currentAttrib] = 0;
 		}
 		else {
-			std::cout << "Attribute parsing not implemented yet for type: " << name << std::endl;
+			printf("Attribute parsing not implemented yet for type: %s\n", name);
 			exit(1);
 		}
 	}
