@@ -70,7 +70,7 @@ public:
 	Memory *memory;
 public:
 	ClassInfo();
-	virtual ~ClassInfo();
+	~ClassInfo();
 
 	std::vector<AccessFlag> getAccessFlags() const;
 };

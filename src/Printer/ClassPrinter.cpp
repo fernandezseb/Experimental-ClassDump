@@ -610,7 +610,6 @@ ClassPrinter::ClassPrinter()
 
 std::string ClassPrinter::toString(const ConstantPoolItem* item, const ConstantPool* cp)
 {
-	static std::string defaultStr = "";
 	switch (item->getType())
 	{
 	case CT_NAMEANDTYPE:
@@ -675,14 +674,13 @@ std::string ClassPrinter::toString(const ConstantPoolItem* item, const ConstantP
 	}
 	default:
 	{
-		return defaultStr;
+		return "";
 	}
 	}
 }
 
 std::string ClassPrinter::toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp)
 {
-	static std::string defaultStr = "";
 	switch (item->getType())
 	{
 	case CT_NAMEANDTYPE:
@@ -718,14 +716,13 @@ std::string ClassPrinter::toExpandedString(const ConstantPoolItem* item, const C
 	}
 	default:
 	{
-		return defaultStr;
+		return "";
 	}
 	}
 }
 
 std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const ConstantPool* cp)
 {
-	static std::string defaultStr = "";
 	switch (item->getType())
 	{
 	case CT_NAMEANDTYPE:
@@ -771,7 +768,7 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 	}
 	default:
 	{
-		return defaultStr;
+		return "";
 	}
 	}
 }

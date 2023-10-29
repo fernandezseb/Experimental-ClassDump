@@ -22,6 +22,10 @@ public:
 
 	void* classAlloc(size_t size)
 	{
+		if (ptr + size > this->size) {
+			std::cout << "Out of memory" << std::endl;
+			exit(3);
+		}
 		size_t oldPtr = ptr;
 		ptr += size;
 		return classMemory + oldPtr;
