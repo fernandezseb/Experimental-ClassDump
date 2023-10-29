@@ -776,6 +776,7 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 
 void ClassPrinter::printClass(const ClassInfo& classInfo)
 {
+	Memory* memory = new Memory(10000);
 	wprintf(L"Classfile %ls\n", classInfo.filePath);
 
 	char time[50];
@@ -806,7 +807,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 	if (classInfo.interfacesCount > 0) {
 		std::cout << " implements ";
 
-		//std::string *names = (std::string*) malloc(sizeof(std::string) * classInfo.interfacesCount);
 		std::string* names = new std::string[classInfo.interfacesCount];
 
 		for (size_t currentIndex = 0; currentIndex < classInfo.interfacesCount; ++currentIndex) {
@@ -820,17 +820,22 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		delete[] names;
 
 	}
-	std::cout << std::endl;
+	printf("\n");
 
 	std::cout << "  minor version:" << " " << classInfo.minorVersion << std::endl;
 	std::cout << "  major version:" << " " << classInfo.majorVersion << std::endl;
 
 	std::cout << "  flags: ";
-	std::vector<std::string> flags;
-	for (AccessFlag flag : classInfo.getAccessFlags()) {
-		flags.push_back(getTypeAsString(flag, CLASS));
+	const char** flags = (const char**)memory->classAlloc(8 * sizeof(char*));
+	int currentIndex = 0;
+	for (auto const& element : accessFlagsClass) {
+		if ((element.first & classInfo.accessFlags) != 0) {
+			flags[currentIndex] = getTypeAsString(element.first, CLASS);
+			++currentIndex;
+		}
 	}
-	std::cout << joinStrings(flags, ", ") << std::endl;
+
+	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
 
 	std::cout << "Constant pool:" << std::endl;
 	int current = 1;
@@ -874,4 +879,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		AttributeInfo* att = classInfo.attributes->attributes[currentAttrib];
 		std::cout << printAttribute(att, cp);
 	}
+
+	delete memory;
 }

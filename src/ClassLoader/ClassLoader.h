@@ -36,9 +36,6 @@ public:
 	char** args;
 	uint16_t argsCount;
 public:
-	MethodInfo();
-	~MethodInfo();
-
 	std::vector<AccessFlag> getAccessFlags() const;
 };
 
@@ -69,7 +66,6 @@ public:
 	bool isPublic;
 	Memory *memory;
 public:
-	ClassInfo();
 	~ClassInfo();
 
 	std::vector<AccessFlag> getAccessFlags() const;

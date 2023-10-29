@@ -44,6 +44,28 @@ std::string joinStrings(std::string* strings, size_t size, std::string delim)
 	return ss.str();
 }
 
+char* joinStrings(char** strings, size_t arraySize, const char* delim, size_t allocSize, Memory* memory)
+{
+	if (arraySize == 0) {
+		return "";
+	}
+
+	char* buffer = (char*)memory->classAlloc(allocSize);
+
+	strcpy(buffer, strings[0]);
+
+	if (arraySize > 1) {
+		size_t index = 1;
+		while (index < arraySize) {
+				strcat(buffer, delim);
+				strcat(buffer, strings[index]);
+				++index;
+		}
+	}
+
+	return buffer;
+}
+
 char* toCharPtr(const std::string& str, Memory* memory)
 {
 	char* charPtr = (char*)memory->classAlloc(str.length() + 1);

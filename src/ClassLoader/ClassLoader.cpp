@@ -330,7 +330,6 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
         info->accessFlags = accessFlags;
         info->nameIndex = nameIndex;
         info->descriptorIndex = descriptorIndex;
-        // TODO: Fix these
         info->code = 0;
         info->attributes = attributes;
         info->isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
@@ -352,63 +351,9 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
     return methods;
 }
 
-ClassInfo::ClassInfo() :
-    constantPool(nullptr),
-    attributes(nullptr)
-{
-}
-
 ClassInfo::~ClassInfo()
 {
     delete memory;
-}
-
-std::vector<AccessFlag> ClassInfo::getAccessFlags() const
-{
-    static const AccessFlag classFlags[8] = {
-        ACC_PUBLIC,
-        ACC_FINAL,
-        ACC_SUPER,
-        ACC_INTERFACE,
-        ACC_ABSTRACT,
-        ACC_SYNTHETIC,
-        ACC_ANNOTATION,
-        ACC_ENUM
-    };
-
-    std::vector<AccessFlag> flags;
-    for (AccessFlag flag : classFlags) {
-        if ((accessFlags & flag) == flag) {
-            flags.push_back(flag);
-        }
-    }
-
-    return flags;
-}
-
-MethodInfo::MethodInfo() :
-    attributes(nullptr),
-    code(0)
-{
-
-}
-
-MethodInfo::~MethodInfo() {
-    if (attributes != 0) {
-        delete attributes;
-        attributes = nullptr;
-    }
-
-    if (args != 0) {
-        for (int i = 0; i < argsCount; ++i) {
-            free(args[i]);
-        }
-        free(args);
-    }
-
-    if (returnType != 0) {
-        free(returnType);
-    }
 }
 
 std::vector<AccessFlag> MethodInfo::getAccessFlags() const

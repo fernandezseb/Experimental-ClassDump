@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Starting ClassDump v" << CLASSDUMP_VERSION_MAJOR << "." << CLASSDUMP_VERSION_MINOR << std::endl;
+    //std::cout << "Starting ClassDump v" << CLASSDUMP_VERSION_MAJOR << "." << CLASSDUMP_VERSION_MINOR << std::endl;
 
     if (argc > 1) {
         {
