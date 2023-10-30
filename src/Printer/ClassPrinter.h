@@ -232,18 +232,18 @@ enum Opcode : uint8_t {
 #define T_BOOLEAN "boolean"
 #define T_DOUBLE  "double"
 
-void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
-void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
-void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp);
-void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp);
-void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp);
-void SignedShort(std::vector<uint8_t> args, const ConstantPool* cp);
+void SignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void UnsignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void ArrayTypePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void MultiArrayPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void SignedShort(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
 
 struct Instruction {
 	Opcode opcode;
 	uint8_t args;
 	const char* name;
-	void(*printFunction)(std::vector<uint8_t> args, const ConstantPool* cp) = NULL;
+	void(*printFunction)(uint8_t* args, uint16_t argsCount, const ConstantPool* cp) = NULL;
 };
 
 class ClassPrinter {
@@ -558,13 +558,12 @@ private:
 	std::string getAsExternalReturnType(std::string returnType);
 	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp, Memory* memory);
-	void printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp);
-	void printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp, Memory* memory);
+	void printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp);
+	void printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp, Memory* memory);
 	static std::string toString(const ConstantPoolItem* item, const ConstantPool* cp);
 	static std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp);
-	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp);
+	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp, Memory* memory);
 public:
-	ClassPrinter();
 	void printClass(const ClassInfo& classInfo, Memory* memory);
 	static std::string toStringInline(const ConstantPoolItem* item, const ConstantPool* cp);
 };

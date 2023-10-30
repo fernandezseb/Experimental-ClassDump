@@ -107,16 +107,17 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	printf("\n");
 }
 
-void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
+void ClassPrinter::printMethodSignature(
+	const MethodInfo* methodInfo,
+	const ClassInfo& classInfo,
+	const char* className,
+	const ConstantPool* cp)
 {
-	if (!methodInfo->isConstructor) {
+	if (!methodInfo->isConstructor()) {
 		std::cout << getAsExternalClassName(getAsExternalReturnType(methodInfo->returnType)) << " ";
 	}
 
-	if (methodInfo->isConstructor) {
-		// TODO: Reuse classname
-		const CPClassInfo* classPtr = cp->getClassInfo(classInfo.thisClass);
-		const char* className = cp->getString(classPtr->nameIndex);
+	if (methodInfo->isConstructor()) {
 		printf("%s",className);
 	}
 	else
@@ -137,23 +138,23 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 	printf(");\n");
 }
 
-void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp, Memory* memory)
+void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp, Memory* memory)
 {
 	printf("  ");
 	// TODO: Maybe we can print these based on a lookup table and in a fixed order, e.g. does the flags list match?
-	if (methodInfo->isPublic) {
+	if (methodInfo->isPublic()) {
 		printf("public ");
 	}
-	if (methodInfo->isStatic) {
+	if (methodInfo->isStatic()) {
 		printf("static ");
 	}
-	if (methodInfo->isNative) {
+	if (methodInfo->isNative()) {
 		printf("native ");
 	}
-	if (methodInfo->isAbstract) {
+	if (methodInfo->isAbstract()) {
 		printf("abstract ");
 	}
-	printMethodSignature(methodInfo, classInfo, cp);
+	printMethodSignature(methodInfo, classInfo, className, cp);
 	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
 	printf("    flags: ");
@@ -168,33 +169,33 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
 
 
-	if (methodInfo->isNative || methodInfo->isAbstract) {
+	if (methodInfo->isNative() || methodInfo->isAbstract()) {
 	}
 	else {
 		printf("    Code: \n");
-		printCode(methodInfo->code, methodInfo, cp);
+		printCode(methodInfo->code, methodInfo, cp, memory);
 	}
 	printf("\n");
 }
 
-void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
+void SignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
-	for (uint8_t arg : args) {
-		int8_t signedInt = *reinterpret_cast<int8_t*>(&arg);
+	for (uint16_t currentIndex = 0; currentIndex < argsCount; ++currentIndex) {
+		int8_t signedInt = *reinterpret_cast<int8_t*>(&args[currentIndex]);
 		printf(" %" PRIi8, signedInt);
 	}
 }
 
-void UnsignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
+void UnsignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
-	for (uint8_t arg : args) {
-		printf(" %" PRIu8, arg);
+	for (uint16_t currentIndex = 0; currentIndex < argsCount; ++currentIndex) {
+		printf(" %" PRIu8, args[currentIndex]);
 	}
 }
 
-void SignedShort(std::vector<uint8_t> args, const ConstantPool* cp)
+void SignedShort(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
-	for (int i = 0; i < args.size(); i += 2) {
+	for (int i = 0; i < argsCount; i += 2) {
 		uint8_t byte1 = args[i];
 		uint8_t byte2 = args[i + 1];
 
@@ -204,9 +205,9 @@ void SignedShort(std::vector<uint8_t> args, const ConstantPool* cp)
 	}
 }
 
-void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
+void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
-	for (int i = 0; i < args.size(); i += 2) {
+	for (int i = 0; i < argsCount; i += 2) {
 		uint8_t byte1 = args[i];
 		uint8_t byte2 = args[i + 1];
 
@@ -217,10 +218,10 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 		printf("%-25s", indexStr);
 	}
 
-	if (args.size() > 0) {
+	if (argsCount > 0) {
 		printf("//");
 	}
-	for (int i = 0; i < args.size(); i += 2) {
+	for (int i = 0; i < argsCount; i += 2) {
 		uint8_t byte1 = args[i];
 		uint8_t byte2 = args[i + 1];
 
@@ -232,7 +233,7 @@ void ShortIndices(std::vector<uint8_t> args, const ConstantPool* cp)
 	}
 }
 
-void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
+void ArrayTypePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
 	const char* type;
 	uint8_t arg = args[0];
@@ -269,7 +270,7 @@ void ArrayTypePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
 	printf(" %s", type);
 }
 
-void MultiArrayPrinter(std::vector<uint8_t> args, const ConstantPool* cp)
+void MultiArrayPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
 	uint8_t byte1 = args[0];
 	uint8_t byte2 = args[1];
@@ -317,10 +318,15 @@ std::string printAttribute(AttributeInfo* attribute, const ConstantPool* cp)
 	return "";
 }
 
-void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method, const ConstantPool* cp)
+void ClassPrinter::printCode(
+	const AttributeCode* code,
+	const MethodInfo* method, 
+	const ConstantPool* cp,
+	Memory* memory
+)
 {
 	int argsSize = method->argsCount;
-	if (!method->isStatic) {
+	if (!method->isStatic()) {
 		argsSize++;
 	}
 
@@ -337,14 +343,13 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 				char indexStr[6];
 				sprintf(indexStr, "%" PRIu64 ": ", byteArray.getPtr());
 				printf("%12s%-13s", indexStr, instruction.name);
-				std::vector<uint8_t> args;
+				uint8_t* args = 0;
 				if (instruction.args > 0) {
-					for (int arg = 0; arg < instruction.args; arg++) {
-						args.push_back(byteArray.readUnsignedByte());
-					}
+					args = (uint8_t*)memory->classAlloc(instruction.args);
+					byteArray.copyBytes(args, instruction.args);
 				}
 				if (instruction.printFunction != NULL) {
-					instruction.printFunction(args, cp);
+					instruction.printFunction(args, instruction.args, cp);
 				}
 
 				found = true;
@@ -403,10 +408,6 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		}
 	}
 
-}
-
-ClassPrinter::ClassPrinter()
-{
 }
 
 std::string ClassPrinter::toString(const ConstantPoolItem* item, const ConstantPool* cp)
@@ -592,11 +593,11 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	const CPClassInfo* const classPtr = cp->getClassInfo(classInfo.thisClass);
 	const CPClassInfo* const superClassPtr = cp->getClassInfo(classInfo.superClass);
 
-	if (classInfo.isPublic) {
+	if (classInfo.isPublic()) {
 		printf("public ");
 	}
-
-	printf("class %s", cp->getString(classPtr->nameIndex));
+	const char* className = cp->getString(classPtr->nameIndex);
+	printf("class %s", className);
 
 	std::string superClassName = cp->getString(superClassPtr->nameIndex);
 	if (superClassName != "java/lang/Object") {
@@ -670,7 +671,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	// Methods
 	for (uint16_t currentMethod = 0; currentMethod < classInfo.methodCount; ++currentMethod) {
 		MethodInfo* methodInfo = classInfo.methods[currentMethod];
-		printMethod(methodInfo, classInfo, cp, memory);
+		printMethod(methodInfo, classInfo, className, cp, memory);
 	}
 	
 	printf("}\n");

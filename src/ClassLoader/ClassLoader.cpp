@@ -205,8 +205,6 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     classInfo->methods = readMethods(byteArray, classInfo->constantPool, methodsCount);
     classInfo->methodCount = methodsCount;
 
-    classInfo->isPublic = ((classInfo->accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
-
     AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, classInfo->constantPool, memory);
     classInfo->attributes = attributeInfo;
     AttributeSourceFile* sourceFile = (AttributeSourceFile*) attributeInfo->findAttributeWithName(classInfo->constantPool, "SourceFile");
@@ -325,18 +323,15 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
         info->descriptorIndex = descriptorIndex;
         info->code = 0;
         info->attributes = attributes;
-        info->isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
-        info->isAbstract = ((accessFlags & ACC_ABSTRACT) == ACC_ABSTRACT);
-        if (!(info->isNative || info->isAbstract)) {
+        bool isNative = ((accessFlags & ACC_NATIVE) == ACC_NATIVE);
+        bool isAbstract = ((accessFlags & ACC_ABSTRACT) == ACC_ABSTRACT);
+        if (!(isNative || isAbstract)) {
             info->code = (AttributeCode*) attributes->findAttributeWithName(constantPool, "Code");
         }
-        info->isPublic = ((accessFlags & ACC_PUBLIC) == ACC_PUBLIC);
-        info->isStatic = ((accessFlags & ACC_STATIC) == ACC_STATIC);
-
         parseDescriptor(constantPool->getString(descriptorIndex), info);
 
         const char* name = constantPool->getString(nameIndex);
-        info->isConstructor = (strcmp(name,"<init>") == 0);
+        info->name = constantPool->getString(nameIndex);
 
         methods[currentMethod] = info;
     }

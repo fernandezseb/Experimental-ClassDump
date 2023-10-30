@@ -24,15 +24,31 @@ public:
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
 	AttributeCode* code;
-	bool isNative;
-	bool isPublic;
-	bool isStatic;
-	bool isConstructor;
-	bool isAbstract;
 	AttributeCollection* attributes;
 	char* returnType;
 	char** args;
 	uint16_t argsCount;
+	const char* name;
+public:
+	bool isStatic() const {
+		return ((accessFlags & ACC_STATIC) != 0);
+	}
+
+	bool isPublic() const {
+		return ((accessFlags & ACC_PUBLIC) != 0);
+	}
+
+	bool isNative() const {
+		return ((accessFlags & ACC_NATIVE) != 0);
+	}
+
+	bool isConstructor() const {
+		return (strcmp(name, "<init>") == 0);
+	}
+
+	bool isAbstract() const {
+		return ((accessFlags & ACC_ABSTRACT) != 0);
+	}
 };
 
 class ClassInfo {
@@ -59,8 +75,12 @@ public:
 
 	AttributeCollection* attributes;
 	char* sourceFile;
-	bool isPublic;
+	//bool isPublic;
 	Memory *memory;
+public:
+	bool isPublic() const {
+		return ((accessFlags & ACC_PUBLIC) != 0);
+	}
 };
 
 class ClassLoader {
