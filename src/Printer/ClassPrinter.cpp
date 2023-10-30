@@ -85,9 +85,13 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	if (fieldInfo->isPrivate) {
 		printf("private ");
 	}
-	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) << " " << name << ";" << std::endl;
-	std::cout << "    descriptor: " << descriptor << std::endl;
-	std::cout << "    flags: ";
+	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) 
+		<< " " 
+		<< name 
+		<< ";" 
+		<< std::endl;
+	printf("    descriptor: %s\n", descriptor);
+	printf("    flags: ");
 
 	const char** flags = (const char**)memory->classAlloc(9 * sizeof(char*));
 	int currentIndex = 0;
@@ -100,7 +104,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
 
 
-	std::cout << '\n';
+	printf("\n");
 }
 
 void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp)
@@ -135,24 +139,24 @@ void ClassPrinter::printMethodSignature(const MethodInfo* methodInfo, const Clas
 
 void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const ConstantPool* cp, Memory* memory)
 {
-	std::cout << "  ";
+	printf("  ");
 	// TODO: Maybe we can print these based on a lookup table and in a fixed order, e.g. does the flags list match?
 	if (methodInfo->isPublic) {
-		std::cout << "public ";
+		printf("public ");
 	}
 	if (methodInfo->isStatic) {
-		std::cout << "static ";
+		printf("static ");
 	}
 	if (methodInfo->isNative) {
-		std::cout << "native ";
+		printf("native ");
 	}
 	if (methodInfo->isAbstract) {
-		std::cout << "abstract ";
+		printf("abstract ");
 	}
 	printMethodSignature(methodInfo, classInfo, cp);
-	std::cout << "    descriptor: " << cp->getString(methodInfo->descriptorIndex) << std::endl;
+	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
-	std::cout << "    flags: ";
+	printf("    flags: ");
 	const char** flags = (const char**)memory->classAlloc(12 * sizeof(char*));
 	int currentIndex = 0;
 	for (auto const& element : accessFlagsMethod) {
@@ -167,10 +171,10 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	if (methodInfo->isNative || methodInfo->isAbstract) {
 	}
 	else {
-		std::cout << "    Code: " << std::endl;
+		printf("    Code: \n");
 		printCode(methodInfo->code, methodInfo, cp);
 	}
-	std::cout << std::endl;
+	printf("\n");
 }
 
 void SignedBytePrinter(std::vector<uint8_t> args, const ConstantPool* cp)
@@ -319,10 +323,9 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 	if (!method->isStatic) {
 		argsSize++;
 	}
-	std::cout << "      stack=" << code->maxStack << ", "
-		<< "locals=" << code->maxLocals
-		<< ", args_size=" << std::to_string(argsSize)
-		<< std::endl;
+
+	printf("      stack=%" PRIu16 ", locals=%" PRIu16 ", args_size=%" PRIu16 "\n",
+		code->maxStack, code->maxLocals, argsSize);
 
 	ByteArray byteArray(code->code, code->codeLength);
 
@@ -331,10 +334,9 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 		bool found = false;
 		for (const Instruction& instruction : this->instructions) {
 			if (((uint8_t)instruction.opcode) == opcode) {
-				std::string indexStr = std::to_string(byteArray.getPtr()) + ": ";
-				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr
-					<< std::left << std::setfill(' ') << std::setw(13) << instruction.name;
-
+				char indexStr[6];
+				sprintf(indexStr, "%" PRIu64 ": ", byteArray.getPtr());
+				printf("%12s%-13s", indexStr, instruction.name);
 				std::vector<uint8_t> args;
 				if (instruction.args > 0) {
 					for (int arg = 0; arg < instruction.args; arg++) {
@@ -362,25 +364,25 @@ void ClassPrinter::printCode(const AttributeCode* code, const MethodInfo* method
 				int32_t defaultAddress = instructionIndex + defaultOffset;
 				int32_t nPairs = byteArray.readSignedInt();
 
-				std::string indexStr = std::to_string(instructionIndex) + ": ";
-				std::cout << std::right << std::setfill(' ') << std::setw(12) << indexStr
-					<< std::left << std::setfill(' ') << std::setw(13) << "lookupswitch";
+				char indexStr[6];
+				sprintf(indexStr, "%" PRIu64 ": ", byteArray.getPtr());
+				printf("%12s%-13s", indexStr, "lookupswitch");
 
-				std::cout << " { // " << nPairs << std::endl;
+				printf(" { // %" PRIi32 "\n", nPairs);
 
 				for (int32_t currentPair = 0; currentPair < nPairs; currentPair++) {
 					int32_t matchKey = byteArray.readSignedInt();
 					int32_t offset = byteArray.readSignedInt();
 
-					std::cout << std::right << std::setfill(' ') << std::setw(24) << (matchKey);
+					printf("%24" PRIi32, matchKey);
 
-					std::cout << ": " << (instructionIndex + offset);
-					std::cout << std::endl;
+					printf(": %" PRIi32, (instructionIndex + offset));
+					printf("\n");
 				}
 
-				std::cout << std::right << std::setfill(' ') << std::setw(24) << "default";
-				std::cout << ": " << (defaultAddress) << std::endl;
-				std::cout << "            }";
+				printf("%24s", "default");
+				printf(": %" PRIi32 "\n", defaultAddress);
+				printf("            }");
 
 				found = true;
 			}
