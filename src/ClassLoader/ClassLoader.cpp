@@ -8,7 +8,7 @@
 void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
     if (magic != MAGIC_NUMBER) {
-        fprintf(stderr, "Magic Number not OK.Exiting.\n");
+        fprintf(stderr, "Error: Magic Number not OK.Exiting.\n");
         exit(1);
     }
 }
@@ -171,7 +171,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     }
     default:
     {
-        fprintf(stderr, "Unidentified constant pool item detected with tag: %" PRIu8 "\n", tag);
+        fprintf(stderr, "Error: Unidentified constant pool item detected with tag: %" PRIu8 "\n", tag);
     }
     }
 
@@ -254,7 +254,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
         return classInfo;
     }
     catch (const std::exception& ex) {
-        std::cout << "Canonical path for " << className << " threw exception:\n"
+        std::cout << "Error: Canonical path for " << className << " threw exception:\n"
             << ex.what() << std::endl;
         exit(-1);
     }

@@ -5,9 +5,11 @@
 
 int main(int argc, char* argv[])
 {
-    //std::cout << "Starting ClassDump v" << CLASSDUMP_VERSION_MAJOR << "." << CLASSDUMP_VERSION_MINOR << std::endl;
-
     if (argc > 1) {
+        if (strncmp(argv[1], "-v", 2) == 0) {
+            printf("ClassDump version %d.%d\n", CLASSDUMP_VERSION_MAJOR, CLASSDUMP_VERSION_MINOR);
+        }
+        else
         {
             Memory* memory = new Memory(20000);
             const char* className = argv[1];
@@ -21,7 +23,7 @@ int main(int argc, char* argv[])
         }
         _CrtDumpMemoryLeaks();
     } else {
-        fprintf(stderr, "Class name must be supplied\n");
+        fprintf(stderr, "Error: Class name must be supplied\n");
         exit(1);
     }
 

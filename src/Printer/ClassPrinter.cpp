@@ -394,7 +394,7 @@ void ClassPrinter::printCode(
 
 		}
 		if (!found) {
-			printf("Instruction with opcode: %" PRIu8 " unrecognized\n", opcode);
+			printf("Error: Instruction with opcode: %" PRIu8 " unrecognized\n", opcode);
 			exit(1);
 		}
 		printf("\n");

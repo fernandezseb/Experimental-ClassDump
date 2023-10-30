@@ -107,3 +107,4 @@ Even though it is not set in stone, I will be trying to implement as much featur
 * Complete all flag parsing
 * The last opcodes that are not implemented yet: lookuptable, wide
 * Print StackMapTable (other method/code attributes)
+* Make code work on platforms other than Windows (with MSVC)
