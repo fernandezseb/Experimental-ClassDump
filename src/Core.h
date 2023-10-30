@@ -14,6 +14,10 @@
 #endif
 #endif  // _DEBUG
 
+#ifdef _CPPRTTI
+#error "RTTI enabled"
+#endif
+
 
 #include <iostream>
 #include <fstream>
