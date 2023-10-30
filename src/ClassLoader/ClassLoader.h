@@ -16,8 +16,6 @@ public:
 	uint16_t descriptorIndex;
 	bool isPrivate;
 	AttributeCollection* attributes;
-public:
-	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class MethodInfo {
@@ -35,8 +33,6 @@ public:
 	char* returnType;
 	char** args;
 	uint16_t argsCount;
-public:
-	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassInfo {
@@ -67,8 +63,6 @@ public:
 	Memory *memory;
 public:
 	~ClassInfo();
-
-	std::vector<AccessFlag> getAccessFlags() const;
 };
 
 class ClassLoader {
@@ -83,6 +77,5 @@ private:
 	ClassInfo* readClass(ByteArray& byteArray);
 	Memory* memory;
 public:
-	ClassLoader();
 	ClassInfo* readClass(const char* className);
 };

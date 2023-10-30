@@ -9,11 +9,9 @@ private:
 	bool allocated = false;
 public:
 	uint8_t* bytes = 0;
-	
-	ByteArray(uint64_t size);
-	ByteArray(uint8_t* bytes, uint64_t size);
-	~ByteArray();
 
+	ByteArray(uint8_t* bytes, uint64_t size);
+	
 	uint8_t readUnsignedByte();
     uint16_t readUnsignedShort();
 	uint32_t readUnsignedInt();

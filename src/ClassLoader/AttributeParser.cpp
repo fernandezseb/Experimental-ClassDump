@@ -70,7 +70,7 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray)
 			}
 		}
 		else {
-			printf("Unknown frame type detected : %" PRIu8 "\n", frameType);
+			fprintf(stderr, "Unknown frame type detected : %" PRIu8 "\n", frameType);
 			exit(1);
 		}
 	}

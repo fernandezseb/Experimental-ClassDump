@@ -23,7 +23,7 @@ public:
 	void* classAlloc(size_t size)
 	{
 		if (ptr + size > this->size) {
-			std::cout << "Out of memory" << std::endl;
+			fprintf(stderr, "Out of memory\n");
 			exit(3);
 		}
 		size_t oldPtr = ptr;
@@ -33,7 +33,7 @@ public:
 
 	void printSize()
 	{
-		std::cout << "Memory used: " << ptr << " bytes" << std::endl;
-		std::cout << "Free class memory: " << (size - ptr) << " bytes" << std::endl;
+		printf("Memory used: %zu bytes\n", ptr);
+		printf("Free memory: %zu bytes\n", (size - ptr));
 	}
 };

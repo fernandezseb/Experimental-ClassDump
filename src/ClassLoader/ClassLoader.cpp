@@ -8,7 +8,7 @@
 void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
     if (magic != MAGIC_NUMBER) {
-        std::cout << "Magic Number not OK.Exiting." << std::endl;
+        fprintf(stderr, "Magic Number not OK.Exiting.\n");
         exit(1);
     }
 }
@@ -23,8 +23,6 @@ ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
 
     constantPool->constants = (ConstantPoolItem**) memory->classAlloc(sizeof(ConstantPoolItem*) * arrCount);
     constantPool->size = arrCount;
-    // TODO: Only set the unused ones to 0
-    memset(constantPool->constants, 0, sizeof(ConstantPoolItem*) * arrCount);
 
     for (uint32_t currentConstantIndex = 0; currentConstantIndex < arrCount; currentConstantIndex++) {
         uint8_t tag = byteArray.readUnsignedByte();
@@ -36,6 +34,7 @@ ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
         // if tag is long or double we need to increment by 2
         if (tag == CT_LONG || tag == CT_DOUBLE) {
             currentConstantIndex++;
+            constantPool->constants[currentConstantIndex] = 0;
         }
 
     }
@@ -75,8 +74,6 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         uint16_t size = byteArray.readUnsignedShort();
         uint16_t strBytes = size * sizeof(uint8_t) + 1u;
         uint8_t* buffer = (uint8_t*)memory->classAlloc(strBytes);
-        /*memcpy(buffer, &bytes[bytePtr], sizeof(uint8_t) * size);
-        bytePtr += size;*/
         byteArray.copyBytes(buffer, size);
         buffer[strBytes - 1] = '\0';
         CPUTF8Info* itemUtf8 = (CPUTF8Info*)memory->classAlloc(sizeof(CPUTF8Info));
@@ -174,16 +171,11 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     }
     default:
     {
-        std::cout << "Unidentified constant pool item detected with tag: "
-            << (int) tag << " " << std::endl;
+        fprintf(stderr, "Unidentified constant pool item detected with tag: %" PRIu8 "\n", tag);
     }
     }
 
     return item;
-}
-
-ClassLoader::ClassLoader()
-{
 }
 
 ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
@@ -246,7 +238,8 @@ ClassInfo* ClassLoader::readClass(const char* className)
         std::ifstream myFile(path, std::ios::in | std::ios::binary);
         uint64_t size = std::filesystem::file_size(path);
 
-        ByteArray bytes(size);
+        uint8_t* fileMemory =  (uint8_t*)VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        ByteArray bytes(fileMemory, size);
 
         myFile.read((char*)bytes.bytes, size);
 
@@ -259,6 +252,7 @@ ClassInfo* ClassLoader::readClass(const char* className)
         classInfo->lastModified = attr.st_mtime;
         strcpy(classInfo->md5, checksum.c_str());
         myFile.close();
+        VirtualFree(fileMemory, 0, MEM_RELEASE);
 
         return classInfo;
     }
@@ -354,54 +348,4 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
 ClassInfo::~ClassInfo()
 {
     delete memory;
-}
-
-std::vector<AccessFlag> MethodInfo::getAccessFlags() const
-{
-    static const AccessFlag methodFlags[12] = {
-        ACC_PUBLIC,
-        ACC_PRIVATE,
-        ACC_PROTECTED,
-        ACC_STATIC,
-        ACC_FINAL,
-        ACC_SYNCHRONIZED,
-        ACC_BRIDGE,
-        ACC_VARARGS,
-        ACC_NATIVE,
-        ACC_ABSTRACT,
-        ACC_STRICT,
-        ACC_SYNTHETIC
-    };
-    std::vector<AccessFlag> flags;
-    for (AccessFlag flag : methodFlags) {
-        if ((accessFlags & flag) == flag) {
-            flags.push_back(flag);
-        }
-    }
-
-    return flags;
-}
-
-std::vector<AccessFlag> FieldInfo::getAccessFlags() const
-{
-    static const AccessFlag fieldFlags[9] = {
-        ACC_PUBLIC,
-        ACC_PRIVATE,
-        ACC_PROTECTED,
-        ACC_STATIC,
-        ACC_FINAL,
-        ACC_VOLATILE,
-        ACC_TRANSIENT,
-        ACC_SYNTHETIC,
-        ACC_ENUM
-    };
-
-    std::vector<AccessFlag> flags;
-    for (AccessFlag flag : fieldFlags) {
-        if ((accessFlags & flag) == flag) {
-            flags.push_back(flag);
-        }
-    }
-
-    return flags;
 }

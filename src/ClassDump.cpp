@@ -1,6 +1,3 @@
-// ClassDump.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include "Core.h"
 #include "ClassLoader/ClassLoader.h"
 #include "Printer/ClassPrinter.h"
@@ -19,13 +16,11 @@ int main(int argc, char* argv[])
             ClassInfo* classInfo = classLoader.readClass(className);
             classPrinter.printClass(*classInfo);
             classInfo->memory->printSize();
-            /*delete classInfo->memory;*/
             classInfo->~ClassInfo();
-            //delete classInfo;
         }
         _CrtDumpMemoryLeaks();
     } else {
-        std::cout << "Class name must be supplied" << std::endl;
+        fprintf(stderr, "Class name must be supplied\n");
         exit(1);
     }
 

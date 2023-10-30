@@ -1,18 +1,8 @@
 #include "ByteArray.h"
 
-ByteArray::ByteArray(uint64_t size) :
-	bytes(new uint8_t[size]), allocated(true) {
-}
-
 ByteArray::ByteArray(uint8_t* bytes, uint64_t size) :
 	bytes(bytes), size(size)
 {
-}
-
-ByteArray::~ByteArray() {
-	if (allocated) {
-		delete[] bytes;
-	}
 }
 
 uint8_t ByteArray::readUnsignedByte()
