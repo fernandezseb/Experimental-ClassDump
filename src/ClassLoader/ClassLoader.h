@@ -61,8 +61,6 @@ public:
 	char* sourceFile;
 	bool isPublic;
 	Memory *memory;
-public:
-	~ClassInfo();
 };
 
 class ClassLoader {
@@ -77,5 +75,5 @@ private:
 	ClassInfo* readClass(ByteArray& byteArray);
 	Memory* memory;
 public:
-	ClassInfo* readClass(const char* className);
+	ClassInfo* readClass(const char* className, Memory* memory);
 };

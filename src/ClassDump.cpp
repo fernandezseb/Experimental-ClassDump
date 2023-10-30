@@ -9,14 +9,15 @@ int main(int argc, char* argv[])
 
     if (argc > 1) {
         {
+            Memory* memory = new Memory(20000);
             const char* className = argv[1];
 
             ClassLoader classLoader;
             ClassPrinter classPrinter;
-            ClassInfo* classInfo = classLoader.readClass(className);
-            classPrinter.printClass(*classInfo);
+            ClassInfo* classInfo = classLoader.readClass(className, memory);
+            classPrinter.printClass(*classInfo, memory);
             classInfo->memory->printSize();
-            classInfo->~ClassInfo();
+            delete memory;
         }
         _CrtDumpMemoryLeaks();
     } else {

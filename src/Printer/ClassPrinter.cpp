@@ -572,9 +572,8 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 	}
 }
 
-void ClassPrinter::printClass(const ClassInfo& classInfo)
+void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 {
-	Memory* memory = new Memory(10000);
 	wprintf(L"Classfile %ls\n", classInfo.filePath);
 
 	char time[50];
@@ -678,6 +677,4 @@ void ClassPrinter::printClass(const ClassInfo& classInfo)
 		AttributeInfo* att = classInfo.attributes->attributes[currentAttrib];
 		std::cout << printAttribute(att, cp);
 	}
-
-	delete memory;
 }

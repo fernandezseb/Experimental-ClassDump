@@ -219,15 +219,14 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
     return classInfo;
 }
 
-ClassInfo* ClassLoader::readClass(const char* className)
+ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 {
-    Memory *mem = new Memory(10000);
-    memory = mem;
+    this->memory = memory;
     try {
         std::filesystem::path path = std::filesystem::canonical(className);
         const wchar_t* absolutePath = path.c_str();
 
-        wchar_t* pathstr = (wchar_t*)mem->classAlloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
+        wchar_t* pathstr = (wchar_t*)this->memory->classAlloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
         wcscpy(pathstr, absolutePath);
 
         std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
@@ -246,7 +245,7 @@ ClassInfo* ClassLoader::readClass(const char* className)
         std::string checksum =  md5(bytes.bytes, size);
 
         ClassInfo* classInfo = readClass(bytes);
-        classInfo->memory = mem;
+        classInfo->memory = this->memory;
         classInfo->filePath = pathstr;
         classInfo->size = size;
         classInfo->lastModified = attr.st_mtime;
@@ -343,9 +342,4 @@ MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* consta
     }
 
     return methods;
-}
-
-ClassInfo::~ClassInfo()
-{
-    delete memory;
 }

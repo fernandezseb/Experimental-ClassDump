@@ -565,6 +565,6 @@ private:
 	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp);
 public:
 	ClassPrinter();
-	void printClass(const ClassInfo& classInfo);
+	void printClass(const ClassInfo& classInfo, Memory* memory);
 	static std::string toStringInline(const ConstantPoolItem* item, const ConstantPool* cp);
 };
