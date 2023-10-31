@@ -483,6 +483,18 @@ private:
 	const char* ACC_VOLATILE_STR = "ACC_VOLATILE";
 	const char* ACC_TRANSIENT_STR = "ACC_TRANSIENT";
 
+	const char* ACC_PUBLIC_KEYWORD = "public";
+	const char* ACC_PRIVATE_KEYWORD = "private";
+	const char* ACC_PROTECTED_KEYWORD = "protected";
+	const char* ACC_STATIC_KEYWORD = "static";
+	const char* ACC_FINAL_KEYWORD = "final";
+	const char* ACC_NATIVE_KEYWORD = "native";
+	const char* ACC_INTERFACE_KEYWORD = "interface";
+	const char* ACC_ABSTRACT_KEYWORD = "abstract";
+	const char* ACC_SYNCHRONIZED_KEYWORD = "synchronized";
+	const char* ACC_VOLATILE_KEYWORD = "volatile";
+	const char* ACC_TRANSIENT_KEYWORD = "transient";
+
 	enum AccessFlagType {
 		CLASS, METHOD, FIELD
 	};
@@ -514,6 +526,28 @@ private:
 		{ACC_TRANSIENT, ACC_TRANSIENT_STR},
 		{ACC_SYNTHETIC, ACC_SYNTHETIC_STR},
 		{ACC_ENUM, ACC_ENUM_STR}
+	};
+
+	const std::map<AccessFlag, const char*> keywords = {
+		{ACC_PUBLIC, ACC_PUBLIC_KEYWORD},
+		{ACC_PRIVATE, ACC_PRIVATE_KEYWORD},
+		{ACC_PROTECTED, ACC_PROTECTED_KEYWORD},
+		{ACC_STATIC, ACC_STATIC_KEYWORD},
+		{ACC_FINAL, ACC_FINAL_KEYWORD},
+		{ACC_NATIVE, ACC_NATIVE_KEYWORD},
+		{ACC_ABSTRACT, ACC_ABSTRACT_KEYWORD},
+		{ACC_SYNCHRONIZED, ACC_SYNCHRONIZED_KEYWORD},
+		{ACC_VOLATILE, ACC_VOLATILE_KEYWORD},
+		{ACC_TRANSIENT, ACC_TRANSIENT_KEYWORD}
+	};
+
+	const std::map<AccessFlag, const char*> keywordsClass = {
+		{ACC_PUBLIC, ACC_PUBLIC_KEYWORD},
+		{ACC_PRIVATE, ACC_PRIVATE_KEYWORD},
+		{ACC_PROTECTED, ACC_PROTECTED_KEYWORD},
+		{ACC_STATIC, ACC_STATIC_KEYWORD},
+		{ACC_FINAL, ACC_FINAL_KEYWORD},
+		{ACC_ABSTRACT, ACC_ABSTRACT_KEYWORD}
 	};
 
 	const std::map<AccessFlag, const char*> accessFlagsMethod = {

@@ -82,9 +82,16 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	const char* descriptor = cp->getString(fieldInfo->descriptorIndex);
 	const char* name = cp->getString(fieldInfo->nameIndex);
 	printf("  ");
-	if (fieldInfo->isPrivate) {
-		printf("private ");
+
+	for (auto const& element : accessFlagsField) {
+		if ((element.first & fieldInfo->accessFlags) != 0) {
+			if (keywords.find(element.first) != keywords.end()) {
+				printf("%s ", keywords.at(element.first));
+			}
+		}
 	}
+
+
 	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) 
 		<< " " 
 		<< name 
@@ -141,19 +148,16 @@ void ClassPrinter::printMethodSignature(
 void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp, Memory* memory)
 {
 	printf("  ");
-	// TODO: Maybe we can print these based on a lookup table and in a fixed order, e.g. does the flags list match?
-	if (methodInfo->isPublic()) {
-		printf("public ");
+
+	for (auto const& element : accessFlagsMethod) {
+		if ((element.first & methodInfo->accessFlags) != 0) {
+			if (keywords.find(element.first) != keywords.end()) {
+				printf("%s ", keywords.at(element.first));
+			}
+		}
 	}
-	if (methodInfo->isStatic()) {
-		printf("static ");
-	}
-	if (methodInfo->isNative()) {
-		printf("native ");
-	}
-	if (methodInfo->isAbstract()) {
-		printf("abstract ");
-	}
+
+
 	printMethodSignature(methodInfo, classInfo, className, cp);
 	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
@@ -593,9 +597,14 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	const CPClassInfo* const classPtr = cp->getClassInfo(classInfo.thisClass);
 	const CPClassInfo* const superClassPtr = cp->getClassInfo(classInfo.superClass);
 
-	if (classInfo.isPublic()) {
-		printf("public ");
+	for (auto const& element : accessFlagsClass) {
+		if ((element.first & classInfo.accessFlags) != 0) {
+			if (keywordsClass.find(element.first) != keywordsClass.end()) {
+				printf("%s ", keywordsClass.at(element.first));
+			}
+		}
 	}
+
 	const char* className = cp->getString(classPtr->nameIndex);
 	printf("class %s", className);
 
