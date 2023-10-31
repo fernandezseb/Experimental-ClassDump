@@ -11,15 +11,14 @@ int main(int argc, char* argv[])
         }
         else
         {
-            Memory* memory = new Memory(20000);
+            Memory memory(20000);
             const char* className = argv[1];
 
             ClassLoader classLoader;
             ClassPrinter classPrinter;
-            ClassInfo* classInfo = classLoader.readClass(className, memory);
-            classPrinter.printClass(*classInfo, memory);
-            classInfo->memory->printSize();
-            delete memory;
+            ClassInfo* classInfo = classLoader.readClass(className, &memory);
+            classPrinter.printClass(*classInfo, &memory);
+            memory.printSize();
         }
         _CrtDumpMemoryLeaks();
     } else {

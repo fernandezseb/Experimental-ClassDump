@@ -1,14 +1,16 @@
 #include "Core.h"
+#include "Memory.h"
 
 struct Descriptor {
-	std::vector<std::string> args;
-	std::string returnType;
+	char** args;
+	uint16_t argsCount;
+	char* returnType;
 };
 
 class DescriptorParser {
 public:
-	static std::string getArgsPart(const std::string& descriptor);
-	static std::string getReturnPart(const std::string& descriptor);
-	static std::vector<std::string> getTypes(const std::string& descriptorPart);
-	static Descriptor parseDescriptor(const std::string descriptor);
+	static char* getArgsPart(const char* descriptor, Memory* memory);
+	static char* getReturnPart(const char* descriptor, Memory* memory);
+	static char** getTypes(char* descriptorPart, uint16_t* size, Memory* memory);
+	static Descriptor parseDescriptor(const char* descriptor, Memory* memory);
 };

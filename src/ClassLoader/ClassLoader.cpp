@@ -296,16 +296,11 @@ FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constant
 
 void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 {
-    Descriptor desc = DescriptorParser::parseDescriptor(descriptor);
+    Descriptor desc = DescriptorParser::parseDescriptor(descriptor, memory);
     method->returnType = toCharPtr(desc.returnType, memory);
 
-    std::vector<std::string> args = desc.args;
-    char** argsArr = (char**)memory->classAlloc(args.size() * sizeof(char*));
-    for (int currentArg = 0; currentArg < args.size(); ++currentArg) {
-        argsArr[currentArg] = toCharPtr(args[currentArg], memory);
-    }
-    method->args = argsArr;
-    method->argsCount = args.size();
+    method->args = desc.args;
+    method->argsCount = desc.argsCount;
 }
 
 MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount)

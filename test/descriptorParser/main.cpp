@@ -2,17 +2,17 @@
 
 #include <iostream>
 
-int test1() {
-	std::string descriptor = "([Ljava/lang/String;)V";
+int test1(Memory* memory) {
+	const char* descriptor = "([Ljava/lang/String;)V";
 
-	std::string argsPart = DescriptorParser::getArgsPart(descriptor);
-	if (argsPart != "[Ljava/lang/String;") {
-		std::cout << "Expected: " << "[Ljava/lang/String;" << " but was : " << argsPart << std::endl;
+	char* argsPart = DescriptorParser::getArgsPart(descriptor, memory);
+	if (strcmp("[Ljava/lang/String;", argsPart) != 0) {
+		std::cout << "Expected: " << "[Ljava/lang/String;" << " but was :" << argsPart << std::endl;
 		return -1;
 	}
 
-	std::string returnPart = DescriptorParser::getReturnPart(descriptor);
-	if (returnPart != "V") {
+	char* returnPart = DescriptorParser::getReturnPart(descriptor, memory);
+	if (strcmp(returnPart, "V") != 0) {
 		std::cout << "Expected: " << "V" << " but was : " << returnPart << std::endl;
 		return -1;
 	}
@@ -20,17 +20,17 @@ int test1() {
 	return 0;
 }
 
-int test2() {
-	std::string descriptor = "([Ljava/lang/String;I[SSI)[[I";
+int test2(Memory* memory) {
+	const char* descriptor = "([Ljava/lang/String;I[SSI)[[I";
 
-	std::string argsPart = DescriptorParser::getArgsPart(descriptor);
-	if (argsPart != "[Ljava/lang/String;I[SSI") {
+	char* argsPart = DescriptorParser::getArgsPart(descriptor, memory);
+	if (strcmp(argsPart, "[Ljava/lang/String;I[SSI") != 0) {
 		std::cout << "Expected: " << "[Ljava/lang/String;I[SSI" << " but was : " << argsPart << std::endl;
 		return -1;
 	}
 
-	std::string returnPart = DescriptorParser::getReturnPart(descriptor);
-	if (returnPart != "[[I") {
+	char* returnPart = DescriptorParser::getReturnPart(descriptor, memory);
+	if (strcmp(returnPart, "[[I") != 0) {
 		std::cout << "Expected: " << "[[I" << " but was : " << returnPart << std::endl;
 		return -1;
 	}
@@ -40,25 +40,27 @@ int test2() {
 
 int main(int argc, char* argv[])
 {
-	int ret = test1();
+	Memory memory(5000);
+	int ret = test1(&memory);
 
 	if (ret != 0) {
 		return ret;
 	}
 
-	ret = test2();
+	ret = test2(&memory);
 
 	if (ret != 0) {
 		return ret;
 	}
 
-	std::vector<std::string> parts = DescriptorParser::getTypes("[Ljava/lang/String;I[SS[[I");
-	if (parts.size() != 5) {
+	uint16_t size;
+	char** parts = DescriptorParser::getTypes("[Ljava/lang/String;I[SS[[I", &size, &memory);
+	if (size != 5) {
 		return -2;
 	}
 
-	parts = DescriptorParser::getTypes("I");
-	if (parts.size() != 1) {
+	parts = DescriptorParser::getTypes("I", &size, &memory);
+	if (size != 1) {
 		return -2;
 	}
 
