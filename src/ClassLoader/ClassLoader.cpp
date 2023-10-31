@@ -235,7 +235,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
         std::ifstream myFile(path, std::ios::in | std::ios::binary);
         uint64_t size = std::filesystem::file_size(path);
 
-        uint8_t* fileMemory =  (uint8_t*)VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        uint8_t* fileMemory =  (uint8_t*)Platform::AllocateMemory(size, 0);
         ByteArray bytes(fileMemory, size);
 
         myFile.read((char*)bytes.bytes, size);
@@ -249,7 +249,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
         classInfo->lastModified = attr.st_mtime;
         strcpy(classInfo->md5, checksum.c_str());
         myFile.close();
-        VirtualFree(fileMemory, 0, MEM_RELEASE);
+        Platform::FreeMemory(fileMemory);
 
         return classInfo;
     }

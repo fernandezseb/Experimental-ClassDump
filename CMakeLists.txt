@@ -31,7 +31,9 @@ project(ClassDump
     src/ByteArray.h
     src/ByteArray.cpp
     src/Memory.h
-    src/Memory.cpp)
+    src/Memory.cpp
+    src/Platform.h
+    src/WindowsPlatform.cpp)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)

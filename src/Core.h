@@ -32,3 +32,5 @@
 #include <filesystem>
 #include <sstream>
 #include <iterator>
+
+#include "Platform.h"
