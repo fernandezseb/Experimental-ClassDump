@@ -655,7 +655,6 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 			continue;
 		}
 		char indexStr[5];
-		//strcpy(idnex "#";
 		sprintf(indexStr, "#%" PRIu16, current);
 		
 		printf("%5s", indexStr);

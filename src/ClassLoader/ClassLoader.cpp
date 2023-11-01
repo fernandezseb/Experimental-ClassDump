@@ -4,6 +4,8 @@
 #include "DescriptorParser.h"
 #include "md5/md5.h"
 #include "Util.h"
+#include "Platform.h"
+#include "Memory.h"
 
 void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
@@ -220,45 +222,27 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 {
     this->memory = memory;
-    try {
-        std::filesystem::path path = std::filesystem::canonical(className);
-        const wchar_t* absolutePath = path.c_str();
+    PlatformFile *file = Platform::getFile(className, memory);
+    struct stat attr;
+    stat(className, &attr);
 
-        wchar_t* pathstr = (wchar_t*)this->memory->classAlloc(((wcslen(absolutePath)+1) * sizeof(wchar_t)));
-        wcscpy(pathstr, absolutePath);
+    size_t size;
+    uint8_t* fileContent = Platform::readEntireFile(file, &size);
+    ByteArray byteArray(fileContent, size);
 
-        std::filesystem::file_time_type lastWritten =  std::filesystem::last_write_time(path);
 
-        struct stat attr;
-        stat(className, &attr);
+    ClassInfo* classInfo = readClass(byteArray);
+    classInfo->memory = this->memory;
+    classInfo->filePath = Platform::getFullPath(file, memory);
+    classInfo->size = byteArray.getSize();
+    classInfo->lastModified = attr.st_mtime;
 
-        std::ifstream myFile(path, std::ios::in | std::ios::binary);
-        uint64_t size = std::filesystem::file_size(path);
+    std::string checksum = md5(byteArray.bytes, byteArray.getSize());
+    strcpy(classInfo->md5, checksum.c_str());
 
-        uint8_t* fileMemory =  (uint8_t*)Platform::AllocateMemory(size, 0);
-        ByteArray bytes(fileMemory, size);
+    Platform::FreeMemory(fileContent);
 
-        myFile.read((char*)bytes.bytes, size);
-
-        std::string checksum =  md5(bytes.bytes, size);
-
-        ClassInfo* classInfo = readClass(bytes);
-        classInfo->memory = this->memory;
-        classInfo->filePath = pathstr;
-        classInfo->size = size;
-        classInfo->lastModified = attr.st_mtime;
-        strcpy(classInfo->md5, checksum.c_str());
-        myFile.close();
-        Platform::FreeMemory(fileMemory);
-
-        return classInfo;
-    }
-    catch (const std::exception& ex) {
-        std::cout << "Error: Canonical path for " << className << " threw exception:\n"
-            << ex.what() << std::endl;
-        exit(-1);
-    }
-    return new ClassInfo();
+    return classInfo;
 }
 
 uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)

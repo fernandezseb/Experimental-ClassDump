@@ -21,7 +21,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <chrono>
 #include <ctime>
 
 #include <string>
@@ -32,5 +31,3 @@
 #include <filesystem>
 #include <sstream>
 #include <iterator>
-
-#include "Platform.h"

@@ -53,3 +53,8 @@ bool ByteArray::atEnd()
 {
 	return (bytePtr == size);
 }
+
+uint64_t ByteArray::getSize()
+{
+	return size;
+}

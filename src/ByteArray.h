@@ -21,4 +21,5 @@ public:
 	void setPtr(uint64_t ptr);
 	uint64_t getPtr();
 	bool atEnd();
+	uint64_t getSize();
 };
