@@ -18,7 +18,9 @@ int main(int argc, char* argv[])
             ClassPrinter classPrinter;
             ClassInfo* classInfo = classLoader.readClass(className, &memory);
             classPrinter.printClass(*classInfo, &memory);
+#ifdef _DEBUG
             memory.printSize();
+#endif
         }
         _CrtDumpMemoryLeaks();
     } else {
