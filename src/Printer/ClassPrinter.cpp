@@ -581,9 +581,7 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 
 void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 {
-	wprintf(L"Classfile %ls\n", classInfo.filePath);
-
-	
+	printf("Classfile %s\n", classInfo.filePath);
 	printf("  Last modified %s; size %" PRIu64 " bytes\n", classInfo.lastModifiedString, classInfo.size);
 	printf("  MD5 checksum %s\n", classInfo.md5);
 	

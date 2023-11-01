@@ -1,18 +1,12 @@
 #include "Platform.h"
 
-#include <iostream>
-#include <filesystem>
-
 #include <Windows.h>
 
-struct FileTime {
-	time_t lastModified;
-};
-
 struct PlatformFile {
-	std::filesystem::path path;
 	uint8_t* fileMemory;
 	const char* name;
+	HANDLE hFile;
+
 };
 
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
@@ -24,7 +18,7 @@ void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 		PAGE_READWRITE);
 }
 
-void Platform::FreeMemory(void* allocatedMemory)
+void Platform::FreeMemory( void* allocatedMemory)
 {
 	VirtualFree(
 		allocatedMemory,
@@ -35,39 +29,49 @@ void Platform::FreeMemory(void* allocatedMemory)
 PlatformFile* Platform::getFile(const char* name, Memory* memory)
 {
 	PlatformFile *file = (PlatformFile*) memory->classAlloc(sizeof(PlatformFile));
+
+	file->hFile = CreateFileA(
+		name,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
 	file->name = name;
-	try {
-		file->path = std::filesystem::canonical(name);
-	}
-	catch (const std::exception& ex) {
-		fprintf(stderr, "Error: Canonical path for %s threw exception: %s\n", name, ex.what());
-		return nullptr;
-	}
+
 	return file;
 }
 
-wchar_t* Platform::getFullPath(PlatformFile* file, Memory* memory)
+char* Platform::getFullPath(PlatformFile* file, Memory* memory)
 {
-	const wchar_t* absolutePath = file->path.c_str();
+	char absolutePath[500];
+	char** lastPart = 0;
 
-	wchar_t* pathstr = (wchar_t*)memory->classAlloc(((wcslen(absolutePath) + 1) * sizeof(wchar_t)));
-	wcscpy(pathstr, absolutePath);
+	GetFullPathNameA(file->name, 500, absolutePath, lastPart);
+	char* pathstr = (char*)memory->classAlloc(((strlen(absolutePath) + 1) * sizeof(char)));
+
+	strcpy(pathstr, absolutePath);
 
 	return pathstr;
 }
 
 uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
 {
-	uint64_t size = std::filesystem::file_size(file->path);
+	uint64_t size = GetFileSize(file->hFile, 0);
 
 	*sizeOut = size;
+
+	DWORD readBytes;
 	uint8_t* fileMemory = (uint8_t*)Platform::AllocateMemory(size, 0);
 	file->fileMemory = fileMemory;
 
-	std::ifstream myFile(file->path, std::ios::in | std::ios::binary);
-	
-	myFile.read((char*)fileMemory, size);
-	myFile.close();
+	ReadFile(
+		file->hFile,
+		fileMemory,
+		size,
+		&readBytes,
+		NULL);
 	
 
 	return fileMemory;
@@ -75,13 +79,19 @@ uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
 
 void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 {
-	struct stat attr;
-	stat(file->name, &attr);
+	FILETIME ftCreate, ftAccess, ftWrite;
+	SYSTEMTIME stUTC, stLocal;
 
-	const time_t lastModified = attr.st_mtime;
+	// Retrieve the file times for the file.
+	if (!GetFileTime(file->hFile, &ftCreate, &ftAccess, &ftWrite))
+		return;
+
+	// Convert the last-write time to local time.
+	FileTimeToSystemTime(&ftWrite, &stUTC);
+	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
 	char time[50];
-	strftime(time, 50, "%b %d, %Y", localtime(&lastModified));
-
+	sprintf(time, "%02d %02d, %d", stLocal.wMonth, stLocal.wDay, stLocal.wYear);
 	strcpy(stringOut, time);
+	CloseHandle(file->hFile);
 }

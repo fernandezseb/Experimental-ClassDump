@@ -53,7 +53,7 @@ public:
 
 class ClassInfo {
 public:
-	wchar_t* filePath;
+	char* filePath;
 	uint64_t size;
 	char lastModifiedString[50];
 	char md5[33];
