@@ -51,6 +51,12 @@ char* Platform::getFullPath(PlatformFile* file, Memory* memory)
 	GetFullPathNameA(file->name, 500, absolutePath, lastPart);
 	char* pathstr = (char*)memory->classAlloc(((strlen(absolutePath) + 1) * sizeof(char)));
 
+	for (uint8_t index = 0; absolutePath[index] != 0; ++index) {
+		if (absolutePath[index] == '\\') {
+			absolutePath[index] = '/';
+		}
+	}
+
 	strcpy(pathstr, absolutePath);
 
 	return pathstr;
@@ -81,7 +87,20 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 {
 	FILETIME ftCreate, ftAccess, ftWrite;
 	SYSTEMTIME stUTC, stLocal;
-
+	char months[12][4] = {
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec"
+	};
 	// Retrieve the file times for the file.
 	if (!GetFileTime(file->hFile, &ftCreate, &ftAccess, &ftWrite))
 		return;
@@ -91,7 +110,7 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
 	char time[50];
-	sprintf(time, "%02d %02d, %d", stLocal.wMonth, stLocal.wDay, stLocal.wYear);
+	sprintf(time, "%s %02d, %d", months[stLocal.wMonth-1], stLocal.wDay, stLocal.wYear);
 	strcpy(stringOut, time);
 	CloseHandle(file->hFile);
 }
