@@ -55,7 +55,7 @@ class ClassInfo {
 public:
 	wchar_t* filePath;
 	uint64_t size;
-	time_t lastModified;
+	char lastModifiedString[50];
 	char md5[33];
 	uint16_t minorVersion;
 	uint16_t majorVersion;

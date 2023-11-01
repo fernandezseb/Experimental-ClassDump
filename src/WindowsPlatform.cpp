@@ -5,10 +5,14 @@
 
 #include <Windows.h>
 
+struct FileTime {
+	time_t lastModified;
+};
 
 struct PlatformFile {
 	std::filesystem::path path;
 	uint8_t* fileMemory;
+	const char* name;
 };
 
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
@@ -31,6 +35,7 @@ void Platform::FreeMemory(void* allocatedMemory)
 PlatformFile* Platform::getFile(const char* name, Memory* memory)
 {
 	PlatformFile *file = (PlatformFile*) memory->classAlloc(sizeof(PlatformFile));
+	file->name = name;
 	try {
 		file->path = std::filesystem::canonical(name);
 	}
@@ -66,4 +71,17 @@ uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
 	
 
 	return fileMemory;
+}
+
+void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
+{
+	struct stat attr;
+	stat(file->name, &attr);
+
+	const time_t lastModified = attr.st_mtime;
+
+	char time[50];
+	strftime(time, 50, "%b %d, %Y", localtime(&lastModified));
+
+	strcpy(stringOut, time);
 }

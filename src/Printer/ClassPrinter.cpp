@@ -583,10 +583,8 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 {
 	wprintf(L"Classfile %ls\n", classInfo.filePath);
 
-	char time[50];
-	strftime(time, 50, "%b %d, %Y", localtime(&classInfo.lastModified));
-
-	printf("  Last modified %s; size %" PRIu64 " bytes\n", time, classInfo.size);
+	
+	printf("  Last modified %s; size %" PRIu64 " bytes\n", classInfo.lastModifiedString, classInfo.size);
 	printf("  MD5 checksum %s\n", classInfo.md5);
 	
 	if (classInfo.sourceFile != "") {

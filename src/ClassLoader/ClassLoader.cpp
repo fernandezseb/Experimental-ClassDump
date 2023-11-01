@@ -223,22 +223,17 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 {
     this->memory = memory;
     PlatformFile *file = Platform::getFile(className, memory);
-    struct stat attr;
-    stat(className, &attr);
 
     size_t size;
     uint8_t* fileContent = Platform::readEntireFile(file, &size);
     ByteArray byteArray(fileContent, size);
 
-
     ClassInfo* classInfo = readClass(byteArray);
     classInfo->memory = this->memory;
     classInfo->filePath = Platform::getFullPath(file, memory);
     classInfo->size = byteArray.getSize();
-    classInfo->lastModified = attr.st_mtime;
-
-    std::string checksum = md5(byteArray.bytes, byteArray.getSize());
-    strcpy(classInfo->md5, checksum.c_str());
+    Platform::getLastModifiedString(file, classInfo->lastModifiedString);
+    strcpy(classInfo->md5, md5(byteArray.bytes, byteArray.getSize()).c_str());
 
     Platform::FreeMemory(fileContent);
 
