@@ -112,5 +112,9 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 	char time[50];
 	sprintf(time, "%s %02d, %d", months[stLocal.wMonth-1], stLocal.wDay, stLocal.wYear);
 	strcpy(stringOut, time);
+}
+
+void Platform::closeFile(PlatformFile* file)
+{
 	CloseHandle(file->hFile);
 }

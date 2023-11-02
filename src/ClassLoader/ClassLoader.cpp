@@ -235,6 +235,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
     Platform::getLastModifiedString(file, classInfo->lastModifiedString);
     strcpy(classInfo->md5, md5(byteArray.bytes, byteArray.getSize()).c_str());
 
+    Platform::closeFile(file);
     Platform::FreeMemory(fileContent);
 
     return classInfo;
