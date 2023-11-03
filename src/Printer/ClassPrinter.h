@@ -385,6 +385,7 @@ private:
 	static std::string toString(const ConstantPoolItem* item, const ConstantPool* cp);
 	static std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp);
 	void printCode(const AttributeCode* code, const MethodInfo* methodInfo, const ConstantPool* cp, Memory* memory);
+	void printConstantPoolItem(uint16_t currentIndex, const ConstantPool* cp);
 public:
 	void printClass(const ClassInfo& classInfo, Memory* memory);
 	static std::string toStringInline(const ConstantPoolItem* item, const ConstantPool* cp);

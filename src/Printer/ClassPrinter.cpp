@@ -550,11 +550,27 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 	}
 }
 
+void ClassPrinter::printConstantPoolItem(uint16_t currentIndex, const ConstantPool* cp) {
+	ConstantPoolItem* item = cp->constants[currentIndex];
+	if (item == 0) {
+		return;
+	}
+	char indexStr[5];
+	sprintf(indexStr, "#%" PRIu16, (currentIndex+1));
 
+	printf("%5s", indexStr);
+	printf(" = %-15s%-15s", getTypeAsString(item->getType()), toString(item, cp).c_str());
+
+	std::string expanded = toExpandedString(item, cp);
+	if (expanded.size() > 0) {
+		printf("// %s", expanded.c_str());
+	}
+	printf("\n");
+}
 static inline void binaryClassToExternalCopy(const char* className, char* output)
 {
 	size_t size = strlen(className);
-	memcpy(output, className,  size+ 1);
+	memcpy(output, className, size + 1);
 	for (int currentCharacter = 0; currentCharacter < size; ++currentCharacter) {
 		if (output[currentCharacter] == '/') {
 			output[currentCharacter] = '.';
@@ -637,32 +653,13 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 			++currentIndex;
 		}
 	}
-
 	char buffer[300];
 	joinStrings((char**)flags, currentIndex, ", ", 300, buffer);
 	printf("%s\n", buffer);
 
 	printf("Constant pool:\n");
-	uint16_t current = 1;
-
 	for (uint16_t currentIndex = 0; currentIndex < cp->size; ++currentIndex) {
-		ConstantPoolItem* item = cp->constants[currentIndex];
-		if (item == 0) {
-			current++;
-			continue;
-		}
-		char indexStr[5];
-		sprintf(indexStr, "#%" PRIu16, current);
-		
-		printf("%5s", indexStr);
-		printf(" = %-15s%-15s", getTypeAsString(item->getType()), toString(item, cp).c_str());
-		
-		std::string expanded = toExpandedString(item, cp);
-		if (expanded.size() > 0) {
-			printf("// %s", expanded.c_str());
-		}
-		printf("\n");
-		current++;
+		printConstantPoolItem(currentIndex, cp);
 	}
 
 	printf("{\n");
