@@ -17,6 +17,8 @@ project(ClassDump
     src/ClassDump.cpp
     src/Printer/ClassPrinter.cpp
     src/Printer/ClassPrinter.h
+    src/Printer/AttributePrinter.h
+    src/Printer/AttributePrinter.cpp
     src/Core.h 
     src/Util.cpp
     src/Util.h 
