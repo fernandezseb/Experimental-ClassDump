@@ -17,21 +17,22 @@ project(ClassDump
     src/ClassDump.cpp
     src/Printer/ClassPrinter.cpp
     src/Printer/ClassPrinter.h
-    src/ClassLoader/ClassLoader.cpp
-    src/ClassLoader/ClassLoader.h
     src/Core.h 
     src/Util.cpp
     src/Util.h 
-    src/ClassLoader/DescriptorParser.h
-    src/ClassLoader/DescriptorParser.cpp 
-    src/ClassLoader/AttributeParser.h
-    src/ClassLoader/AttributeParser.cpp
+    src/Opcode.h
     src/ByteArray.h
     src/ByteArray.cpp
     src/Memory.h
     src/Memory.cpp
     src/Platform.h
     src/WindowsPlatform.cpp
+    src/ClassLoader/DescriptorParser.h
+    src/ClassLoader/DescriptorParser.cpp 
+    src/ClassLoader/AttributeParser.h
+    src/ClassLoader/AttributeParser.cpp
+    src/ClassLoader/ClassLoader.cpp
+    src/ClassLoader/ClassLoader.h
     src/Data/Class.h
     src/Data/Attribute.h
     src/Data/Descriptor.h
