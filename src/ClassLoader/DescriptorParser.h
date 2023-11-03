@@ -11,8 +11,8 @@ struct Descriptor {
 
 class DescriptorParser {
 public:
-	static char* getArgsPart(const char* descriptor, Memory* memory);
-	static char* getReturnPart(const char* descriptor, Memory* memory);
-	static char** getTypes(char* descriptorPart, uint16_t* size, Memory* memory);
-	static Descriptor parseDescriptor(const char* descriptor, Memory* memory);
+	static char* getArgsPart(char* descriptor, uint16_t* length);
+	static char* getReturnPart(char* descriptor, uint16_t* length);
+	static char** getTypes(char* descriptorPart, uint16_t partLength, uint16_t* size, Memory* memory);
+	static Descriptor parseDescriptor(char* descriptor, Memory* memory);
 };

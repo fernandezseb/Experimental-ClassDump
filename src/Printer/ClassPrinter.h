@@ -2,6 +2,8 @@
 
 #include "ClassLoader/ClassLoader.h"
 
+#include <iostream>
+
 enum Opcode : uint8_t {
 	// CONSTANTS
 	nop = 0x00,
@@ -590,9 +592,12 @@ private:
 	const char* getTypeAsString(ConstantType type) const;
 	const char* getTypeAsString(AccessFlag flag, AccessFlagType type) const;
 	std::string getAsExternalReturnType(std::string returnType);
-	static std::string getAsExternalClassName(std::string className);
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp, Memory* memory);
-	void printMethodSignature(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp);
+	void printMethodSignature(const MethodInfo* methodInfo, 
+		const ClassInfo& classInfo, 
+		const char* className, 
+		const ConstantPool* cp,
+		Memory* memory);
 	void printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp, Memory* memory);
 	static std::string toString(const ConstantPoolItem* item, const ConstantPool* cp);
 	static std::string toExpandedString(const ConstantPoolItem* item, const ConstantPool* cp);

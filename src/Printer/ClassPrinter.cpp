@@ -40,6 +40,7 @@ const char* ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) 
 	}
 }
 
+// TODO: Print to a char buffer that we get as param
 std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 {
 	std::stringstream output;
@@ -54,7 +55,12 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 			inClass = false;
 		}
 		else if (inClass) {
-			output << c;
+			if (c == '/') {
+				output << '.';
+			}
+			else {
+				output << c;
+			}
 		}
 		else if (c == '[') {
 			arrCount++;
@@ -69,12 +75,6 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 	}
 
 	return output.str();
-}
-
-std::string ClassPrinter::getAsExternalClassName(std::string className)
-{
-	std::replace(className.begin(), className.end(), '/', '.');
-	return className;
 }
 
 void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp, Memory* memory)
@@ -92,7 +92,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	}
 
 
-	std::cout << getAsExternalClassName(getAsExternalReturnType(descriptor)) 
+	std::cout << getAsExternalReturnType(descriptor)
 		<< " " 
 		<< name 
 		<< ";" 
@@ -108,7 +108,9 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 			++currentIndex;
 		}
 	}
-	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
+	char buffer[300];
+	joinStrings((char**)flags, currentIndex, ", ", 300, buffer);
+	printf("%s\n", buffer);
 
 
 	printf("\n");
@@ -118,10 +120,11 @@ void ClassPrinter::printMethodSignature(
 	const MethodInfo* methodInfo,
 	const ClassInfo& classInfo,
 	const char* className,
-	const ConstantPool* cp)
+	const ConstantPool* cp,
+	Memory* memory)
 {
 	if (!methodInfo->isConstructor()) {
-		std::cout << getAsExternalClassName(getAsExternalReturnType(methodInfo->returnType)) << " ";
+		std::cout << getAsExternalReturnType(methodInfo->returnType) << " ";
 	}
 
 	if (methodInfo->isConstructor()) {
@@ -133,14 +136,17 @@ void ClassPrinter::printMethodSignature(
 	}
 	printf("(");
 
-	std::vector<std::string> args;
-
+	char** args = (char**)memory->classAlloc(sizeof(char*) * methodInfo->argsCount);
 	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
 		const char* arg = methodInfo->args[currentArg];
-		args.push_back(getAsExternalReturnType(arg));
+		std::string cppArg = getAsExternalReturnType(arg);
+		args[currentArg] = toCharPtr(cppArg, memory);
 	}
 
-	std::cout << getAsExternalClassName(joinStrings(args, ","));
+	char output[300];
+	joinStrings(
+		args, methodInfo->argsCount, ",", 200, output);
+	printf("%s", output);
 
 	printf(");\n");
 }
@@ -158,7 +164,7 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	}
 
 
-	printMethodSignature(methodInfo, classInfo, className, cp);
+	printMethodSignature(methodInfo, classInfo, className, cp, memory);
 	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
 	printf("    flags: ");
@@ -170,8 +176,10 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 			++currentIndex;
 		}
 	}
-	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
 
+	char outBuffer[300];
+	joinStrings((char**)flags, currentIndex, ", ", 300, outBuffer);
+	printf("%s\n", outBuffer);
 
 	if (methodInfo->isNative() || methodInfo->isAbstract()) {
 	}
@@ -533,7 +541,7 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 	{
 	case CT_NAMEANDTYPE:
 	{
-		return "NameAndType" + ClassPrinter::toExpandedString(item, cp);
+		return "NameAndType " + ClassPrinter::toExpandedString(item, cp);
 	}
 	case CT_STRING:
 	{
@@ -579,6 +587,28 @@ std::string ClassPrinter::toStringInline(const ConstantPoolItem* item, const Con
 	}
 }
 
+
+static inline void binaryClassToExternalCopy(const char* className, char* output)
+{
+	size_t size = strlen(className);
+	memcpy(output, className,  size+ 1);
+	for (int currentCharacter = 0; currentCharacter < size; ++currentCharacter) {
+		if (output[currentCharacter] == '/') {
+			output[currentCharacter] = '.';
+		}
+	}
+}
+
+static inline void binaryClassToExternalInPlace(char* output)
+{
+	size_t size = strlen(output);
+	for (int currentCharacter = 0; currentCharacter < size; ++currentCharacter) {
+		if (output[currentCharacter] == '/') {
+			output[currentCharacter] = '.';
+		}
+	}
+}
+
 void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 {
 	printf("Classfile %s\n", classInfo.filePath);
@@ -604,25 +634,30 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	const char* className = cp->getString(classPtr->nameIndex);
 	printf("class %s", className);
 
-	std::string superClassName = cp->getString(superClassPtr->nameIndex);
-	if (superClassName != "java/lang/Object") {
-		std::cout << " extends " << getAsExternalClassName(cp->getString(superClassPtr->nameIndex));
+	const char* superClassName = cp->getString(superClassPtr->nameIndex);
+	if (strcmp("java/lang/Object", superClassName) != 0) {
+		char* outputBuffer = (char*) Platform::AllocateMemory(strlen(superClassName) + 1, 0);
+		binaryClassToExternalCopy(superClassName, outputBuffer);
+		printf(" extends %s", outputBuffer);
+		Platform::FreeMemory(outputBuffer);
 	}
 
 	if (classInfo.interfacesCount > 0) {
 		printf(" implements ");
 
-		std::string* names = new std::string[classInfo.interfacesCount];
+		char** names = (char**) memory->classAlloc(sizeof(char*) * classInfo.interfacesCount);
 
 		for (size_t currentIndex = 0; currentIndex < classInfo.interfacesCount; ++currentIndex) {
 			uint16_t index = classInfo.interfaces[currentIndex];
 			CPClassInfo* classPtr = cp->getClassInfo(index);
-			names[currentIndex] = std::string(cp->getString(classPtr->nameIndex));
+			names[currentIndex] = (char*)cp->getString(classPtr->nameIndex);
 		}
 
-		std::cout << getAsExternalClassName(joinStrings(names, classInfo.interfacesCount, ", "));
-
-		delete[] names;
+		char* outputBuffer = (char*)Platform::AllocateMemory(300, 0);
+		joinStrings(names, classInfo.interfacesCount, ", ", 300, outputBuffer);
+		binaryClassToExternalInPlace(outputBuffer);
+		printf("%s", outputBuffer);
+		Platform::FreeMemory(outputBuffer);
 
 	}
 	printf("\n");
@@ -639,7 +674,10 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 			++currentIndex;
 		}
 	}
-	printf("%s\n", joinStrings((char**)flags, currentIndex, ", ", 300, memory));
+
+	char buffer[300];
+	joinStrings((char**)flags, currentIndex, ", ", 300, buffer);
+	printf("%s\n", buffer);
 
 	printf("Constant pool:\n");
 	uint16_t current = 1;

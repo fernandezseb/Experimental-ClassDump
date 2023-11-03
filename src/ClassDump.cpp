@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            Memory memory(20000);
+            Memory memory(50000);
             const char* className = argv[1];
 
             ClassLoader classLoader;

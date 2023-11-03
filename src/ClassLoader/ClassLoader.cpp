@@ -276,8 +276,8 @@ FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constant
 
 void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 {
-    Descriptor desc = DescriptorParser::parseDescriptor(descriptor, memory);
-    method->returnType = toCharPtr(desc.returnType, memory);
+    Descriptor desc = DescriptorParser::parseDescriptor((char*)descriptor, memory);
+    method->returnType = desc.returnType;
 
     method->args = desc.args;
     method->argsCount = desc.argsCount;

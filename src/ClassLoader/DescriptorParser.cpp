@@ -1,82 +1,113 @@
 #include "DescriptorParser.h"
 #include "Util.h"
 
-char* DescriptorParser::getArgsPart(const char* descriptor, Memory* memory)
+char* DescriptorParser::getArgsPart(char* descriptor, uint16_t* length)
 {
-	const char* openBracket = descriptor + 1;
-	const char* closeBracket = strchr(descriptor, ')');
+	char* openBracket = descriptor + 1;
+	char* closeBracket = strchr(descriptor, ')');
 
-	size_t size = closeBracket - openBracket;
-	char* returnStr = (char*)memory->classAlloc(size + 1);
+	*length = closeBracket - openBracket;
 
-	strncpy(returnStr, openBracket, size);
-	returnStr[size] = 0;
-
-	return returnStr;
+	return openBracket;
 }
 
-char* DescriptorParser::getReturnPart(const char* descriptor, Memory* memory)
+char* DescriptorParser::getReturnPart(char* descriptor, uint16_t* length)
 {
-	const char* closeBracket = strchr(descriptor, ')');
-	size_t size = (descriptor + (strlen(descriptor)-1)) - closeBracket;
-	char* returnStr = (char*)memory->classAlloc(size + 1);
-
-	strcpy(returnStr, closeBracket + 1);
-
-	return returnStr;
+	char* closeBracket = strchr(descriptor, ')');
+	*length = (descriptor + (strlen(descriptor)-1)) - closeBracket;
+	return  closeBracket+1;
 }
 
-// TODO: Optimize this algorithm further
-// A way this can be done is to optimize the binary classname parsing by not reading it character per
-// character, but by getting a substring out of it. This way we know how much memory we should allocate
-// for the string
-char** DescriptorParser::getTypes(char* descriptorPart, uint16_t* size, Memory* memory)
+static inline uint16_t getDescriptorArgsCount(char* descriptorPart, uint16_t length)
 {
-	std::vector<char*> parts;
-
-	std::stringstream temp;
-	bool parsingArg = false;
-
 	size_t i = 0;
+	uint16_t size = 0;
 
-	while (descriptorPart[i] != 0) {
+	while ((i < length) && (descriptorPart[i] != 0)) {
 		char c = descriptorPart[i];
-		temp << c;
 		if (c == 'L') {
-			parsingArg = true;
-		}
-		else if (c == ';') {
-			parsingArg = false;
-			parts.push_back(toCharPtr(temp.str().c_str(), memory));
-			temp.clear();
+			char* semiColonLocation = strchr(&descriptorPart[i], ';');
+			size_t classLength = semiColonLocation - &descriptorPart[i] + 1;
+			i += classLength;
+			size++;
 		}
 		else if (c == '[') {
-			// Do nothing
+			++i;
 		}
-		else if (!parsingArg) {
-			parts.push_back(toCharPtr(temp.str().c_str(), memory));
-			temp.clear();
+		else {
+			size++;
+			i++;
 		}
-		++i;
 	}
 
-	*size = parts.size();
-
-	char** partsArr = (char**) memory->classAlloc(parts.size() * sizeof(char*));
-	std::copy(parts.begin(), parts.end(), partsArr);
-	
-	return partsArr;
+	return size;
 }
 
-Descriptor DescriptorParser::parseDescriptor(const char* descriptor, Memory* memory)
+char** DescriptorParser::getTypes(char* descriptorPart, uint16_t partLength, uint16_t* size, Memory* memory)
+{
+
+	uint16_t argsCount = getDescriptorArgsCount(descriptorPart, partLength);
+	char** parts = (char**) memory->classAlloc(sizeof(char*)*argsCount);
+
+	uint16_t i = 0;
+	*size = 0;
+
+	int arrayCount = 0;
+
+	while ((i < partLength) && (descriptorPart[i] != 0)) {
+		char c = descriptorPart[i];
+		if (c == 'L') {
+			char* semiColonLocation = strchr(&descriptorPart[i], ';');
+			size_t classLength = semiColonLocation - &descriptorPart[i]+1;
+
+			char* classStr = (char*) memory->classAlloc(classLength+1 + arrayCount);
+			memcpy(&classStr[arrayCount], &descriptorPart[i], classLength);
+			classStr[arrayCount+classLength] = 0;
+			for (int currentArr = 0; currentArr < arrayCount; ++currentArr) {
+				classStr[currentArr] = '[';
+			}
+			parts[*size] = classStr;
+
+			arrayCount = 0;
+			i += classLength;
+			(*size)++;
+		}
+		else if (c == '[') {
+			++arrayCount;
+			++i;
+		}
+		else {
+			char* arg = (char*) memory->classAlloc(2 + arrayCount);
+			arg[arrayCount + 0] = c;
+			arg[arrayCount + 1] = 0;
+			for (int currentArr = 0; currentArr < arrayCount; ++currentArr) {
+				arg[currentArr] = '[';
+			}
+			parts[*size] = arg;
+
+			arrayCount = 0;
+			(*size)++;
+			i++;
+		}
+	}
+
+	return parts;
+}
+
+Descriptor DescriptorParser::parseDescriptor(char* descriptor, Memory* memory)
 {
 	Descriptor desc;
 	
 	uint16_t sizeArgs;
 	uint16_t sizeReturnType;
 
-	desc.args = getTypes(getArgsPart(descriptor, memory), &sizeArgs, memory);
-	desc.returnType = getTypes(getReturnPart(descriptor, memory), &sizeReturnType, memory)[0];
+	uint16_t argsPartLength;
+	char* argsPart = getArgsPart(descriptor, &argsPartLength);
+	desc.args = getTypes(argsPart, argsPartLength, &sizeArgs, memory);
+
+	uint16_t returnPartLength;
+	char* returnPart = getReturnPart(descriptor, &returnPartLength);
+	desc.returnType = getTypes(returnPart, returnPartLength, &sizeReturnType, memory)[0];
 
 	desc.argsCount = sizeArgs;
 
