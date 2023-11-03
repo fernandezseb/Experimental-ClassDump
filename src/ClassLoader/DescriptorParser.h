@@ -2,12 +2,8 @@
 
 #include "Core.h"
 #include "Memory.h"
+#include "Data/Descriptor.h"
 
-struct Descriptor {
-	char** args;
-	uint16_t argsCount;
-	char* returnType;
-};
 
 class DescriptorParser {
 public:

@@ -19,8 +19,6 @@ project(ClassDump
     src/Printer/ClassPrinter.h
     src/ClassLoader/ClassLoader.cpp
     src/ClassLoader/ClassLoader.h
-    src/ClassLoader/ConstantPool.cpp
-    src/ClassLoader/ConstantPool.h
     src/Core.h 
     src/Util.cpp
     src/Util.h 
@@ -33,7 +31,13 @@ project(ClassDump
     src/Memory.h
     src/Memory.cpp
     src/Platform.h
-    src/WindowsPlatform.cpp)
+    src/WindowsPlatform.cpp
+    src/Data/Class.h
+    src/Data/Attribute.h
+    src/Data/Descriptor.h
+    src/Data/ConstantPool.cpp
+    src/Data/ConstantPool.h
+    src/Data/Attribute.cpp)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)
