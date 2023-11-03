@@ -7,88 +7,109 @@ The output is very similar to the one from the javap tool with all output enable
 ## Example
 
 ```bash
-./ClassDump test/Main.class
+./ClassDump.exe test/Main.class
 ```
 
 ```
-Starting ClassDump v0.1
-Classfile C:\Users\Sebastiaan\source\repos\fernandezseb\ClassDump\test\Main.class
-  Last modified Oct 03, 2023; size 570 bytes
-  MD5 checksum e3d65bf17469600ec4c904dadaf75c43
+Classfile C:/Users/Sebastiaan/source/repos/fernandezseb/ClassDump/out/build/x64-Release/Main.class
+  Last modified Nov 03, 2023; size 687 bytes
+  MD5 checksum 433e9b297a1f75d82521b577f9482758
+  Compiled from "Main.java"
 public class Main implements java.io.Serializable
-  minor version 0
-  major version 52
+  minor version: 0
+  major version: 52
   flags: ACC_PUBLIC, ACC_SUPER
 Constant pool:
-   #1 = Methodref      #9.#28         // java/lang/Object."<init>":()V
-   #2 = Integer        45412
-   #3 = Fieldref       #8.#29         // Main.i:I
-   #4 = Methodref      #8.#30         // Main.brol:()V
-   #5 = Class          #31            // java/lang/IllegalArgumentException
-   #6 = String         #32            // Brol
-   #7 = Methodref      #5.#33         // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
-   #8 = Class          #34            // Main
-   #9 = Class          #35            // java/lang/Object
-  #10 = Class          #36            // java/io/Serializable
-  #11 = Utf8           i
-  #12 = Utf8           I
-  #13 = Utf8           <init>
-  #14 = Utf8           ()V
-  #15 = Utf8           Code
-  #16 = Utf8           LineNumberTable
-  #17 = Utf8           LocalVariableTable
-  #18 = Utf8           this
-  #19 = Utf8           LMain;
-  #20 = Utf8           brol
-  #21 = Utf8           main
-  #22 = Utf8           ([Ljava/lang/String;)V
-  #23 = Utf8           args
-  #24 = Utf8           [Ljava/lang/String;
-  #25 = Utf8           j
-  #26 = Utf8           SourceFile
-  #27 = Utf8           Main.java
-  #28 = NameAndType    #13.#14        // "<init>":()V
-  #29 = NameAndType    #11.#12        // i:I
-  #30 = NameAndType    #20.#14        // brol:()V
-  #31 = Utf8           java/lang/IllegalArgumentException
-  #32 = Utf8           Brol
-  #33 = NameAndType    #13.#37        // "<init>":(Ljava/lang/String;)V
-  #34 = Utf8           Main
-  #35 = Utf8           java/lang/Object
-  #36 = Utf8           java/io/Serializable
-  #37 = Utf8           (Ljava/lang/String;)V
+   #1 = Methodref      #6.#26         // java/lang/Object."<init>":()V
+   #2 = Fieldref       #27.#28        // java/lang/System.out:Ljava/io/PrintStream;
+   #3 = String         #29            // Hello world!
+   #4 = Methodref      #30.#31        // java/io/PrintStream.println:(Ljava/lang/String;)V
+   #5 = Class          #32            // Main
+   #6 = Class          #33            // java/lang/Object
+   #7 = Class          #34            // java/io/Serializable
+   #8 = Utf8           <init>
+   #9 = Utf8           (Ljava/lang/String;)V
+  #10 = Utf8           Code
+  #11 = Utf8           LineNumberTable
+  #12 = Utf8           LocalVariableTable
+  #13 = Utf8           this
+  #14 = Utf8           LMain;
+  #15 = Utf8           str
+  #16 = Utf8           Ljava/lang/String;
+  #17 = Utf8           main
+  #18 = Utf8           ([Ljava/lang/String;)V
+  #19 = Utf8           args
+  #20 = Utf8           [Ljava/lang/String;
+  #21 = Utf8           j
+  #22 = Utf8           I
+  #23 = Utf8           StackMapTable
+  #24 = Utf8           SourceFile
+  #25 = Utf8           Main.java
+  #26 = NameAndType    #8.#35         // "<init>":()V
+  #27 = Class          #36            // java/lang/System
+  #28 = NameAndType    #37.#38        // out:Ljava/io/PrintStream;
+  #29 = Utf8           Hello world!
+  #30 = Class          #39            // java/io/PrintStream
+  #31 = NameAndType    #40.#9         // println:(Ljava/lang/String;)V
+  #32 = Utf8           Main
+  #33 = Utf8           java/lang/Object
+  #34 = Utf8           java/io/Serializable
+  #35 = Utf8           ()V
+  #36 = Utf8           java/lang/System
+  #37 = Utf8           out
+  #38 = Utf8           Ljava/io/PrintStream;
+  #39 = Utf8           java/io/PrintStream
+  #40 = Utf8           println
 {
-  public Main();
-    descriptor: ()V
+  public Main(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
     flags: ACC_PUBLIC
     Code:
-      stack=2, locals=1, args_size=0
+      stack=1, locals=2, args_size=2
          0: aload_0
-         1: invokespecial   #1
-         4: aload_0
-         5: ldc             #2
-         7: putfield        #3
-        10: return
-
-  public static native void brol();
-    descriptor: ()V
-    flags: ACC_PUBLIC, ACC_STATIC, ACC_NATIVE
+         1: invokespecial #1                      // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 4: 0
+        line 5: 4
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   LMain;
+            0       5     1   str   Ljava/lang/String;
 
   public static void main(java.lang.String[]);
     descriptor: ([Ljava/lang/String;)V
     flags: ACC_PUBLIC, ACC_STATIC
     Code:
-      stack=3, locals=2, args_size=1
-         0: bipush          9
+      stack=2, locals=2, args_size=1
+         0: bipush        9
          2: istore_1
-         3: invokestatic    #4
-         6: new             #5
-         9: dup
-        10: ldc             #6
-        12: invokespecial   #7
-        15: athrow
+         3: iload_1
+        15: lookupswitch  { // 2
+                       5: 43
+                      10: 32
+                 default: 46
+            }
+        32: getstatic     #2                      // Field java/lang/System.out:Ljava/io/PrintStream;
+        35: ldc           3
+        37: invokevirtual #4                      // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        40: goto          #6                      // class java/lang/Object
+        43: iinc          1 1
+        46: return
+      LineNumberTable:
+        line 8: 0
+        line 10: 3
+        line 12: 32
+        line 13: 40
+        line 15: 43
+        line 18: 46
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      47     0  args   [Ljava/lang/String;
+            3      44     1     j   I
 
 }
+SourceFile: "Main.java"
 ```
 
 
