@@ -11,7 +11,7 @@ The output is very similar to the one from the javap tool with all output enable
 ```
 
 ```
-Classfile C:/Users/Sebastiaan/source/repos/fernandezseb/ClassDump/out/build/x64-Release/Main.class
+Classfile C:/ClasDump/Main.class
   Last modified Nov 03, 2023; size 687 bytes
   MD5 checksum 433e9b297a1f75d82521b577f9482758
   Compiled from "Main.java"
