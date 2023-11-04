@@ -15,10 +15,17 @@ struct Instruction {
 };
 
 void SignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+
 void UnsignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+
 void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+
+
 void ArrayTypePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+
 void MultiArrayPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+
 void SignedShort(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
 
 class CodePrinter {
@@ -52,7 +59,7 @@ class CodePrinter {
 		{ astore_2, 0, "astore_2" },
 		{ astore_3, 0, "astore_3" },
 		{ aload_0, 0, "aload_0" },
-		{ ldc, 1, "ldc", SignedBytePrinter },
+		{ ldc, 1, "ldc", ByteIndices },
 		{ ldc_w, 2, "ldc_w", ShortIndices },
 		{ ldc2_w, 2, "ldc2_w", ShortIndices },
 		{ invokevirtual, 2, "invokevirtual", ShortIndices },

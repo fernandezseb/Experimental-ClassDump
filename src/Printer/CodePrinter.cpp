@@ -61,6 +61,31 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 	}
 }
 
+void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
+{
+	for (int i = 0; i < argsCount; ++i) {
+		uint8_t byte = args[i];
+		char indexStr[6];
+
+		sprintf(indexStr, " #%" PRIu8, byte);
+		printf("%-25s", indexStr);
+	}
+
+	if (argsCount > 0) {
+		printf("//");
+	}
+	for (int i = 0; i < argsCount; ++i) {
+		uint8_t byte = args[i];
+
+		ConstantPoolItem* item = cp->constants[byte-1];
+		if (item != 0) {
+			char buffer[300] = { 0 };
+			PrintUtils::printResolvedInline(buffer, cp->constants[byte - 1], cp);
+			std::cout << " " << buffer;
+		}
+	}
+}
+
 void ArrayTypePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
 	const char* type;
