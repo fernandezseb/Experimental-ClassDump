@@ -40,7 +40,11 @@ project(ClassDump
     src/Data/Descriptor.h
     src/Data/ConstantPool.cpp
     src/Data/ConstantPool.h
-    src/Data/Attribute.cpp)
+    src/Data/Attribute.cpp
+    src/Printer/CodePrinter.h
+    src/Printer/CodePrinter.cpp
+    src/Printer/PrintUtils.h
+    src/Printer/PrintUtils.cpp)
 
     add_subdirectory(extern/md5)
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)
