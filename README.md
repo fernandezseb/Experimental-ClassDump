@@ -91,7 +91,7 @@ Constant pool:
                  default: 46
             }
         32: getstatic     #2                      // Field java/lang/System.out:Ljava/io/PrintStream;
-        35: ldc           3
+        35: ldc           #3                      // string Hello world!
         37: invokevirtual #4                      // Method java/io/PrintStream.println:(Ljava/lang/String;)V
         40: goto          #6                      // class java/lang/Object
         43: iinc          1 1

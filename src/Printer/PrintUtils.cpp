@@ -177,7 +177,7 @@ char* PrintUtils::printResolved(char* buffer, const ConstantPoolItem* item, cons
 	{
 		CPNameAndTypeInfo* nameAndType = (CPNameAndTypeInfo*)item;
 		const char* name = cp->getString(nameAndType->nameIndex);
-		if (name == "<init>") {
+		if (strcmp(name, "<init>") == 0) {
 			sprintf(temp, "\"%s\":%s", name, cp->getString(nameAndType->descriptorIndex));
 		}
 		else {
