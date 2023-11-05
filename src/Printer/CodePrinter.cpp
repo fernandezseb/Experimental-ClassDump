@@ -2,8 +2,6 @@
 
 #include "PrintUtils.h"
 
-#include <iostream>
-
 void SignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 {
 	for (uint16_t currentIndex = 0; currentIndex < argsCount; ++currentIndex) {
@@ -56,7 +54,7 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		if (item != 0) {
 			char buffer[300] = {0};
 			PrintUtils::printResolvedInline(buffer, cp->constants[shortIndex - 1], cp);
-			std::cout << " " << buffer;
+			printf(" %s", buffer);
 		}
 	}
 }
@@ -81,7 +79,7 @@ void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		if (item != 0) {
 			char buffer[300] = { 0 };
 			PrintUtils::printResolvedInline(buffer, cp->constants[byte - 1], cp);
-			std::cout << " " << buffer;
+			printf(" %s", buffer);
 		}
 	}
 }

@@ -94,11 +94,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 
 	char bufferType[300] = { 0 };
 	getAsExternalReturnType((char*)descriptor, bufferType);
-	std::cout << bufferType
-		<< " " 
-		<< name 
-		<< ";" 
-		<< std::endl;
+	printf("%s %s;\n", bufferType, name);
 	printf("    descriptor: %s\n", descriptor);
 	printf("    flags: ");
 
@@ -128,7 +124,7 @@ void ClassPrinter::printMethodSignature(
 	if (!methodInfo->isConstructor()) {
 		char typeBuffer[300] = {0};
 		getAsExternalReturnType(methodInfo->returnType, typeBuffer);
-		std::cout << typeBuffer << " ";
+		printf("%s ", typeBuffer);
 	}
 
 	if (methodInfo->isConstructor()) {

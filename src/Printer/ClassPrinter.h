@@ -4,8 +4,6 @@
 #include "ClassLoader/ClassLoader.h"
 #include "CodePrinter.h"
 
-#include <iostream>
-
 class ClassPrinter {
 private:
 	const char* Unknown = "(unknown)";

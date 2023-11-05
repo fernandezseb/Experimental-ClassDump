@@ -184,8 +184,6 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 {
     checkMagicNumber(byteArray);
 
-    //void* classMemory = memory->classAlloc(sizeof(ClassInfo));
-
     ClassInfo* classInfo = (ClassInfo*) memory->classAlloc(sizeof(ClassInfo));
 
     classInfo->minorVersion = byteArray.readUnsignedShort();
@@ -233,7 +231,10 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
     classInfo->filePath = Platform::getFullPath(file, memory);
     classInfo->size = byteArray.getSize();
     Platform::getLastModifiedString(file, classInfo->lastModifiedString);
-    strcpy(classInfo->md5, md5(byteArray.bytes, byteArray.getSize()).c_str());
+    
+    char md5Buffer[33];
+    md5(byteArray.bytes, byteArray.getSize(), md5Buffer);
+    strcpy(classInfo->md5, md5Buffer);
 
     Platform::closeFile(file);
     Platform::FreeMemory(fileContent);
