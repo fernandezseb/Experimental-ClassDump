@@ -135,7 +135,7 @@ private:
 	CodePrinter codePrinter;
 	const char* getTypeAsString(ConstantType type) const;
 	const char* getTypeAsString(AccessFlag flag, AccessFlagType type) const;
-	std::string getAsExternalReturnType(std::string returnType);
+	void getAsExternalReturnType(char* returnType, char* outputBuffer);
 	void printField(const FieldInfo* fieldInfo, const ConstantPool* cp, Memory* memory);
 	void printMethodSignature(const MethodInfo* methodInfo, 
 		const ClassInfo& classInfo, 

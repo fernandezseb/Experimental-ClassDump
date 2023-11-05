@@ -83,34 +83,24 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 	case CT_NAMEANDTYPE:
 	{
 		CPNameAndTypeInfo* nameAndType = (CPNameAndTypeInfo*)item;
-		//std::string str = "#" + std::to_string(nameAndType->nameIndex);
-		//str += ".#";
-		//str += std::to_string(nameAndType->descriptorIndex);
-		//return str;
 		sprintf(temp, "#%" PRIu16 ".#%" PRIu16, nameAndType->nameIndex, nameAndType->descriptorIndex);
 		break;
 	}
 	case CT_STRING:
 	{
 		CPStringInfo* stringInfo = (CPStringInfo*)item;
-		//return "#" + std::to_string(stringInfo->stringIndex);
 		sprintf(temp, "#%" PRIu16, stringInfo->stringIndex);
 		break;
 	}
 	case CT_FIELDREF:
 	{
 		CPFieldRef* fieldRef = (CPFieldRef*)item;
-		//return "#" + std::to_string(fieldRef->classIndex) + "." + "#" + std::to_string(fieldRef->nameAndTypeIndex);
 		sprintf(temp, "#%" PRIu16 ".#%" PRIu16, fieldRef->classIndex, fieldRef->nameAndTypeIndex);
 		break;
 	}
 	case CT_METHODREF:
 	{
 		CPMethodRef* methodRef = (CPMethodRef*)item;
-		//std::string str = "#" + std::to_string(methodRef->classIndex);
-		//str += ".#";
-		//str += std::to_string(methodRef->nameAndTypeIndex);
-		//return str;
 		sprintf(temp, "#%" PRIu16 ".#%" PRIu16, methodRef->classIndex, methodRef->nameAndTypeIndex);
 		break;
 	}
@@ -123,7 +113,6 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 	case CT_INTEGER:
 	{
 		CPIntegerInfo* integerInfo = (CPIntegerInfo*)item;
-		//return std::to_string((int)integerInfo->bytes);
 		sprintf(temp, "%" PRIi32, integerInfo->bytes);
 		break;
 	}
@@ -137,7 +126,6 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 	{
 		CPFloatInfo* floatInfo = (CPFloatInfo*)item;
 		float f = *reinterpret_cast<float*> (&floatInfo->bytes);
-		//return std::to_string((float)f) + "f";
 		sprintf(temp, "%.10gf", f);
 		break;
 	}
@@ -146,7 +134,6 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 		CPDoubleInfo* doubleInfo = (CPDoubleInfo*)item;
 		uint64_t bytes = ((uint64_t)doubleInfo->highBytes << 32) + (uint64_t)doubleInfo->lowBytes;
 		double d = *reinterpret_cast<double*> (&bytes);
-		//return std::to_string((double)d) + "d";
 		sprintf(temp, "%.10gd", d);
 		break;
 	}
@@ -154,7 +141,6 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 	{
 		CPLongInfo* longInfo = (CPLongInfo*)item;
 		int64_t bytes = ((int64_t)longInfo->highBytes << 32) + (int64_t)longInfo->lowBytes;
-		//return std::to_string(bytes) + "l";
 		sprintf(temp, "%" PRIi64 "l", bytes);
 		break;
 	}

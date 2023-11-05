@@ -43,14 +43,13 @@ const char* ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) 
 	}
 }
 
-// TODO: Print to a char buffer that we get as param
-std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
+void ClassPrinter::getAsExternalReturnType(char* returnType, char* buffer)
 {
-	std::stringstream output;
 	int arrCount = 0;
 	bool inClass = false;
 
-	for (char c : returnType) {
+	for (uint16_t currentChar = 0; returnType[currentChar] != 0; ++currentChar) {
+		char c = returnType[currentChar];
 		if (c == 'L') {
 			inClass = true;
 		}
@@ -59,25 +58,24 @@ std::string ClassPrinter::getAsExternalReturnType(std::string returnType)
 		}
 		else if (inClass) {
 			if (c == '/') {
-				output << '.';
+				strcat(buffer, ".");
 			}
 			else {
-				output << c;
+				char str[2] = { c, 0 };
+				strcat(buffer, str);
 			}
 		}
 		else if (c == '[') {
 			arrCount++;
 		}
 		else {
-			output << types.at(c);
+			strcat(buffer, types.at(c));
 		}
 	}
 
 	for (int curr = 0; curr < arrCount; curr++) {
-		output << "[]";
+		strcat(buffer, "[]");
 	}
-
-	return output.str();
 }
 
 void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp, Memory* memory)
@@ -94,8 +92,9 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 		}
 	}
 
-
-	std::cout << getAsExternalReturnType(descriptor)
+	char bufferType[300] = { 0 };
+	getAsExternalReturnType((char*)descriptor, bufferType);
+	std::cout << bufferType
 		<< " " 
 		<< name 
 		<< ";" 
@@ -127,7 +126,9 @@ void ClassPrinter::printMethodSignature(
 	Memory* memory)
 {
 	if (!methodInfo->isConstructor()) {
-		std::cout << getAsExternalReturnType(methodInfo->returnType) << " ";
+		char typeBuffer[300] = {0};
+		getAsExternalReturnType(methodInfo->returnType, typeBuffer);
+		std::cout << typeBuffer << " ";
 	}
 
 	if (methodInfo->isConstructor()) {
@@ -142,8 +143,10 @@ void ClassPrinter::printMethodSignature(
 	char** args = (char**)memory->classAlloc(sizeof(char*) * methodInfo->argsCount);
 	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
 		const char* arg = methodInfo->args[currentArg];
-		std::string cppArg = getAsExternalReturnType(arg);
-		args[currentArg] = toCharPtr(cppArg, memory);
+		char typeBuffer[300] = { 0 };
+		getAsExternalReturnType((char*)arg, typeBuffer);
+		char* argPtr = (char*) memory->classAlloc(strlen(typeBuffer) + 1);
+		args[currentArg] = argPtr;
 	}
 
 	char output[300];
