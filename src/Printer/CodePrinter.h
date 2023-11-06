@@ -132,8 +132,8 @@ class CodePrinter {
 		{ getfield, 2, "getfield", ShortIndices },
 		{ getstatic, 2, "getstatic", ShortIndices },
 		// TODO: we must add the current address to the offset provided by the instruction (GOTO)
-		{ i_goto, 2, "goto", ShortIndices }, // SIGNED BRANCHOFFSET
-		{ goto_w, 4, "goto_w", ShortIndices }, // 32 bit SIGNED
+		{ i_goto, 2, "goto", SignedShort }, // SIGNED BRANCHOFFSET
+		{ goto_w, 4, "goto_w", SignedShort }, // 32 bit SIGNED
 		{ i2b, 0, "i2b" },
 		{ i2c, 0, "i2c" },
 		{ i2d, 0, "i2d" },
