@@ -123,7 +123,6 @@ The goal is **not** to be reliable, fast, or memory efficient, or even feature c
 Even though it is not set in stone, I will be trying to implement as much features as possible of JDK 8, in the free time that I have.
 
 ## Still to do
-* Finish all attribute parsing
+* Finish all attribute parsing (eg. StackMapTable)
 * The last opcodes that are not implemented yet: lookuptable, wide
-* Print StackMapTable (other method/code attributes)
 * Make code work on platforms other than Windows (with MSVC)
