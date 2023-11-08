@@ -3,17 +3,13 @@
 #define __STDC_FORMAT_MACROS
 
 #ifdef _CPPRTTI
-#error "RTTI enabled"
+#error "RTTI enabled but not required for this project"
 #endif
 
 #include <cstdio>
 #include <cstring>
 #include <cinttypes>
 
-#include <algorithm>
-#include <iomanip>
-
-#include <map>
 #include <sstream>
 #include <iterator>
 

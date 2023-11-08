@@ -6,40 +6,225 @@
 #include "PrintUtils.h"
 
 const char* ClassPrinter::getTypeAsString(ConstantType type) const {
-	if (constantTypes.find(type) != constantTypes.end()) {
-		return constantTypes.at(type);
+	switch (type) {
+	case CT_UTF8:
+	{
+		return "Utf8";
 	}
-	else {
-		return Unknown;
+	case CT_INTEGER:
+	{
+		return "Integer";
+	}
+	case CT_FLOAT:
+	{
+		return "Float";
+	}
+	case CT_LONG:
+	{
+		return "Long";
+	}
+	case CT_DOUBLE:
+	{
+		return "Double";
+	}
+	case CT_CLASS:
+	{
+		return "Class";
+	}
+	case CT_STRING:
+	{
+		return "String";
+	}
+	case CT_FIELDREF:
+	{
+		return "Fieldref";
+	}
+	case CT_METHODREF:
+	{
+		return "Methodref";
+	}
+	case CT_INTERFACEMETHOD:
+	{
+		return "Interfacemethod";
+	}
+	case CT_NAMEANDTYPE:
+	{
+		return "NameAndType";
+	}
+	case CT_METHODHANDLE:
+	{
+		return "MethodHandle";
+	}
+	case CT_METHODTYPE:
+	{
+		return "Methodtype";
+	}
+	case CT_INVOKEDYNAMIC:
+	{
+		return "InvokeDynamic";
+	}
+	default:
+	{
+		return "Unknown";
+	}
 	}
 }
 
 const char* ClassPrinter::getTypeAsString(AccessFlag flag, AccessFlagType type) const
 {
-	const std::map<AccessFlag, const char*>* flags = 0;
 	switch (type) {
 	case METHOD:
 	{
-		flags = &accessFlagsMethod;
-		break;
+		switch (flag) {
+		case ACC_PUBLIC:
+			return ACC_PUBLIC_STR;
+		case ACC_PRIVATE:
+			return ACC_PRIVATE_STR;
+		case ACC_PROTECTED:
+			return ACC_PROTECTED_STR;
+		case ACC_STATIC:
+			return ACC_STATIC_STR;
+		case ACC_FINAL:
+			return ACC_FINAL_STR;
+		case ACC_SYNCHRONIZED:
+			return ACC_SYNCHRONIZED_STR;
+		case ACC_BRIDGE:
+			return ACC_BRIDGE_STR;
+		case ACC_VARARGS:
+			return ACC_VARARGS_STR;
+		case ACC_NATIVE:
+			return ACC_NATIVE_STR;
+		case ACC_ABSTRACT:
+			return ACC_ABSTRACT_STR;
+		case ACC_STRICT:
+			return ACC_STRICT_STR;
+		case ACC_SYNTHETIC:
+			return ACC_SYNTHETIC_STR;
+		}
 	}
 	case FIELD:
 	{
-		flags = &accessFlagsField;
-		break;
+		switch (flag) {
+		case ACC_PUBLIC:
+			return ACC_PUBLIC_STR;
+		case ACC_PRIVATE:
+			return ACC_PRIVATE_STR;
+		case ACC_PROTECTED:
+			return ACC_PROTECTED_STR;
+		case ACC_STATIC:
+			return ACC_STATIC_STR;
+		case ACC_FINAL:
+			return ACC_FINAL_STR;
+		case ACC_VOLATILE:
+			return ACC_VOLATILE_STR;
+		case ACC_TRANSIENT:
+			return ACC_TRANSIENT_STR;
+		case ACC_SYNTHETIC:
+			return ACC_SYNTHETIC_STR;
+		case ACC_ENUM:
+			return ACC_ENUM_STR;
+		}
 	}
 	case CLASS:
 	{
-		flags = &accessFlagsClass;
-		break;
+		switch (flag) {
+		case ACC_PUBLIC:
+			return ACC_PUBLIC_STR;
+		case ACC_FINAL:
+			return ACC_FINAL_STR;
+		case ACC_SUPER:
+			return ACC_SUPER_STR;
+		case ACC_INTERFACE:
+			return ACC_INTERFACE_STR;
+		case ACC_ABSTRACT:
+			return ACC_ABSTRACT_STR;
+		case ACC_SYNTHETIC:
+			return ACC_SYNTHETIC_STR;
+		case ACC_ANNOTATION:
+			return ACC_ANNOTATION_STR;
+		case ACC_ENUM:
+			return ACC_ENUM_STR;
+		}
 	}
 	}
-	if (flags != 0 && (flags->find(flag) != flags->end())) {
-		const char* str = flags->at(flag);
-		return str;
+}
+
+inline const char* charToType(char c) {
+	switch (c) {
+	case 'V': {
+		return T_VOID;
 	}
-	else {
-		return Unknown;
+	case 'B': {
+		return T_BYTE;
+	}
+	case 'C': {
+		return T_CHAR;
+	}
+	case 'D': {
+		return T_DOUBLE;
+	}
+	case 'F': {
+		return T_FLOAT;
+	}
+	case 'I': {
+		return T_INT;
+	}
+	case 'J': {
+		return T_LONG;
+	}
+	case 'S': {
+		return T_SHORT;
+	}
+	case 'Z': {
+		return T_BOOLEAN;
+	}
+	default: {
+		return "Unknown";
+	}
+	}
+}
+
+inline const char* ClassPrinter::flagToKeyword(AccessFlag flag) {
+	switch (flag) {
+	case ACC_PUBLIC:
+		return ACC_PUBLIC_KEYWORD;
+	case ACC_PRIVATE:
+		return ACC_PRIVATE_KEYWORD;
+	case ACC_PROTECTED:
+		return ACC_PROTECTED_KEYWORD;
+	case ACC_STATIC:
+		return ACC_STATIC_KEYWORD;
+	case ACC_FINAL:
+		return ACC_FINAL_KEYWORD;
+	case ACC_NATIVE:
+		return ACC_NATIVE_KEYWORD;
+	case ACC_ABSTRACT:
+		return ACC_ABSTRACT_KEYWORD;
+	case ACC_SYNCHRONIZED:
+		return ACC_SYNCHRONIZED_KEYWORD;
+	case ACC_VOLATILE:
+		return ACC_VOLATILE_KEYWORD;
+	case ACC_TRANSIENT:
+		return ACC_TRANSIENT_KEYWORD;
+	}
+}
+
+inline const char* ClassPrinter::flagToKeywordClass(AccessFlag flag) {
+	switch (flag) {
+	case ACC_PUBLIC:
+		return ACC_PUBLIC_KEYWORD;
+	case ACC_PRIVATE:
+		return ACC_PRIVATE_KEYWORD;
+	case ACC_PROTECTED:
+		return ACC_PROTECTED_KEYWORD;
+	case ACC_STATIC:
+		return ACC_STATIC_KEYWORD;
+	case ACC_FINAL:
+		return ACC_FINAL_KEYWORD;
+	case ACC_ABSTRACT:
+		return ACC_ABSTRACT_KEYWORD;
+	default:
+		return nullptr;
 	}
 }
 
@@ -69,7 +254,7 @@ void ClassPrinter::getAsExternalReturnType(char* returnType, char* buffer)
 			arrCount++;
 		}
 		else {
-			strcat(buffer, types.at(c));
+			strcat(buffer, charToType(c));
 		}
 	}
 
@@ -84,11 +269,21 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	const char* name = cp->getString(fieldInfo->nameIndex);
 	printf("  ");
 
-	for (auto const& element : accessFlagsField) {
-		if ((element.first & fieldInfo->accessFlags) != 0) {
-			if (keywords.find(element.first) != keywords.end()) {
-				printf("%s ", keywords.at(element.first));
-			}
+	AccessFlag accessFlagsField[] = { 
+		ACC_PUBLIC, 
+		ACC_PRIVATE, 
+		ACC_PROTECTED, 
+		ACC_STATIC, 
+		ACC_FINAL, 
+		ACC_VOLATILE, 
+		ACC_TRANSIENT, 
+		ACC_SYNTHETIC, 
+		ACC_ENUM
+	};
+
+	for (auto const& flag : accessFlagsField) {
+		if ((flag & fieldInfo->accessFlags) != 0) {
+				printf("%s ", flagToKeyword(flag));
 		}
 	}
 
@@ -100,9 +295,9 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 
 	const char** flags = (const char**)memory->classAlloc(9 * sizeof(char*));
 	int currentIndex = 0;
-	for (auto const& element : accessFlagsMethod) {
-		if ((element.first & fieldInfo->accessFlags) != 0) {
-			flags[currentIndex] = getTypeAsString(element.first, FIELD);
+	for (auto const& flag : accessFlagsField) {
+		if ((flag & fieldInfo->accessFlags) != 0) {
+			flags[currentIndex] = getTypeAsString(flag, FIELD);
 			++currentIndex;
 		}
 	}
@@ -136,12 +331,14 @@ void ClassPrinter::printMethodSignature(
 	}
 	printf("(");
 
-	char** args = (char**)memory->classAlloc(sizeof(char*) * methodInfo->argsCount);
+	char** args = (char**) memory->classAlloc(sizeof(char*) * methodInfo->argsCount);
 	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
 		const char* arg = methodInfo->args[currentArg];
 		char typeBuffer[300] = { 0 };
 		getAsExternalReturnType((char*)arg, typeBuffer);
+		size_t size = strlen(typeBuffer) + 1;
 		char* argPtr = (char*) memory->classAlloc(strlen(typeBuffer) + 1);
+		memcpy(argPtr, typeBuffer, size);
 		args[currentArg] = argPtr;
 	}
 
@@ -157,12 +354,25 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 {
 	printf("  ");
 
-	for (auto const& element : accessFlagsMethod) {
-		if ((element.first & methodInfo->accessFlags) != 0) {
-			if (keywords.find(element.first) != keywords.end()) {
-				printf("%s ", keywords.at(element.first));
+	AccessFlag accessFlagsMethod[] = { 
+		ACC_PUBLIC,
+		ACC_PRIVATE,
+		ACC_PROTECTED,
+		ACC_STATIC,
+		ACC_FINAL,
+		ACC_SYNCHRONIZED,
+		ACC_BRIDGE,
+		ACC_VARARGS,
+		ACC_NATIVE,
+		ACC_ABSTRACT,
+		ACC_STRICT, 
+		ACC_SYNTHETIC
+	};
+
+	for (auto const& flag : accessFlagsMethod) {
+		if ((flag & methodInfo->accessFlags) != 0) {
+				printf("%s ", flagToKeyword(flag));
 			}
-		}
 	}
 
 
@@ -172,9 +382,9 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	printf("    flags: ");
 	const char** flags = (const char**)memory->classAlloc(12 * sizeof(char*));
 	int currentIndex = 0;
-	for (auto const& element : accessFlagsMethod) {
-		if ((element.first & methodInfo->accessFlags) != 0) {
-			flags[currentIndex] = getTypeAsString(element.first, METHOD);
+	for (auto const& flag : accessFlagsMethod) {
+		if ((flag & methodInfo->accessFlags) != 0) {
+			flags[currentIndex] = getTypeAsString(flag, METHOD);
 			++currentIndex;
 		}
 	}
@@ -235,6 +445,17 @@ static inline void binaryClassToExternalInPlace(char* output)
 
 void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 {
+	AccessFlag accessFlagsClass[] = {
+		ACC_PUBLIC, 
+		ACC_FINAL, 
+		ACC_SUPER, 
+		ACC_INTERFACE,
+		ACC_ABSTRACT,
+		ACC_SYNTHETIC,
+		ACC_ANNOTATION,
+		ACC_ENUM
+	};
+
 	printf("Classfile %s\n", classInfo.filePath);
 	printf("  Last modified %s; size %" PRIu64 " bytes\n", classInfo.lastModifiedString, classInfo.size);
 	printf("  MD5 checksum %s\n", classInfo.md5);
@@ -247,10 +468,11 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	const CPClassInfo* const classPtr = cp->getClassInfo(classInfo.thisClass);
 	const CPClassInfo* const superClassPtr = cp->getClassInfo(classInfo.superClass);
 
-	for (auto const& element : accessFlagsClass) {
-		if ((element.first & classInfo.accessFlags) != 0) {
-			if (keywordsClass.find(element.first) != keywordsClass.end()) {
-				printf("%s ", keywordsClass.at(element.first));
+	for (auto const& flag : accessFlagsClass) {
+		if ((flag & classInfo.accessFlags) != 0) {
+			const char* keyword = flagToKeywordClass(flag);
+			if (keyword != NULL) {
+				printf("%s ", keyword);
 			}
 		}
 	}
@@ -292,9 +514,9 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	printf("  flags: ");
 	const char** flags = (const char**)memory->classAlloc(8 * sizeof(char*));
 	int currentIndex = 0;
-	for (auto const& element : accessFlagsClass) {
-		if ((element.first & classInfo.accessFlags) != 0) {
-			flags[currentIndex] = getTypeAsString(element.first, CLASS);
+	for (auto const& flag : accessFlagsClass) {
+		if ((flag & classInfo.accessFlags) != 0) {
+			flags[currentIndex] = getTypeAsString(flag, CLASS);
 			++currentIndex;
 		}
 	}
