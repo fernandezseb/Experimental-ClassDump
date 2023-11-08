@@ -75,3 +75,58 @@ struct AttributeLocalVariableTable : public AttributeInfo {
 	LocalVariableTableEntry* entries;
 	uint16_t size;
 };
+
+struct VerificationTypeInfo {
+	uint8_t tag;
+};
+
+struct ObjectVariableInfo : public VerificationTypeInfo {
+	uint16_t cpoolIndex;
+};
+
+struct UninitializedVariableInfo : public VerificationTypeInfo {
+	uint16_t offset;
+};
+
+
+struct StackMapFrame {
+	uint8_t frameType;
+};
+
+struct SameFrame : public StackMapFrame {
+};
+
+struct SameLocals1StackItemFrame : public StackMapFrame {
+	VerificationTypeInfo stack;
+};
+
+struct SameLocals1StackItemFrameExtended : public StackMapFrame {
+	uint16_t offsetDelta;
+	VerificationTypeInfo stack;
+};
+
+struct ChopFrame : public StackMapFrame {
+	uint16_t offsetDelta;
+};
+
+struct SameFrameExtended : public StackMapFrame {
+	uint16_t offsetDelta;
+};
+
+struct AppendFrame : public StackMapFrame {
+	uint16_t offsetDelta;
+	// The size of this array is: frame_type - 251
+	VerificationTypeInfo* locals;
+};
+
+struct FullFrame : public StackMapFrame {
+	uint16_t offsetDelta;
+	uint16_t numberOfLocals;
+	VerificationTypeInfo* locals;
+	uint16_t numberOfStackItems;
+	VerificationTypeInfo* stack;
+};
+
+struct StackMapTable : public AttributeInfo {
+	uint16_t entriesCount; // Number of stack_map_frame entries
+};
