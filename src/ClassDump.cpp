@@ -8,9 +8,7 @@ int main(int argc, char* argv[])
     if (argc > 1) {
         if (strncmp(argv[1], "-v", 2) == 0) {
             printf("ClassDump version %d.%d\n", CLASSDUMP_VERSION_MAJOR, CLASSDUMP_VERSION_MINOR);
-        }
-        else
-        {
+        } else {
             Memory memory(50000);
             const char* className = argv[1];
 
@@ -22,7 +20,6 @@ int main(int argc, char* argv[])
             memory.printSize();
 #endif
         }
-        _CrtDumpMemoryLeaks();
     } else {
         fprintf(stderr, "Error: Class name must be supplied\n");
         exit(1);
