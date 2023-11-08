@@ -3,7 +3,7 @@
 A simple java classfile parser made for learning purposes.
 The output is very similar to the one from the javap tool with all output enabled. (Private members, system info about the class, etc.)
 
-There is a blogpost introducing this project on my website over here: [https://sebfernandez.be/programming/a-simple-class-file-parser/](https://sebfernandez.be/programming/a-simple-class-file-parser/)
+There is a blogpost introducing this project on my website over [here](https://sebfernandez.be/programming/a-simple-class-file-parser/)
 
 ## Example
 
