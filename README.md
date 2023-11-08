@@ -3,6 +3,7 @@
 A simple java classfile parser made for learning purposes.
 The output is very similar to the one from the javap tool with all output enabled. (Private members, system info about the class, etc.)
 
+There is a blogpost introducing this project on my website over [here](https://sebfernandez.be/programming/a-simple-class-file-parser/)
 
 ## Example
 
@@ -123,7 +124,6 @@ The goal is **not** to be reliable, fast, or memory efficient, or even feature c
 Even though it is not set in stone, I will be trying to implement as much features as possible of JDK 8, in the free time that I have.
 
 ## Still to do
-* Finish all attribute parsing
+* Finish all attribute parsing (eg. StackMapTable)
 * The last opcodes that are not implemented yet: lookuptable, wide
-* Print StackMapTable (other method/code attributes)
 * Make code work on platforms other than Windows (with MSVC)
