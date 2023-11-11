@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
         }
     } else {
         fprintf(stderr, "Error: Class name must be supplied\n");
-        exit(1);
+        Platform::ExitProgram(1);
     }
 
     return 0;

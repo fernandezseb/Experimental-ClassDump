@@ -207,7 +207,7 @@ void CodePrinter::printCode(
 		}
 		if (!found) {
 			printf("Error: Instruction with opcode: %" PRIu8 " unrecognized\n", opcode);
-			exit(1);
+			Platform::ExitProgram(1);
 		}
 		printf("\n");
 	}

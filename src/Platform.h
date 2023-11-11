@@ -14,4 +14,5 @@ public:
 	static uint8_t* readEntireFile(PlatformFile* file, size_t* sizeOut);
 	static void getLastModifiedString(PlatformFile* file, char* stringOut);
 	static void closeFile(PlatformFile* file);
+	static void ExitProgram(uint32_t exitCode);
 };

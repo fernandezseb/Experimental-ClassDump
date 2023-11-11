@@ -118,3 +118,8 @@ void Platform::closeFile(PlatformFile* file)
 {
 	CloseHandle(file->hFile);
 }
+
+void Platform::ExitProgram(uint32_t exitCode)
+{
+	ExitProcess(exitCode);
+}

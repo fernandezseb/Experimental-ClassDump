@@ -14,7 +14,7 @@ void* Memory::classAlloc(size_t size)
 {
 	if (ptr + size > this->size) {
 		fprintf(stderr, "Out of memory\n");
-		exit(3);
+		Platform::ExitProgram(3);
 	}
 	size_t oldPtr = ptr;
 	ptr += size;

@@ -11,7 +11,7 @@ void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
     if (magic != MAGIC_NUMBER) {
         fprintf(stderr, "Error: Magic Number not OK.Exiting.\n");
-        exit(1);
+        Platform::ExitProgram(1);
     }
 }
 

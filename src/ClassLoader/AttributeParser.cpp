@@ -57,7 +57,7 @@ void AttributeParser::readStackMapTable(ByteArray& byteArray)
 		}
 		else {
 			fprintf(stderr, "Error: Unknown frame type detected : %" PRIu8 "\n", frameType);
-			exit(1);
+			Platform::ExitProgram(1);
 		}
 	}
 }
@@ -198,7 +198,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
-			exit(1);
+			Platform::ExitProgram(1);
 		}
 	}
 

@@ -10,9 +10,6 @@
 #include <cstring>
 #include <cinttypes>
 
-#include <sstream>
-#include <iterator>
-
 // Type strings
 #define T_VOID    "void"
 #define T_BYTE    "byte"

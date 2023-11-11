@@ -1,5 +1,7 @@
 #include "ClassLoader/DescriptorParser.h"
 
+#include <stdlib.h>
+
 void assertString(char* testString, const char* expected)
 {
 	if (strcmp(testString, expected) != 0) {
