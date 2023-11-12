@@ -1,5 +1,71 @@
 #include "AttributePrinter.h"
 
+void AttributePrinter::printVerificationList(VerificationTypeInfo* list, uint16_t size, const ConstantPool* cp)
+{
+
+	if (size == 0) {
+		printf("[]\n");
+		return;
+	}
+
+	printf("[ ");
+
+	for (uint16_t currentType = 0; currentType < size; ++currentType)
+	{
+		char typeName[100] = { 0 };
+		VerificationTypeInfo info = list[currentType];
+		switch (info.tag) {
+		case 0: {
+			sprintf(typeName,"top");
+			break;
+		}
+		case 1: {
+			sprintf(typeName, "int");
+			break;
+		}
+		case 2: {
+			sprintf(typeName, "float");
+			break;
+		}
+		case 5: {
+			sprintf(typeName, "null");
+			break;
+		}
+		case 6: {
+			sprintf(typeName, "uninitialized this");
+			break;
+		}
+		case 7: {
+			CPClassInfo* classInfo =  cp->getClassInfo(info.data);
+			uint16_t nameIndex =  classInfo->nameIndex;
+			char* className = cp->getString(nameIndex);
+			sprintf(typeName, "class \"%s\"", className);
+			break;
+		}
+		case 8: {
+			sprintf(typeName, "uninitialized(%" PRIu16 ")", info.data);
+			break;
+		}
+		case 4: {
+			sprintf(typeName, "long");
+			break;
+		}
+		case 3: {
+			sprintf(typeName, "double");
+			break;
+		}
+		}
+
+		if (currentType != 0)
+		{
+			printf(", ");
+		}
+		printf("%s", typeName);
+	}
+
+	printf(" ]\n");
+}
+
 void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPool* cp)
 {
 	if (attribute->type == SourceFile) {
@@ -29,9 +95,26 @@ void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPo
 	}
 	else if (attribute->type == StackMapTable) {
 		StackMapTableAttribute* att = (StackMapTableAttribute*)attribute;
-		printf("        number_of_entries = %" PRIu16"\n", att->entriesCount);
+		uint8_t indentSize = 8;
+		printf("%*cnumber_of_entries = %" PRIu16"\n", indentSize, ' ', att->entriesCount);
 		for (uint16_t currentFrame = 0; currentFrame < att->entriesCount; ++currentFrame) {
-			printf("          frame_type = %" PRIu16 "\n", att->entries[currentFrame]->frameType);
+			switch (att->entries[currentFrame]->frameType) {
+			case FullFrameType: {
+				FullFrame* frame = (FullFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = 255 /* full_frame */\n", indentSize+4, ' ');
+				printf("%*coffset_delta = %" PRIu16 "\n", frame->offsetDelta, indentSize + 4, ' ');
+				printf("%*clocals = ", indentSize + 4, ' ');
+				printVerificationList(frame->locals, frame->numberOfLocals, cp);
+				printf("%*cstack = ", indentSize + 4, ' ');
+				printVerificationList(frame->stack, frame->numberOfStackItems, cp);
+				break;
+			}
+			case SameFrameType: {
+				SameFrame* frame = (SameFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* same */\n", indentSize + 2, ' ', frame->offsetDelta);
+				break;
+			}
+			}
 		}
 	}
 }

@@ -108,6 +108,6 @@ public:
 	ConstantPoolItem** constants;
 	uint16_t size;
 public:
-	const char* getString(uint16_t index) const;
+	char* getString(uint16_t index) const;
 	CPClassInfo* getClassInfo(uint16_t index) const;
 };

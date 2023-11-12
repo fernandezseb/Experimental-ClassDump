@@ -29,13 +29,14 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 		if (frameType >= 0 && frameType <= 63) {
 			// same frame
 			SameFrame* frame = (SameFrame*)memory->classAlloc(sizeof(SameFrame));
-			frame->frameType = frameType;
+			frame->frameType = SameFrameType;
+			frame->offsetDelta = frameType;
 			stackMapFrame = frame;
 		}
 		else if (frameType >= 64 && frameType <= 127) {
 			// same locals 1 stack item frame
 			SameLocals1StackItemFrame* frame = (SameLocals1StackItemFrame*)memory->classAlloc(sizeof(SameLocals1StackItemFrame));
-			frame->frameType = frameType;
+			frame->frameType = SameLocals1StackItemFrameType;
 			frame->stack = readVerificationTypeInfo(byteArray);
 
 			stackMapFrame = frame;
@@ -44,7 +45,7 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 			// same locals 1 stack item frame extended
 			SameLocals1StackItemFrameExtended* frame = (SameLocals1StackItemFrameExtended*)memory->classAlloc(sizeof(SameLocals1StackItemFrameExtended));
 
-			frame->frameType = frameType;
+			frame->frameType = SameLocals1StackItemFrameExtendedType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			frame->offsetDelta = offsetDelta;
 			frame->stack = readVerificationTypeInfo(byteArray);
@@ -54,7 +55,7 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 		else if (frameType >= 248 && frameType <= 250) {
 			// chop frame
 			ChopFrame* frame = (ChopFrame*)memory->classAlloc(sizeof(ChopFrame));
-			frame->frameType = frameType;
+			frame->frameType = ChopFrameType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			frame->offsetDelta = offsetDelta;
 			stackMapFrame = frame;
@@ -62,7 +63,7 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 		else if (frameType == 251) {
 			// same frame extended
 			SameFrameExtended* frame = (SameFrameExtended*)memory->classAlloc(sizeof(SameFrameExtended));
-			frame->frameType = frameType;
+			frame->frameType = SameFrameExtendedType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			frame->offsetDelta = offsetDelta;
 			stackMapFrame = frame;
@@ -70,10 +71,11 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 		else if (frameType >= 252 && frameType <= 254) {
 			// append frame
 			AppendFrame* frame = (AppendFrame*)memory->classAlloc(sizeof(AppendFrame));
-			frame->frameType = frameType;
+			frame->frameType = AppendFrameType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			frame->offsetDelta = offsetDelta;
 			uint16_t numberOfLocals = frameType - 251;
+			frame->numberOfLocals = numberOfLocals;
 			frame->locals = (VerificationTypeInfo*)memory->classAlloc(sizeof(VerificationTypeInfo) * numberOfLocals);
 			for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; ++currentLocal) {
 				frame->locals[currentLocal] = readVerificationTypeInfo(byteArray);
@@ -83,7 +85,7 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 		else if (frameType == 255) {
 			// full frame
 			FullFrame* frame = (FullFrame*) memory->classAlloc(sizeof(FullFrame));
-			frame->frameType = frameType;
+			frame->frameType = FullFrameType;
 
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			

@@ -11,7 +11,7 @@ struct ExceptionTableEntry {
 	uint16_t catchType;
 };
 
-enum AttributeType {
+enum AttributeType : uint8_t {
 	ConstantValue,
 	Code,
 	SourceFile,
@@ -82,12 +82,23 @@ struct VerificationTypeInfo {
 	uint16_t data;
 };
 
+enum StackMapFrameType : uint8_t {
+	SameFrameType,
+	SameLocals1StackItemFrameType,
+	SameLocals1StackItemFrameExtendedType,
+	ChopFrameType,
+	SameFrameExtendedType,
+	AppendFrameType,
+	FullFrameType
+};
+
 
 struct StackMapFrame {
-	uint8_t frameType;
+	StackMapFrameType frameType;
 };
 
 struct SameFrame : public StackMapFrame {
+	uint8_t offsetDelta;
 };
 
 struct SameLocals1StackItemFrame : public StackMapFrame {
@@ -110,6 +121,7 @@ struct SameFrameExtended : public StackMapFrame {
 struct AppendFrame : public StackMapFrame {
 	uint16_t offsetDelta;
 	// The size of this array is: frame_type - 251
+	uint8_t numberOfLocals;
 	VerificationTypeInfo* locals;
 };
 
