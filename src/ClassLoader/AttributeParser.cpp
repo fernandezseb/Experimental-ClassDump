@@ -1,65 +1,115 @@
 #include "AttributeParser.h"
 
-void AttributeParser::readStackMapTable(ByteArray& byteArray)
+static inline VerificationTypeInfo readVerificationTypeInfo(ByteArray& byteArray)
 {
+	VerificationTypeInfo typeInfo;
+	uint8_t tag = byteArray.readUnsignedByte();
+	typeInfo.tag = tag;
+
+	if (tag == 7 || tag == 8) {
+		uint16_t data = byteArray.readUnsignedShort();
+		typeInfo.data = data;
+	}
+
+	return typeInfo;
+}
+
+StackMapTable* AttributeParser::readStackMapTable(ByteArray& byteArray, Memory* memory)
+{
+	StackMapTable* attribute = (StackMapTable*) memory->classAlloc(sizeof(StackMapTable));
+
 	uint16_t numberOfEntries = byteArray.readUnsignedShort();
+	attribute->entriesCount = numberOfEntries;
+	attribute->entries = (StackMapFrame**)memory->classAlloc(sizeof(StackMapFrame*) * numberOfEntries);
 	for (uint16_t currentEntry = 0; currentEntry < numberOfEntries; ++currentEntry) {
+		StackMapFrame* stackMapFrame = 0;
+		
 		uint8_t frameType = byteArray.readUnsignedByte();
+		
 		if (frameType >= 0 && frameType <= 63) {
 			// same frame
+			SameFrame* frame = (SameFrame*)memory->classAlloc(sizeof(SameFrame));
+			frame->frameType = frameType;
+			stackMapFrame = frame;
 		}
 		else if (frameType >= 64 && frameType <= 127) {
 			// same locals 1 stack item frame
-			uint8_t tag = byteArray.readUnsignedByte();
-			if (tag == 7 || tag == 8) {
-				uint16_t crap = byteArray.readUnsignedShort();
-			}
+			SameLocals1StackItemFrame* frame = (SameLocals1StackItemFrame*)memory->classAlloc(sizeof(SameLocals1StackItemFrame));
+			frame->frameType = frameType;
+			frame->stack = readVerificationTypeInfo(byteArray);
 
+			stackMapFrame = frame;
 		}
 		else if (frameType == 247) {
 			// same locals 1 stack item frame extended
+			SameLocals1StackItemFrameExtended* frame = (SameLocals1StackItemFrameExtended*)memory->classAlloc(sizeof(SameLocals1StackItemFrameExtended));
+
+			frame->frameType = frameType;
+			uint16_t offsetDelta = byteArray.readUnsignedShort();
+			frame->offsetDelta = offsetDelta;
+			frame->stack = readVerificationTypeInfo(byteArray);
+
+			stackMapFrame = frame;
 		}
 		else if (frameType >= 248 && frameType <= 250) {
 			// chop frame
+			ChopFrame* frame = (ChopFrame*)memory->classAlloc(sizeof(ChopFrame));
+			frame->frameType = frameType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
+			frame->offsetDelta = offsetDelta;
+			stackMapFrame = frame;
 		}
 		else if (frameType == 251) {
-			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			// same frame extended
+			SameFrameExtended* frame = (SameFrameExtended*)memory->classAlloc(sizeof(SameFrameExtended));
+			frame->frameType = frameType;
+			uint16_t offsetDelta = byteArray.readUnsignedShort();
+			frame->offsetDelta = offsetDelta;
+			stackMapFrame = frame;
 		}
 		else if (frameType >= 252 && frameType <= 254) {
 			// append frame
+			AppendFrame* frame = (AppendFrame*)memory->classAlloc(sizeof(AppendFrame));
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
-			for (uint16_t currentLocal = 0; currentLocal < (frameType - 251); ++currentLocal) {
-				uint8_t tag = byteArray.readUnsignedByte();
-				if (tag == 7 || tag == 8) {
-					uint16_t crap = byteArray.readUnsignedShort();
-				}
+			frame->offsetDelta = offsetDelta;
+			uint16_t numberOfLocals = frameType - 251;
+			frame->locals = (VerificationTypeInfo*)memory->classAlloc(sizeof(VerificationTypeInfo) * numberOfLocals);
+			for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; ++currentLocal) {
+				frame->locals[currentLocal] = readVerificationTypeInfo(byteArray);
 			}
+			stackMapFrame = frame;
 		}
 		else if (frameType == 255) {
 			// full frame
+			FullFrame* frame = (FullFrame*) memory->classAlloc(sizeof(FullFrame));
+
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
+			
 			uint16_t numberOfLocals = byteArray.readUnsignedShort();
+			frame->offsetDelta = offsetDelta;
+			frame->numberOfLocals = numberOfLocals;
+			frame->locals = (VerificationTypeInfo*)memory->classAlloc(sizeof(VerificationTypeInfo) * numberOfLocals);
 			for (uint16_t currentLocal = 0; currentLocal < numberOfLocals; ++currentLocal) {
-				uint8_t tag = byteArray.readUnsignedByte();
-				if (tag == 7 || tag == 8) {
-					uint16_t crap = byteArray.readUnsignedShort();
-				}
+				frame->locals[currentLocal] = readVerificationTypeInfo(byteArray);
 			}
+			
 			uint16_t numberOfStackItems = byteArray.readUnsignedShort();
-			for (uint16_t currentLocal = 0; currentLocal < numberOfStackItems; ++currentLocal) {
-				uint8_t tag = byteArray.readUnsignedByte();
-				if (tag == 7 || tag == 8) {
-					uint16_t crap = byteArray.readUnsignedShort();
-				}
+			frame->numberOfStackItems = numberOfStackItems;
+			frame->stack = (VerificationTypeInfo*)memory->classAlloc(sizeof(VerificationTypeInfo) * numberOfStackItems);
+			for (uint16_t currentStackItem = 0; currentStackItem < numberOfStackItems; ++currentStackItem) {
+				frame->stack[currentStackItem] = readVerificationTypeInfo(byteArray);
 			}
+
+			stackMapFrame = frame;
 		}
 		else {
 			fprintf(stderr, "Error: Unknown frame type detected : %" PRIu8 "\n", frameType);
 			Platform::ExitProgram(1);
 		}
+		attribute->entries[currentEntry] = stackMapFrame;
 	}
+
+	return attribute;
 }
 
 ExceptionTableEntry AttributeParser::readExceptionTableEntry(ByteArray& byteArray)
@@ -193,8 +243,10 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			attributes[currentAttrib] = att;
 		}
 		else if (strcmp(name, "StackMapTable") == 0) {
-			readStackMapTable(byteArray);
-			attributes[currentAttrib] = 0;
+			AttributeInfo* attribute = readStackMapTable(byteArray, memory);
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attributes[currentAttrib] = attribute;
 		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);

@@ -78,14 +78,7 @@ struct AttributeLocalVariableTable : public AttributeInfo {
 
 struct VerificationTypeInfo {
 	uint8_t tag;
-};
-
-struct ObjectVariableInfo : public VerificationTypeInfo {
-	uint16_t cpoolIndex;
-};
-
-struct UninitializedVariableInfo : public VerificationTypeInfo {
-	uint16_t offset;
+	uint16_t data;
 };
 
 
@@ -129,4 +122,5 @@ struct FullFrame : public StackMapFrame {
 
 struct StackMapTable : public AttributeInfo {
 	uint16_t entriesCount; // Number of stack_map_frame entries
+	StackMapFrame** entries;
 };
