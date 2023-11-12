@@ -11,14 +11,15 @@ struct PlatformFile {
 
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 {
+	LPVOID lpBaseAddress = (LPVOID)baseAddress;
 	return VirtualAlloc(
-		0, 
+		lpBaseAddress, 
 		size, 
 		MEM_COMMIT | MEM_RESERVE, 
 		PAGE_READWRITE);
 }
 
-void Platform::FreeMemory( void* allocatedMemory)
+void Platform::FreeMemory(void* allocatedMemory)
 {
 	VirtualFree(
 		allocatedMemory,
@@ -26,9 +27,9 @@ void Platform::FreeMemory( void* allocatedMemory)
 		MEM_RELEASE);
 }
 
-PlatformFile* Platform::getFile(const char* name, Memory* memory)
+PlatformFile* Platform::getFile(const char* name)
 {
-	PlatformFile *file = (PlatformFile*) memory->classAlloc(sizeof(PlatformFile));
+	PlatformFile *file = (PlatformFile*) AllocateMemory(sizeof(PlatformFile), 0);
 
 	file->hFile = CreateFileA(
 		name,
@@ -43,13 +44,12 @@ PlatformFile* Platform::getFile(const char* name, Memory* memory)
 	return file;
 }
 
-char* Platform::getFullPath(PlatformFile* file, Memory* memory)
+char* Platform::getFullPath(PlatformFile* file, char* charOut)
 {
 	char absolutePath[500];
 	char** lastPart = 0;
 
 	GetFullPathNameA(file->name, 500, absolutePath, lastPart);
-	char* pathstr = (char*)memory->classAlloc(((strlen(absolutePath) + 1) * sizeof(char)));
 
 	for (uint8_t index = 0; absolutePath[index] != 0; ++index) {
 		if (absolutePath[index] == '\\') {
@@ -57,9 +57,9 @@ char* Platform::getFullPath(PlatformFile* file, Memory* memory)
 		}
 	}
 
-	strcpy(pathstr, absolutePath);
+	strcpy(charOut, absolutePath);
 
-	return pathstr;
+	return charOut;
 }
 
 uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
@@ -117,6 +117,7 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 void Platform::closeFile(PlatformFile* file)
 {
 	CloseHandle(file->hFile);
+	FreeMemory(file);
 }
 
 void Platform::ExitProgram(uint32_t exitCode)

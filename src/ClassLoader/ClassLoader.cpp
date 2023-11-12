@@ -220,7 +220,7 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 {
     this->memory = memory;
-    PlatformFile *file = Platform::getFile(className, memory);
+    PlatformFile *file = Platform::getFile(className);
 
     size_t size;
     uint8_t* fileContent = Platform::readEntireFile(file, &size);
@@ -228,7 +228,10 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 
     ClassInfo* classInfo = readClass(byteArray);
     classInfo->memory = this->memory;
-    classInfo->filePath = Platform::getFullPath(file, memory);
+    char* path = (char*)this->memory->classAlloc(500);
+    Platform::getFullPath(file, path);
+    // TODO: Resize path string memory
+    classInfo->filePath = path;
     classInfo->size = byteArray.getSize();
     Platform::getLastModifiedString(file, classInfo->lastModifiedString);
     
