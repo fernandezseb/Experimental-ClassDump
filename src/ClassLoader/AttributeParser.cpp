@@ -14,9 +14,9 @@ static inline VerificationTypeInfo readVerificationTypeInfo(ByteArray& byteArray
 	return typeInfo;
 }
 
-StackMapTable* AttributeParser::readStackMapTable(ByteArray& byteArray, Memory* memory)
+StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray, Memory* memory)
 {
-	StackMapTable* attribute = (StackMapTable*) memory->classAlloc(sizeof(StackMapTable));
+	StackMapTableAttribute* attribute = (StackMapTableAttribute*) memory->classAlloc(sizeof(StackMapTableAttribute));
 
 	uint16_t numberOfEntries = byteArray.readUnsignedShort();
 	attribute->entriesCount = numberOfEntries;
@@ -70,6 +70,7 @@ StackMapTable* AttributeParser::readStackMapTable(ByteArray& byteArray, Memory* 
 		else if (frameType >= 252 && frameType <= 254) {
 			// append frame
 			AppendFrame* frame = (AppendFrame*)memory->classAlloc(sizeof(AppendFrame));
+			frame->frameType = frameType;
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			frame->offsetDelta = offsetDelta;
 			uint16_t numberOfLocals = frameType - 251;
@@ -82,6 +83,7 @@ StackMapTable* AttributeParser::readStackMapTable(ByteArray& byteArray, Memory* 
 		else if (frameType == 255) {
 			// full frame
 			FullFrame* frame = (FullFrame*) memory->classAlloc(sizeof(FullFrame));
+			frame->frameType = frameType;
 
 			uint16_t offsetDelta = byteArray.readUnsignedShort();
 			
@@ -246,6 +248,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			AttributeInfo* attribute = readStackMapTable(byteArray, memory);
 			attribute->attributeLength = attributeLength;
 			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->type = StackMapTable;
 			attributes[currentAttrib] = attribute;
 		}
 		else {

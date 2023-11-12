@@ -16,7 +16,8 @@ enum AttributeType {
 	Code,
 	SourceFile,
 	LineNumberTable,
-	LocalVariableTable
+	LocalVariableTable,
+	StackMapTable
 };
 
 struct AttributeInfo {
@@ -120,7 +121,7 @@ struct FullFrame : public StackMapFrame {
 	VerificationTypeInfo* stack;
 };
 
-struct StackMapTable : public AttributeInfo {
+struct StackMapTableAttribute : public AttributeInfo {
 	uint16_t entriesCount; // Number of stack_map_frame entries
 	StackMapFrame** entries;
 };

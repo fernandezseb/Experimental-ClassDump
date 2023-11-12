@@ -27,4 +27,11 @@ void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPo
 			printf("   %-10s\n", cp->getString(entry.descriptorIndex));
 		}
 	}
+	else if (attribute->type == StackMapTable) {
+		StackMapTableAttribute* att = (StackMapTableAttribute*)attribute;
+		printf("        number_of_entries = %" PRIu16"\n", att->entriesCount);
+		for (uint16_t currentFrame = 0; currentFrame < att->entriesCount; ++currentFrame) {
+			printf("          frame_type = %" PRIu16 "\n", att->entries[currentFrame]->frameType);
+		}
+	}
 }
