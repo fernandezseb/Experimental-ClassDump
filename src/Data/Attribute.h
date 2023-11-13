@@ -102,6 +102,7 @@ struct SameFrame : public StackMapFrame {
 };
 
 struct SameLocals1StackItemFrame : public StackMapFrame {
+	uint16_t offsetDelta;
 	VerificationTypeInfo stack;
 };
 

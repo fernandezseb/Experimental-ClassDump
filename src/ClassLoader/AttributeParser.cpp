@@ -38,6 +38,7 @@ StackMapTableAttribute* AttributeParser::readStackMapTable(ByteArray& byteArray,
 			SameLocals1StackItemFrame* frame = (SameLocals1StackItemFrame*)memory->classAlloc(sizeof(SameLocals1StackItemFrame));
 			frame->frameType = SameLocals1StackItemFrameType;
 			frame->stack = readVerificationTypeInfo(byteArray);
+			frame->offsetDelta = frameType - 64;
 
 			stackMapFrame = frame;
 		}

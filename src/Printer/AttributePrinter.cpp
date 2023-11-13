@@ -114,6 +114,41 @@ void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPo
 				printf("%*cframe_type = %" PRIu8 " /* same */\n", indentSize + 2, ' ', frame->offsetDelta);
 				break;
 			}
+			case SameLocals1StackItemFrameType: {
+				SameLocals1StackItemFrame* frame = (SameLocals1StackItemFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* same_locals_1_stack_item_frame */\n", indentSize + 2, ' ', frame->offsetDelta);
+				printf("%*cstack = ", indentSize + 4, ' ');
+				printVerificationList(&frame->stack, 1, cp);
+				break;
+			}
+			case SameLocals1StackItemFrameExtendedType: {
+				SameLocals1StackItemFrame* frame = (SameLocals1StackItemFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* same_locals_1_stack_item_extended_frame */\n", indentSize + 2, ' ', frame->offsetDelta);
+				printf("%*cstack = ", indentSize + 4, ' ');
+				printVerificationList(&frame->stack, 1, cp);
+				break;
+			}
+			case ChopFrameType: {
+				ChopFrame* frame = (ChopFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* chop_frame */\n", indentSize + 2, ' ', frame->offsetDelta);
+				// TODO: Also print the K value?
+				break;
+			}
+			case SameFrameExtendedType: {
+				SameFrameExtended* frame = (SameFrameExtended*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* same_frame_extended */\n", indentSize + 2, ' ', frame->offsetDelta);
+				break;
+			}
+			case AppendFrameType: {
+				AppendFrame* frame = (AppendFrame*)att->entries[currentFrame];
+				printf("%*cframe_type = %" PRIu8 " /* append_frame */\n", indentSize + 2, ' ', frame->offsetDelta);
+				// TODO: Also print the k value?
+				break;
+			}
+			default: {
+				fprintf(stderr, "Error: Unknown frame type detected.\n");
+				Platform::ExitProgram(-5);
+			}
 			}
 		}
 	}
