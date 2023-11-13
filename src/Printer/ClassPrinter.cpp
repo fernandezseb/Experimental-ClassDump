@@ -305,6 +305,19 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	joinStrings((char**)flags, currentIndex, ", ", 300, buffer);
 	printf("%s\n", buffer);
 
+	for (uint16_t currentAttribute = 0; currentAttribute < fieldInfo->attributes->attributesCount; ++currentAttribute)
+	{
+		uint16_t nameIndex = fieldInfo->attributes->attributes[currentAttribute]->attributeNameIndex;
+		char* name = cp->getString(nameIndex);
+		
+		if (strcmp(name, "ConstantValue") == 0) {
+			AttributeConstantValue* att = (AttributeConstantValue*)fieldInfo->attributes->attributes[currentAttribute];
+			char ctBuffer[100] = {0};
+			PrintUtils::printResolvedInline(ctBuffer, cp->constants[att->constantValueIndex - 1], cp);
+			printf("    ConstantValue: %s\n", ctBuffer);
+			break;
+		}
+	}
 
 	printf("\n");
 }

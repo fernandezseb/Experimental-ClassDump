@@ -254,6 +254,14 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			attribute->type = StackMapTable;
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "ConstantValue") == 0) {
+			AttributeConstantValue* attribute = (AttributeConstantValue*)memory->alloc(sizeof(AttributeConstantValue));
+			attribute->type = ConstantValue;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->constantValueIndex = byteArray.readUnsignedShort();
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
