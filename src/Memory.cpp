@@ -10,7 +10,7 @@ Memory::~Memory()
 	Platform::FreeMemory(classMemory);
 }
 
-void* Memory::classAlloc(size_t size)
+void* Memory::alloc(size_t size)
 {
 	if (ptr + size > this->size) {
 		fprintf(stderr, "Out of memory\n");

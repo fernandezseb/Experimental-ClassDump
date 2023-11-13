@@ -293,7 +293,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 	printf("    descriptor: %s\n", descriptor);
 	printf("    flags: ");
 
-	const char** flags = (const char**)memory->classAlloc(9 * sizeof(char*));
+	const char** flags = (const char**)memory->alloc(9 * sizeof(char*));
 	int currentIndex = 0;
 	for (auto const& flag : accessFlagsField) {
 		if ((flag & fieldInfo->accessFlags) != 0) {
@@ -331,13 +331,13 @@ void ClassPrinter::printMethodSignature(
 	}
 	printf("(");
 
-	char** args = (char**) memory->classAlloc(sizeof(char*) * methodInfo->argsCount);
+	char** args = (char**) memory->alloc(sizeof(char*) * methodInfo->argsCount);
 	for (int currentArg = 0; currentArg < methodInfo->argsCount; ++currentArg) {
 		const char* arg = methodInfo->args[currentArg];
 		char typeBuffer[300] = { 0 };
 		getAsExternalReturnType((char*)arg, typeBuffer);
 		size_t size = strlen(typeBuffer) + 1;
-		char* argPtr = (char*) memory->classAlloc(strlen(typeBuffer) + 1);
+		char* argPtr = (char*) memory->alloc(strlen(typeBuffer) + 1);
 		memcpy(argPtr, typeBuffer, size);
 		args[currentArg] = argPtr;
 	}
@@ -380,7 +380,7 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
 	printf("    flags: ");
-	const char** flags = (const char**)memory->classAlloc(12 * sizeof(char*));
+	const char** flags = (const char**)memory->alloc(12 * sizeof(char*));
 	int currentIndex = 0;
 	for (auto const& flag : accessFlagsMethod) {
 		if ((flag & methodInfo->accessFlags) != 0) {
@@ -491,7 +491,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	if (classInfo.interfacesCount > 0) {
 		printf(" implements ");
 
-		char** names = (char**) memory->classAlloc(sizeof(char*) * classInfo.interfacesCount);
+		char** names = (char**) memory->alloc(sizeof(char*) * classInfo.interfacesCount);
 
 		for (size_t currentIndex = 0; currentIndex < classInfo.interfacesCount; ++currentIndex) {
 			uint16_t index = classInfo.interfaces[currentIndex];
@@ -512,7 +512,7 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 	printf("  major version: %" PRIu16 "\n", classInfo.majorVersion);
 	
 	printf("  flags: ");
-	const char** flags = (const char**)memory->classAlloc(8 * sizeof(char*));
+	const char** flags = (const char**)memory->alloc(8 * sizeof(char*));
 	int currentIndex = 0;
 	for (auto const& flag : accessFlagsClass) {
 		if ((flag & classInfo.accessFlags) != 0) {

@@ -17,13 +17,13 @@ void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
 
 ConstantPool* ClassLoader::readConstantPool(ByteArray& byteArray)
 {
-    ConstantPool* constantPool = (ConstantPool*)memory->classAlloc(sizeof(ConstantPool));
+    ConstantPool* constantPool = (ConstantPool*)memory->alloc(sizeof(ConstantPool));
 
     uint16_t cpCount = byteArray.readUnsignedShort();
 
     uint16_t arrCount = cpCount - 1;
 
-    constantPool->constants = (ConstantPoolItem**) memory->classAlloc(sizeof(ConstantPoolItem*) * arrCount);
+    constantPool->constants = (ConstantPoolItem**) memory->alloc(sizeof(ConstantPoolItem*) * arrCount);
     constantPool->size = arrCount;
 
     for (uint32_t currentConstantIndex = 0; currentConstantIndex < arrCount; currentConstantIndex++) {
@@ -53,7 +53,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPMethodRef* methodRef = (CPMethodRef*)memory->classAlloc(sizeof(CPMethodRef));
+        CPMethodRef* methodRef = (CPMethodRef*)memory->alloc(sizeof(CPMethodRef));
         methodRef->tag = tag;
         methodRef->classIndex = classIndex;
         methodRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -64,7 +64,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
         
-        CPClassInfo* classInfo = (CPClassInfo*)memory->classAlloc(sizeof(CPClassInfo));
+        CPClassInfo* classInfo = (CPClassInfo*)memory->alloc(sizeof(CPClassInfo));
         classInfo->tag = tag;
         classInfo->nameIndex = nameIndex;
         
@@ -75,10 +75,10 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t size = byteArray.readUnsignedShort();
         uint16_t strBytes = size * sizeof(uint8_t) + 1u;
-        uint8_t* buffer = (uint8_t*)memory->classAlloc(strBytes);
+        uint8_t* buffer = (uint8_t*)memory->alloc(strBytes);
         byteArray.copyBytes(buffer, size);
         buffer[strBytes - 1] = '\0';
-        CPUTF8Info* itemUtf8 = (CPUTF8Info*)memory->classAlloc(sizeof(CPUTF8Info));
+        CPUTF8Info* itemUtf8 = (CPUTF8Info*)memory->alloc(sizeof(CPUTF8Info));
         itemUtf8->tag = tag;
         itemUtf8->length = strBytes;
         itemUtf8->bytes = buffer;
@@ -89,7 +89,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
-        CPNameAndTypeInfo* nameAndtype = (CPNameAndTypeInfo*)memory->classAlloc(sizeof(CPNameAndTypeInfo));
+        CPNameAndTypeInfo* nameAndtype = (CPNameAndTypeInfo*)memory->alloc(sizeof(CPNameAndTypeInfo));
         nameAndtype->tag = tag;
         nameAndtype->nameIndex = nameIndex;
         nameAndtype->descriptorIndex = descriptorIndex;
@@ -99,7 +99,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     case CT_STRING:
     {
         uint16_t stringIndex = byteArray.readUnsignedShort();
-        CPStringInfo* stringInfo = (CPStringInfo*)memory->classAlloc(sizeof(CPStringInfo));
+        CPStringInfo* stringInfo = (CPStringInfo*)memory->alloc(sizeof(CPStringInfo));
         stringInfo->tag = tag;
         stringInfo->stringIndex = stringIndex;
         item = stringInfo;
@@ -110,7 +110,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPFieldRef* fieldRef = (CPFieldRef*)memory->classAlloc(sizeof(CPFieldRef));
+        CPFieldRef* fieldRef = (CPFieldRef*)memory->alloc(sizeof(CPFieldRef));
         fieldRef->tag = tag;
         fieldRef->classIndex = classIndex;
         fieldRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -122,7 +122,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         // TODO: De-duplicate from methodref
         uint16_t classIndex = byteArray.readUnsignedShort();
         uint16_t nameAndTypeIndex = byteArray.readUnsignedShort();
-        CPInterfaceRef* interfaceRef = (CPInterfaceRef*)memory->classAlloc(sizeof(CPInterfaceRef));
+        CPInterfaceRef* interfaceRef = (CPInterfaceRef*)memory->alloc(sizeof(CPInterfaceRef));
         interfaceRef->tag = tag;
         interfaceRef->classIndex = classIndex;
         interfaceRef->nameAndTypeIndex = nameAndTypeIndex;
@@ -133,7 +133,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         // TODO: Parse the int as the correct type
         uint32_t intBytes = byteArray.readUnsignedInt();
-        CPIntegerInfo* integerInfo = (CPIntegerInfo*)memory->classAlloc(sizeof(CPIntegerInfo));
+        CPIntegerInfo* integerInfo = (CPIntegerInfo*)memory->alloc(sizeof(CPIntegerInfo));
         integerInfo->tag = tag;
         integerInfo->bytes = intBytes;
         item = integerInfo;
@@ -143,7 +143,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         // TODO: Parse the int as the correct type
         uint32_t floatBytes = byteArray.readUnsignedInt();
-        CPFloatInfo* floatInfo = (CPFloatInfo*)memory->classAlloc(sizeof(CPFloatInfo));
+        CPFloatInfo* floatInfo = (CPFloatInfo*)memory->alloc(sizeof(CPFloatInfo));
         floatInfo->tag = tag;
         floatInfo->bytes = floatBytes;
         item = floatInfo;
@@ -153,7 +153,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        CPLongInfo* longInfo = (CPLongInfo*)memory->classAlloc(sizeof(CPLongInfo));
+        CPLongInfo* longInfo = (CPLongInfo*)memory->alloc(sizeof(CPLongInfo));
         longInfo->tag = tag;
         longInfo->highBytes = highBytes;
         longInfo->lowBytes = lowBytes;
@@ -164,7 +164,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     {
         uint32_t highBytes = byteArray.readUnsignedInt();
         uint32_t lowBytes = byteArray.readUnsignedInt();
-        CPDoubleInfo* doubleInfo = (CPDoubleInfo*)memory->classAlloc(sizeof(CPDoubleInfo));
+        CPDoubleInfo* doubleInfo = (CPDoubleInfo*)memory->alloc(sizeof(CPDoubleInfo));
         doubleInfo->tag = tag;
         doubleInfo->highBytes = highBytes;
         doubleInfo->lowBytes = lowBytes;
@@ -184,7 +184,7 @@ ClassInfo* ClassLoader::readClass(ByteArray& byteArray)
 {
     checkMagicNumber(byteArray);
 
-    ClassInfo* classInfo = (ClassInfo*) memory->classAlloc(sizeof(ClassInfo));
+    ClassInfo* classInfo = (ClassInfo*) memory->alloc(sizeof(ClassInfo));
 
     classInfo->minorVersion = byteArray.readUnsignedShort();
     classInfo->majorVersion = byteArray.readUnsignedShort();
@@ -228,7 +228,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 
     ClassInfo* classInfo = readClass(byteArray);
     classInfo->memory = this->memory;
-    char* path = (char*)this->memory->classAlloc(500);
+    char* path = (char*)this->memory->alloc(500);
     Platform::getFullPath(file, path);
     // TODO: Resize path string memory
     classInfo->filePath = path;
@@ -247,7 +247,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
 
 uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesCount)
 {
-    uint16_t* interfaces = (uint16_t*) memory->classAlloc(sizeof(uint16_t) * interfacesCount);
+    uint16_t* interfaces = (uint16_t*) memory->alloc(sizeof(uint16_t) * interfacesCount);
 
     for (uint16_t currentInterface = 0; currentInterface < interfacesCount; currentInterface++) {
         uint16_t interfaceIndex = byteArray.readUnsignedShort();
@@ -259,14 +259,14 @@ uint16_t* ClassLoader::readInterfaces(ByteArray& byteArray, uint16_t interfacesC
 
 FieldInfo** ClassLoader::readFields(ByteArray& byteArray, ConstantPool* constantPool, uint16_t fieldsCount)
 {
-    FieldInfo** fields = (FieldInfo**)memory->classAlloc(sizeof(FieldInfo*) * fieldsCount);
+    FieldInfo** fields = (FieldInfo**)memory->alloc(sizeof(FieldInfo*) * fieldsCount);
 
     for (uint16_t currentField = 0; currentField < fieldsCount; ++currentField) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
         AttributeCollection* attributeInfo = AttributeParser::readAttributes(byteArray, constantPool, memory);
-        FieldInfo* fieldInfo = (FieldInfo*) memory->classAlloc(sizeof(FieldInfo));
+        FieldInfo* fieldInfo = (FieldInfo*) memory->alloc(sizeof(FieldInfo));
         fieldInfo->accessFlags = accessFlags;
         fieldInfo->descriptorIndex = descriptorIndex;
         fieldInfo->nameIndex = nameIndex;
@@ -289,14 +289,14 @@ void ClassLoader::parseDescriptor(const char* descriptor, MethodInfo* method)
 
 MethodInfo** ClassLoader::readMethods(ByteArray& byteArray, ConstantPool* constantPool, uint16_t methodCount)
 {
-    MethodInfo** methods = (MethodInfo**)memory->classAlloc(sizeof(MethodInfo*) * methodCount);
+    MethodInfo** methods = (MethodInfo**)memory->alloc(sizeof(MethodInfo*) * methodCount);
 
     for (uint16_t currentMethod = 0; currentMethod < methodCount; ++currentMethod) {
         uint16_t accessFlags = byteArray.readUnsignedShort();
         uint16_t nameIndex = byteArray.readUnsignedShort();
         uint16_t descriptorIndex = byteArray.readUnsignedShort();
         AttributeCollection* attributes = AttributeParser::readAttributes(byteArray, constantPool, memory);
-        MethodInfo* info = (MethodInfo*) memory->classAlloc(sizeof(MethodInfo));
+        MethodInfo* info = (MethodInfo*) memory->alloc(sizeof(MethodInfo));
         info->accessFlags = accessFlags;
         info->nameIndex = nameIndex;
         info->descriptorIndex = descriptorIndex;

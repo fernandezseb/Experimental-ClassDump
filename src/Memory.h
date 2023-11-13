@@ -13,7 +13,7 @@ public:
 
 	~Memory();
 
-	void* classAlloc(size_t size);
+	void* alloc(size_t size);
 
 	void printSize();
 };

@@ -47,7 +47,7 @@ char** DescriptorParser::getTypes(char* descriptorPart, uint16_t partLength, uin
 {
 
 	uint16_t argsCount = getDescriptorArgsCount(descriptorPart, partLength);
-	char** parts = (char**) memory->classAlloc(sizeof(char*)*argsCount);
+	char** parts = (char**) memory->alloc(sizeof(char*)*argsCount);
 
 	uint16_t i = 0;
 	*size = 0;
@@ -60,7 +60,7 @@ char** DescriptorParser::getTypes(char* descriptorPart, uint16_t partLength, uin
 			char* semiColonLocation = strchr(&descriptorPart[i], ';');
 			size_t classLength = semiColonLocation - &descriptorPart[i]+1;
 
-			char* classStr = (char*) memory->classAlloc(classLength+1 + arrayCount);
+			char* classStr = (char*) memory->alloc(classLength+1 + arrayCount);
 			memcpy(&classStr[arrayCount], &descriptorPart[i], classLength);
 			classStr[arrayCount+classLength] = 0;
 			for (int currentArr = 0; currentArr < arrayCount; ++currentArr) {
@@ -77,7 +77,7 @@ char** DescriptorParser::getTypes(char* descriptorPart, uint16_t partLength, uin
 			++i;
 		}
 		else {
-			char* arg = (char*) memory->classAlloc(2 + arrayCount);
+			char* arg = (char*) memory->alloc(2 + arrayCount);
 			arg[arrayCount + 0] = c;
 			arg[arrayCount + 1] = 0;
 			for (int currentArr = 0; currentArr < arrayCount; ++currentArr) {

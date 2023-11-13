@@ -157,7 +157,7 @@ void CodePrinter::printCode(
 				printf("%12s%-13s", indexStr, instruction.name);
 				uint8_t* args = 0;
 				if (instruction.args > 0) {
-					args = (uint8_t*)memory->classAlloc(instruction.args);
+					args = (uint8_t*)memory->alloc(instruction.args);
 					byteArray.copyBytes(args, instruction.args);
 				}
 				if (instruction.printFunction != NULL) {
