@@ -262,6 +262,19 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			attribute->constantValueIndex = byteArray.readUnsignedShort();
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "Exceptions") == 0) {
+			ExceptionsAttribute* attribute = (ExceptionsAttribute*)memory->alloc(sizeof(ExceptionsAttribute));
+			attribute->type = Exceptions;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->exceptionsCount = byteArray.readUnsignedShort();
+			attribute->exceptionsIndexTable = (uint16_t*)memory->alloc(sizeof(uint16_t) * attribute->exceptionsCount);
+
+			for (uint16_t currentException = 0; currentException < attribute->exceptionsCount; ++currentException) {
+				attribute->exceptionsIndexTable[currentException] = byteArray.readUnsignedShort();
+			}
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);

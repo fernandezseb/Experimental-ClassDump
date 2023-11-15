@@ -1,5 +1,16 @@
 #include "AttributePrinter.h"
 
+static inline void binaryClassToExternalCopy(const char* className, char* output)
+{
+	size_t size = strlen(className);
+	memcpy(output, className, size + 1);
+	for (int currentCharacter = 0; currentCharacter < size; ++currentCharacter) {
+		if (output[currentCharacter] == '/') {
+			output[currentCharacter] = '.';
+		}
+	}
+}
+
 void AttributePrinter::printVerificationList(VerificationTypeInfo* list, uint16_t size, const ConstantPool* cp)
 {
 
@@ -150,6 +161,17 @@ void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPo
 				Platform::ExitProgram(-5);
 			}
 			}
+		}
+	}
+	else if (attribute->type == Exceptions) {
+		ExceptionsAttribute* att = (ExceptionsAttribute*)attribute;
+		uint8_t indentSize = 4;
+		printf("%*cExceptions:\n", indentSize, ' ');
+		for (uint16_t currentException = 0; currentException < att->exceptionsCount; ++currentException) {
+			char* className = cp->getString(cp->getClassInfo(att->exceptionsIndexTable[currentException])->nameIndex);
+			char buffer[100] = { 0 };
+			binaryClassToExternalCopy(className, buffer);
+			printf("%*cthrows %s\n", indentSize+2, ' ', buffer);
 		}
 	}
 }

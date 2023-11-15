@@ -360,7 +360,7 @@ void ClassPrinter::printMethodSignature(
 		args, methodInfo->argsCount, ",", 200, output);
 	printf("%s", output);
 
-	printf(");\n");
+	printf(");\n"); // TODO: Add printing of checked exceptions
 }
 
 void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& classInfo, const char* className, const ConstantPool* cp, Memory* memory)
@@ -411,6 +411,9 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	else {
 		printf("    Code: \n");
 		codePrinter.printCode(methodInfo->code, methodInfo, cp, memory);
+	}
+	for (uint16_t currentAttrib = 0; currentAttrib < methodInfo->attributes->attributesCount; ++currentAttrib) {
+		AttributePrinter::printAttribute(methodInfo->attributes->attributes[currentAttrib], cp);
 	}
 	printf("\n");
 }

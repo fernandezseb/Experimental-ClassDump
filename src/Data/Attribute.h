@@ -17,7 +17,8 @@ enum AttributeType : uint8_t {
 	SourceFile,
 	LineNumberTable,
 	LocalVariableTable,
-	StackMapTable
+	StackMapTable,
+	Exceptions
 };
 
 struct AttributeInfo {
@@ -137,4 +138,9 @@ struct FullFrame : public StackMapFrame {
 struct StackMapTableAttribute : public AttributeInfo {
 	uint16_t entriesCount; // Number of stack_map_frame entries
 	StackMapFrame** entries;
+};
+
+struct ExceptionsAttribute : public AttributeInfo {
+	uint16_t exceptionsCount;
+	uint16_t* exceptionsIndexTable;
 };
