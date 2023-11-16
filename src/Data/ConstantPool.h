@@ -101,6 +101,20 @@ struct CPStringInfo : public ConstantPoolItem {
 	uint16_t stringIndex;
 };
 
+struct CPInvokeDynamicInfo : public ConstantPoolItem {
+	uint16_t bootstrapMethodAttrIndex;
+	uint16_t nameAndTypeIndex;
+};
+
+struct CPMethodHandleInfo : public ConstantPoolItem {
+	uint8_t referenceKind;
+	uint16_t referenceIndex;
+};
+
+struct CPMethodTypeInfo : public ConstantPoolItem {
+	uint16_t descriptorIndex;
+};
+
 class ConstantPool {
 private:
 	void checkIndex(uint16_t index) const;

@@ -18,7 +18,9 @@ enum AttributeType : uint8_t {
 	LineNumberTable,
 	LocalVariableTable,
 	StackMapTable,
-	Exceptions
+	Exceptions,
+	InnerClasses,
+	BootstrapMethods
 };
 
 struct AttributeInfo {
@@ -143,4 +145,27 @@ struct StackMapTableAttribute : public AttributeInfo {
 struct ExceptionsAttribute : public AttributeInfo {
 	uint16_t exceptionsCount;
 	uint16_t* exceptionsIndexTable;
+};
+
+struct InnerClass {
+	uint16_t innerClassInfoIndex;
+	uint16_t outerClassInfoIndex;
+	uint16_t innerNameIndex;
+	uint16_t innerClassAccessFlags;
+};
+
+struct InnerClassesAttribute : public AttributeInfo {
+	uint16_t numberOfClasses;
+	InnerClass* classes;
+};
+
+struct BootstrapMethod {
+	uint16_t bootstrapMethodRef;
+	uint16_t numberofBootstrapArguments;
+	uint16_t *bootstrapArguments;
+};
+
+struct BootstrapMethodsAttribute : public AttributeInfo {
+	uint16_t numberOfBootstrapMethods;
+	BootstrapMethod* bootstrapMethods;
 };

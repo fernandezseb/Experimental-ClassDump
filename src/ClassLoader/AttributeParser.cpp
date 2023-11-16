@@ -275,6 +275,45 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			}
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "InnerClasses") == 0) {
+			InnerClassesAttribute* attribute = (InnerClassesAttribute*)memory->alloc(sizeof(InnerClassesAttribute));
+			attribute->type = InnerClasses;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->numberOfClasses = byteArray.readUnsignedShort();
+			attribute->classes = (InnerClass*)memory->alloc(sizeof(InnerClass) * attribute->numberOfClasses);
+
+			for (uint16_t currentInnerClass = 0; currentInnerClass < attribute->numberOfClasses; ++currentInnerClass) {
+				attribute->classes[currentInnerClass].innerClassInfoIndex = byteArray.readUnsignedShort();
+				attribute->classes[currentInnerClass].outerClassInfoIndex = byteArray.readUnsignedShort();
+				attribute->classes[currentInnerClass].innerNameIndex = byteArray.readUnsignedShort();
+				attribute->classes[currentInnerClass].innerClassAccessFlags = byteArray.readUnsignedShort();
+			}
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "BootstrapMethods") == 0) {
+			BootstrapMethodsAttribute* attribute = (BootstrapMethodsAttribute*)memory->alloc(sizeof(BootstrapMethodsAttribute));
+			attribute->type = BootstrapMethods;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->numberOfBootstrapMethods = byteArray.readUnsignedShort();
+			attribute->bootstrapMethods = (BootstrapMethod*)memory->alloc(sizeof(BootstrapMethod) * attribute->numberOfBootstrapMethods);
+
+			for (uint16_t currentBootstrapMethod = 0; currentBootstrapMethod < attribute->numberOfBootstrapMethods; ++currentBootstrapMethod) {
+				attribute->bootstrapMethods[currentBootstrapMethod].bootstrapMethodRef = byteArray.readUnsignedShort();
+				attribute->bootstrapMethods[currentBootstrapMethod].numberofBootstrapArguments = byteArray.readUnsignedShort();
+				uint16_t bootstrapArgumentsCount = attribute->bootstrapMethods[currentBootstrapMethod].numberofBootstrapArguments;
+				attribute->bootstrapMethods[currentBootstrapMethod].bootstrapArguments = (uint16_t*) memory->alloc(sizeof(uint16_t) * bootstrapArgumentsCount);
+
+				uint16_t* args = attribute->bootstrapMethods[currentBootstrapMethod].bootstrapArguments;
+	
+				for (uint16_t currentArgument = 0; currentArgument < bootstrapArgumentsCount; ++currentArgument) {
+					args[currentArgument] = byteArray.readUnsignedShort();
+				}
+
+			}
+			attributes[currentAttrib] = attribute;
+			}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);

@@ -50,6 +50,10 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		uint8_t byte2 = args[i + 1];
 
 		uint16_t shortIndex = (byte1 << 8) | byte2;
+		if (shortIndex <= 0) {
+			fprintf(stderr, "Invalid index in CP\n");
+			Platform::ExitProgram(1);
+		}
 		ConstantPoolItem* item = cp->constants[shortIndex - 1];
 		if (item != 0) {
 			char buffer[300] = {0};
@@ -57,6 +61,18 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 			printf(" %s", buffer);
 		}
 	}
+}
+
+void InvokeDynamicPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
+{
+	uint8_t byte1 = args[0];
+	uint8_t byte2 = args[1];
+
+	uint16_t shortIndex = (byte1 << 8) | byte2;
+
+	char indexStr[6];
+	sprintf(indexStr, " #%" PRIu16, shortIndex);
+	printf("%-25s", indexStr);
 }
 
 void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)

@@ -206,6 +206,8 @@ inline const char* ClassPrinter::flagToKeyword(AccessFlag flag) {
 		return ACC_VOLATILE_KEYWORD;
 	case ACC_TRANSIENT:
 		return ACC_TRANSIENT_KEYWORD;
+	case ACC_SYNTHETIC:
+		return "";
 	}
 }
 
@@ -378,8 +380,7 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 		ACC_VARARGS,
 		ACC_NATIVE,
 		ACC_ABSTRACT,
-		ACC_STRICT, 
-		ACC_SYNTHETIC
+		ACC_STRICT
 	};
 
 	for (auto const& flag : accessFlagsMethod) {
@@ -393,7 +394,7 @@ void ClassPrinter::printMethod(const MethodInfo* methodInfo, const ClassInfo& cl
 	printf("    descriptor: %s\n", cp->getString(methodInfo->descriptorIndex));
 
 	printf("    flags: ");
-	const char** flags = (const char**)memory->alloc(12 * sizeof(char*));
+	const char** flags = (const char**)memory->alloc(50 * sizeof(char*));
 	int currentIndex = 0;
 	for (auto const& flag : accessFlagsMethod) {
 		if ((flag & methodInfo->accessFlags) != 0) {

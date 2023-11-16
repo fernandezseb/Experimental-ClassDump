@@ -171,9 +171,36 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         item = doubleInfo;
         break;
     }
+    case CT_INVOKEDYNAMIC:
+    {
+        CPInvokeDynamicInfo* idInfo = (CPInvokeDynamicInfo*)memory->alloc(sizeof(CPInvokeDynamicInfo));
+        idInfo->tag = tag;
+        idInfo->bootstrapMethodAttrIndex = byteArray.readUnsignedShort();
+        idInfo->nameAndTypeIndex = byteArray.readUnsignedShort();
+        item = idInfo;
+        break;
+    }
+    case CT_METHODHANDLE:
+    {
+        CPMethodHandleInfo* handleInfo = (CPMethodHandleInfo*)memory->alloc(sizeof(CPMethodHandleInfo));
+        handleInfo->tag = tag;
+        handleInfo->referenceKind = byteArray.readUnsignedByte();
+        handleInfo->referenceIndex = byteArray.readUnsignedShort();
+        item = handleInfo;
+        break;
+    }
+    case CT_METHODTYPE:
+    {
+        CPMethodTypeInfo* handleInfo = (CPMethodTypeInfo*)memory->alloc(sizeof(CPMethodTypeInfo));
+        handleInfo->tag = tag;
+        handleInfo->descriptorIndex = byteArray.readUnsignedShort();
+        item = handleInfo;
+        break;
+    }
     default:
     {
         fprintf(stderr, "Error: Unidentified constant pool item detected with tag: %" PRIu8 "\n", tag);
+        Platform::ExitProgram(-5);
     }
     }
 

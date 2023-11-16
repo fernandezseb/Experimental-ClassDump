@@ -19,6 +19,7 @@ void SignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp
 void UnsignedBytePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
 
 void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
+void InvokeDynamicPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
 void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp);
 
 
@@ -177,7 +178,7 @@ class CodePrinter {
 		{ imul, 0, "imul" },
 		{ ineg, 0, "ineg" },
 		{ instanceof, 2, "instanceof", ShortIndices },
-		{ invokedynamic, 4, "invokedynamic", ShortIndices }, // TODO: Investigate 0 0
+		{ invokedynamic, 4, "invokedynamic", InvokeDynamicPrinter },
 		{ invokeinterface, 4, "invokeinterface", SignedBytePrinter }, // TODO: Investigate
 		{ invokespecial, 2, "invokespecial", ShortIndices },
 		{ ior, 0, "ior" },
