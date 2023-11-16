@@ -7,6 +7,7 @@ struct PlatformFile;
 
 class Platform {
 public:
+	static void* ReserveMemory(size_t size, size_t baseAddress);
 	static void* AllocateMemory(size_t size, size_t baseAddress);
 	static void FreeMemory(void* allocatedMemory);
 	static PlatformFile* getFile(const char* name);
@@ -15,4 +16,5 @@ public:
 	static void getLastModifiedString(PlatformFile* file, char* stringOut);
 	static void closeFile(PlatformFile* file);
 	static void ExitProgram(uint32_t exitCode);
+	static size_t getPageSize();
 };

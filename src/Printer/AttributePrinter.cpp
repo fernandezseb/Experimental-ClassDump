@@ -23,7 +23,7 @@ void AttributePrinter::printVerificationList(VerificationTypeInfo* list, uint16_
 
 	for (uint16_t currentType = 0; currentType < size; ++currentType)
 	{
-		char typeName[100] = { 0 };
+		char typeName[200] = { 0 };
 		VerificationTypeInfo info = list[currentType];
 		switch (info.tag) {
 		case 0: {

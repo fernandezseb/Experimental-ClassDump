@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
         if (strncmp(argv[1], "-v", 2) == 0) {
             printf("ClassDump version %d.%d\n", CLASSDUMP_VERSION_MAJOR, CLASSDUMP_VERSION_MINOR);
         } else {
-            Memory memory(50000);
+            Memory memory(1000, 5 * 1024 * 1024);
             const char* className = argv[1];
 
             ClassLoader classLoader;

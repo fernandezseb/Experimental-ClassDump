@@ -51,7 +51,7 @@ int test2() {
 
 int main(int argc, char* argv[])
 {
-	Memory memory(5000);
+	Memory memory(4096, 4096);
 	int ret = test1();
 
 	if (ret != 0) {

@@ -9,13 +9,24 @@ struct PlatformFile {
 
 };
 
+
+void* Platform::ReserveMemory(size_t size, size_t baseAddress)
+{
+	LPVOID lpBaseAddress = (LPVOID)baseAddress;
+	return VirtualAlloc(
+		lpBaseAddress,
+		size,
+		MEM_RESERVE,
+		PAGE_READWRITE);
+}
+
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 {
 	LPVOID lpBaseAddress = (LPVOID)baseAddress;
 	return VirtualAlloc(
 		lpBaseAddress, 
 		size, 
-		MEM_COMMIT | MEM_RESERVE, 
+		MEM_COMMIT, 
 		PAGE_READWRITE);
 }
 
@@ -123,4 +134,11 @@ void Platform::closeFile(PlatformFile* file)
 void Platform::ExitProgram(uint32_t exitCode)
 {
 	ExitProcess(exitCode);
+}
+
+size_t Platform::getPageSize()
+{
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	return si.dwPageSize;
 }

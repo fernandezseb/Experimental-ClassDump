@@ -8,8 +8,10 @@ public:
 	uint8_t* classMemory;
 	size_t ptr = 0;
 	size_t size;
+	size_t maxSize;
+	size_t pageSize;
 
-	Memory(size_t size);
+	Memory(size_t size, size_t maxSize);
 
 	~Memory();
 

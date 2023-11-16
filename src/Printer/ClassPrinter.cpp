@@ -424,7 +424,7 @@ void ClassPrinter::printConstantPoolItem(uint16_t currentIndex, const ConstantPo
 	if (item == 0) {
 		return;
 	}
-	char indexStr[5];
+	char indexStr[6];
 	sprintf(indexStr, "#%" PRIu16, (currentIndex+1));
 
 	printf("%5s", indexStr);
