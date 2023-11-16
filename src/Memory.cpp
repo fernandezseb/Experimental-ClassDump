@@ -16,12 +16,12 @@ Memory::Memory(size_t size, size_t maxSize)
 	}
 
 	uint8_t* reservedMemory = (uint8_t*)Platform::ReserveMemory(maxSize, 0);
-	classMemory = (uint8_t*)Platform::AllocateMemory(this->size, (size_t)reservedMemory);
+	memoryPtr = (uint8_t*)Platform::AllocateMemory(this->size, (size_t)reservedMemory);
 }
 
 Memory::~Memory()
 {
-	Platform::FreeMemory(classMemory);
+	Platform::FreeMemory(memoryPtr);
 }
 
 void* Memory::alloc(size_t size)
@@ -35,7 +35,7 @@ void* Memory::alloc(size_t size)
 			toAlloc = maxSize - this->size;
 		}
 
-		void* address = Platform::AllocateMemory(toAlloc, ((size_t)classMemory)+this->size);
+		Platform::AllocateMemory(toAlloc, ((size_t)memoryPtr)+this->size);
 		this->size += toAlloc;
 	}
 
@@ -47,7 +47,7 @@ void* Memory::alloc(size_t size)
 
 	size_t oldPtr = ptr;
 	ptr += size;
-	return classMemory + oldPtr;
+	return memoryPtr + oldPtr;
 }
 
 void Memory::printSize()
