@@ -35,7 +35,7 @@ void* Memory::alloc(size_t size)
 			toAlloc = maxSize - this->size;
 		}
 
-		Platform::AllocateMemory(toAlloc, this->size);
+		void* address = Platform::AllocateMemory(toAlloc, ((size_t)classMemory)+this->size);
 		this->size += toAlloc;
 	}
 
