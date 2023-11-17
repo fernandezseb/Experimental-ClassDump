@@ -20,7 +20,9 @@ enum AttributeType : uint8_t {
 	StackMapTable,
 	Exceptions,
 	InnerClasses,
-	BootstrapMethods
+	BootstrapMethods,
+	Deprecated,
+	RuntimeVisibleAnnotations
 };
 
 struct AttributeInfo {
@@ -168,4 +170,43 @@ struct BootstrapMethod {
 struct BootstrapMethodsAttribute : public AttributeInfo {
 	uint16_t numberOfBootstrapMethods;
 	BootstrapMethod* bootstrapMethods;
+};
+
+struct DeprecatedAttribute : public AttributeInfo {};
+
+struct Annotation;
+struct ElementValue;
+
+struct ElementValue {
+	uint8_t tag;
+	union {
+		uint16_t const_value_index;
+		struct {
+			uint16_t type_name_index;
+			uint16_t const_name_index;
+		} enum_const_value;
+		uint16_t class_info_index;
+		Annotation* annotation_value;
+		struct {
+			uint16_t num_values;
+			ElementValue* values;
+		} array_value;
+	} value;
+};
+
+struct ElementValuePair {
+	uint16_t elementNameIndex;
+	ElementValue value;
+};
+
+struct Annotation {
+	uint16_t typeIndex;
+	uint16_t numElementValuePairs;
+	ElementValuePair *elementValuePairs;
+};
+
+
+struct RuntimeVisibleAnnotationsAttribute : public AttributeInfo {
+	uint16_t annotationsCount;
+	Annotation* annotations;
 };

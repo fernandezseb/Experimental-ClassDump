@@ -154,6 +154,79 @@ ExceptionTableEntry* AttributeParser::readExceptionTable(ByteArray& byteArray, u
 	return table;
 }
 
+ElementValue parseElementValue(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory);
+
+static Annotation parseAnnotation(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
+{
+	Annotation annotation;
+	uint16_t typeIndex = byteArray.readUnsignedShort();
+	uint16_t elementValuePairsCount = byteArray.readUnsignedShort();
+	annotation.elementValuePairs = (ElementValuePair*)memory->alloc(sizeof(ElementValuePair) * elementValuePairsCount);
+	for (uint16_t currentElementValuePair = 0;
+		currentElementValuePair < elementValuePairsCount;
+		++currentElementValuePair) {
+		uint16_t elementNameIndex = byteArray.readUnsignedShort();
+		ElementValue value = parseElementValue(byteArray, constantPool, memory);
+		annotation.elementValuePairs[currentElementValuePair].elementNameIndex = elementNameIndex;
+		annotation.elementValuePairs[currentElementValuePair].value = value;
+	}
+	return annotation;
+}
+
+static ElementValue parseElementValue(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
+{
+	ElementValue elementValue = { 0 };
+
+	elementValue.tag = byteArray.readUnsignedByte();
+	char tag = elementValue.tag;
+
+	switch (tag) {
+	case 'B': // byte
+	case 'C': // char
+	case 'D': // double
+	case 'F': // float
+	case 'I': // int
+	case 'J': // long
+	case 'S': // short
+	case 'Z': // boolean
+	case 's': // String
+	{
+		elementValue.value.const_value_index = byteArray.readUnsignedShort();
+		break;
+	}
+	case 'e': // enum type
+	{
+		elementValue.value.enum_const_value.type_name_index = byteArray.readUnsignedShort();
+		elementValue.value.enum_const_value.const_name_index = byteArray.readUnsignedShort();
+		break;
+	}
+	case 'c': // class
+	{
+		elementValue.value.class_info_index = byteArray.readUnsignedShort();
+		break;
+	}
+	case '@': // annotation
+	{
+		Annotation annotation = parseAnnotation(byteArray, constantPool, memory);
+		elementValue.value.annotation_value = (Annotation*)memory->alloc(sizeof(Annotation));
+		*(elementValue.value.annotation_value) = annotation;
+		break;
+	}
+	case '[': // array
+	{
+		uint16_t numValues = byteArray.readUnsignedShort();
+		elementValue.value.array_value.num_values = numValues;
+		elementValue.value.array_value.values = (ElementValue*)memory->alloc(sizeof(ElementValue)*numValues);
+		for (uint16_t currentValue = 0; currentValue < numValues; ++currentValue) {
+			elementValue.value.array_value.values[currentValue] = parseElementValue(byteArray, constantPool, memory);
+		}
+		break;
+	}
+	}
+
+	return elementValue;
+}
+
 AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
 {
 	uint16_t attributesCount = byteArray.readUnsignedShort();
@@ -313,7 +386,36 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			}
 			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "Deprecated") == 0) {
+			DeprecatedAttribute* attribute = (DeprecatedAttribute*)memory->alloc(sizeof(DeprecatedAttribute));
+			attribute->type = Deprecated;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "RuntimeVisibleAnnotations") == 0) {
+			RuntimeVisibleAnnotationsAttribute* attribute = (RuntimeVisibleAnnotationsAttribute*)memory->alloc(sizeof(RuntimeVisibleAnnotationsAttribute));
+			attribute->type = RuntimeVisibleAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->annotationsCount = byteArray.readUnsignedShort();
+			attribute->annotations = (Annotation*)memory->alloc(sizeof(Annotation) * attribute->annotationsCount);
+
+			for (uint16_t currentAnnotation = 0; currentAnnotation < attribute->annotationsCount; ++currentAnnotation) {
+				uint16_t typeIndex = byteArray.readUnsignedShort();
+				uint16_t elementValuePairsCount = byteArray.readUnsignedShort();
+				attribute->annotations[currentAnnotation].elementValuePairs = (ElementValuePair*)memory->alloc(sizeof(ElementValuePair) * elementValuePairsCount);
+				for (uint16_t currentElementValuePair = 0; currentElementValuePair < elementValuePairsCount; ++currentElementValuePair) {
+					uint16_t elementNameIndex = byteArray.readUnsignedShort();
+					ElementValue value = parseElementValue(byteArray, constantPool, memory);
+					attribute->annotations[currentAnnotation].elementValuePairs[currentElementValuePair].elementNameIndex = elementNameIndex;
+					attribute->annotations[currentAnnotation].elementValuePairs[currentElementValuePair].value = value;
+				}
 			}
+
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
