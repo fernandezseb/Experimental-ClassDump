@@ -22,7 +22,8 @@ enum AttributeType : uint8_t {
 	InnerClasses,
 	BootstrapMethods,
 	Deprecated,
-	RuntimeVisibleAnnotations
+	RuntimeVisibleAnnotations,
+	RuntimeInvisibleAnnotations
 };
 
 struct AttributeInfo {
@@ -207,6 +208,11 @@ struct Annotation {
 
 
 struct RuntimeVisibleAnnotationsAttribute : public AttributeInfo {
+	uint16_t annotationsCount;
+	Annotation* annotations;
+};
+
+struct RuntimeInvisibleAnnotationsAttribute : public AttributeInfo {
 	uint16_t annotationsCount;
 	Annotation* annotations;
 };

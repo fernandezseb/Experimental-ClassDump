@@ -416,6 +416,28 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "RuntimeInvisibleAnnotations") == 0) {
+			RuntimeInvisibleAnnotationsAttribute* attribute = (RuntimeInvisibleAnnotationsAttribute*)memory->alloc(sizeof(RuntimeInvisibleAnnotationsAttribute));
+			attribute->type = RuntimeInvisibleAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->annotationsCount = byteArray.readUnsignedShort();
+			attribute->annotations = (Annotation*)memory->alloc(sizeof(Annotation) * attribute->annotationsCount);
+
+			for (uint16_t currentAnnotation = 0; currentAnnotation < attribute->annotationsCount; ++currentAnnotation) {
+				uint16_t typeIndex = byteArray.readUnsignedShort();
+				uint16_t elementValuePairsCount = byteArray.readUnsignedShort();
+				attribute->annotations[currentAnnotation].elementValuePairs = (ElementValuePair*)memory->alloc(sizeof(ElementValuePair) * elementValuePairsCount);
+				for (uint16_t currentElementValuePair = 0; currentElementValuePair < elementValuePairsCount; ++currentElementValuePair) {
+					uint16_t elementNameIndex = byteArray.readUnsignedShort();
+					ElementValue value = parseElementValue(byteArray, constantPool, memory);
+					attribute->annotations[currentAnnotation].elementValuePairs[currentElementValuePair].elementNameIndex = elementNameIndex;
+					attribute->annotations[currentAnnotation].elementValuePairs[currentElementValuePair].value = value;
+				}
+			}
+
+			attributes[currentAttrib] = attribute;
+			}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
