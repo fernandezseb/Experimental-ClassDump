@@ -245,7 +245,7 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			uint8_t* code = (uint8_t*)memory->alloc(sizeof(uint8_t) * codeLength);
 			/*memcpy(code, &bytes[bytePtr], sizeof(uint8_t) * codeLength);
 			bytePtr += codeLength;*/
-			byteArray.copyBytes(code, codeLength);
+			byteArray.readBytes(code, codeLength);
 
 			uint16_t exceptionTableSize;
 			ExceptionTableEntry* exceptions = readExceptionTable(byteArray, &exceptionTableSize, memory);
@@ -461,6 +461,26 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			attribute->attributeLength = attributeLength;
 			attribute->attributeNameIndex = attributeNameIndex;
 			attribute->defaultValue = parseElementValue(byteArray, constantPool, memory);
+
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "EnclosingMethod") == 0) {
+			EnclosingMethodAttribute* attribute = (EnclosingMethodAttribute*)memory->alloc(sizeof(EnclosingMethodAttribute));
+			attribute->type = EnclosingMethod;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->classIndex = byteArray.readUnsignedShort();
+			attribute->methodIndex = byteArray.readUnsignedShort();
+			
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "SourceDebugExtension") == 0) {
+			SourceDebugExtensionAttribute* attribute = (SourceDebugExtensionAttribute*)memory->alloc(sizeof(SourceDebugExtensionAttribute));
+			attribute->type = SourceDebugExtension;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->debugExtension = (uint8_t*)memory->alloc(sizeof(uint8_t) * attributeLength);
+			byteArray.readBytes(attribute->debugExtension, attributeLength);
 
 			attributes[currentAttrib] = attribute;
 		}

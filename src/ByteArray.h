@@ -17,7 +17,7 @@ public:
 	uint32_t readUnsignedInt();
 	int32_t readSignedInt();
 
-	void copyBytes(uint8_t* target, uint64_t size);
+	void readBytes(uint8_t* target, uint64_t size);
 	void setPtr(uint64_t ptr);
 	uint64_t getPtr();
 	bool atEnd();

@@ -33,7 +33,7 @@ int32_t ByteArray::readSignedInt()
 	return (int32_t)value;
 }
 
-void ByteArray::copyBytes(uint8_t* target, uint64_t size)
+void ByteArray::readBytes(uint8_t* target, uint64_t size)
 {
 	memcpy(target, &bytes[bytePtr], sizeof(uint8_t) * size);
 	bytePtr += size;

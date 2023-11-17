@@ -174,7 +174,7 @@ void CodePrinter::printCode(
 				uint8_t* args = 0;
 				if (instruction.args > 0) {
 					args = (uint8_t*)memory->alloc(instruction.args);
-					byteArray.copyBytes(args, instruction.args);
+					byteArray.readBytes(args, instruction.args);
 				}
 				if (instruction.printFunction != NULL) {
 					instruction.printFunction(args, instruction.args, cp);

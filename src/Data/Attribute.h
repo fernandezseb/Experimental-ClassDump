@@ -26,7 +26,9 @@ enum AttributeType : uint8_t {
 	RuntimeInvisibleAnnotations,
 	Synthetic,
 	Signature,
-	AnnotationDefault
+	AnnotationDefault,
+	EnclosingMethod,
+	SourceDebugExtension
 };
 
 struct AttributeInfo {
@@ -228,4 +230,13 @@ struct SignatureAttribute : public AttributeInfo {
 
 struct AnnotationDefaultAttribute : public AttributeInfo {
 	ElementValue defaultValue;
+};
+
+struct EnclosingMethodAttribute : public AttributeInfo {
+	uint16_t classIndex;
+	uint16_t methodIndex;
+};
+
+struct SourceDebugExtensionAttribute : public AttributeInfo {
+	uint8_t* debugExtension;
 };

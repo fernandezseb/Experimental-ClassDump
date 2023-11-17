@@ -76,7 +76,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
         uint16_t size = byteArray.readUnsignedShort();
         uint16_t strBytes = size * sizeof(uint8_t) + 1u;
         uint8_t* buffer = (uint8_t*)memory->alloc(strBytes);
-        byteArray.copyBytes(buffer, size);
+        byteArray.readBytes(buffer, size);
         buffer[strBytes - 1] = '\0';
         CPUTF8Info* itemUtf8 = (CPUTF8Info*)memory->alloc(sizeof(CPUTF8Info));
         itemUtf8->tag = tag;
