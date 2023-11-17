@@ -25,7 +25,8 @@ enum AttributeType : uint8_t {
 	RuntimeVisibleAnnotations,
 	RuntimeInvisibleAnnotations,
 	Synthetic,
-	Signature
+	Signature,
+	AnnotationDefault
 };
 
 struct AttributeInfo {
@@ -223,4 +224,8 @@ struct SyntheticAttribute : public AttributeInfo {};
 
 struct SignatureAttribute : public AttributeInfo {
 	uint16_t signatureIndex;
+};
+
+struct AnnotationDefaultAttribute : public AttributeInfo {
+	ElementValue defaultValue;
 };

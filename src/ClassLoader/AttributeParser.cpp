@@ -455,6 +455,15 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "AnnotationDefault") == 0) {
+			AnnotationDefaultAttribute* attribute = (AnnotationDefaultAttribute*)memory->alloc(sizeof(AnnotationDefaultAttribute));
+			attribute->type = AnnotationDefault;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->defaultValue = parseElementValue(byteArray, constantPool, memory);
+
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
