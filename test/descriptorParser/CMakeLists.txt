@@ -8,7 +8,6 @@ ${PROJECT_SOURCE_DIR}/src/ClassLoader/DescriptorParser.cpp
 ${PROJECT_SOURCE_DIR}/src/Util.h
 ${PROJECT_SOURCE_DIR}/src/Util.cpp
 ${PROJECT_SOURCE_DIR}/src/Platform.h
-${PROJECT_SOURCE_DIR}/src/Memory.cpp
 ${PROJECT_SOURCE_DIR}/src/ByteArray.cpp
 ${PROJECT_SOURCE_DIR}/src/Platform.h)
 

@@ -26,7 +26,6 @@ project(ClassDump
     src/ByteArray.h
     src/ByteArray.cpp
     src/Memory.h
-    src/Memory.cpp
     src/Platform.h
     src/ClassLoader/DescriptorParser.h
     src/ClassLoader/DescriptorParser.cpp 
