@@ -28,7 +28,6 @@ project(ClassDump
     src/Memory.h
     src/Memory.cpp
     src/Platform.h
-    src/WindowsPlatform.cpp
     src/ClassLoader/DescriptorParser.h
     src/ClassLoader/DescriptorParser.cpp 
     src/ClassLoader/AttributeParser.h
@@ -46,10 +45,18 @@ project(ClassDump
     src/Printer/PrintUtils.h
     src/Printer/PrintUtils.cpp)
 
-    add_subdirectory(extern/md5)
+
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)
+    
+    add_subdirectory(extern/md5)
     target_link_directories(${PROJECT_NAME} PRIVATE MD5)
     target_link_libraries(${PROJECT_NAME} MD5)
+ 
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        add_subdirectory(src/Windows)
+        target_link_directories(${PROJECT_NAME} PRIVATE Windows)
+        target_link_libraries(${PROJECT_NAME} Windows)
+    endif()
 
     enable_testing()
     add_subdirectory("test")
