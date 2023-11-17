@@ -437,7 +437,24 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			}
 
 			attributes[currentAttrib] = attribute;
-			}
+		}
+		else if (strcmp(name, "Synthetic") == 0) {
+			SyntheticAttribute* attribute = (SyntheticAttribute*)memory->alloc(sizeof(SyntheticAttribute));
+			attribute->type = Synthetic;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "Signature") == 0) {
+			SignatureAttribute* attribute = (SignatureAttribute*)memory->alloc(sizeof(SignatureAttribute));
+			attribute->type = Synthetic;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->signatureIndex = byteArray.readUnsignedShort();
+
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
