@@ -438,6 +438,50 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "RuntimeVisibleParameterAnnotations") == 0) {
+			RuntimeVisibleParameterAnnotationsAttribute* attribute = (RuntimeVisibleParameterAnnotationsAttribute*)memory->alloc(sizeof(RuntimeVisibleParameterAnnotationsAttribute));
+			attribute->type = RuntimeVisibleParameterAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->numParameters = byteArray.readUnsignedByte();
+			attribute->parameterAnotations = (Annotations*)memory->alloc(sizeof(Annotations) * attribute->numParameters);
+
+			for (uint8_t currentParam = 0; currentParam < attribute->numParameters; ++currentParam) {
+				uint16_t numAnnotations = byteArray.readUnsignedShort();
+				attribute->parameterAnotations[currentParam].numAnnotations = numAnnotations;
+
+				Annotation* annotations = (Annotation*)memory->alloc(sizeof(Annotation) * numAnnotations);
+				for (uint8_t currentAnnotation = 0; currentAnnotation < numAnnotations; ++currentAnnotation) {
+					annotations[currentAnnotation] = parseAnnotation(byteArray, constantPool, memory);
+				}
+				attribute->parameterAnotations[currentParam].annotations = annotations;
+
+			}
+
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, " RuntimeInvisibleParameterAnnotations") == 0) {
+			RuntimeInvisibleParameterAnnotationsAttribute* attribute = (RuntimeInvisibleParameterAnnotationsAttribute*)memory->alloc(sizeof(RuntimeInvisibleParameterAnnotationsAttribute));
+			attribute->type = RuntimeVisibleParameterAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->numParameters = byteArray.readUnsignedByte();
+			attribute->parameterAnotations = (Annotations*)memory->alloc(sizeof(Annotations) * attribute->numParameters);
+
+			for (uint8_t currentParam = 0; currentParam < attribute->numParameters; ++currentParam) {
+				uint16_t numAnnotations = byteArray.readUnsignedShort();
+				attribute->parameterAnotations[currentParam].numAnnotations = numAnnotations;
+
+				Annotation* annotations = (Annotation*)memory->alloc(sizeof(Annotation) * numAnnotations);
+				for (uint8_t currentAnnotation = 0; currentAnnotation < numAnnotations; ++currentAnnotation) {
+					annotations[currentAnnotation] = parseAnnotation(byteArray, constantPool, memory);
+				}
+				attribute->parameterAnotations[currentParam].annotations = annotations;
+
+			}
+
+			attributes[currentAttrib] = attribute;
+		}
 		else if (strcmp(name, "Synthetic") == 0) {
 			SyntheticAttribute* attribute = (SyntheticAttribute*)memory->alloc(sizeof(SyntheticAttribute));
 			attribute->type = Synthetic;

@@ -28,8 +28,6 @@ void* Memory::alloc(size_t size)
 {
 
 	if (ptr + size > this->size) {
-		printf(">> Adding memory <<\n");
-
 		size_t toAlloc = pageSize;
 		if (this->size + pageSize > maxSize) {
 			toAlloc = maxSize - this->size;

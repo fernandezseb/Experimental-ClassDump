@@ -29,7 +29,9 @@ enum AttributeType : uint8_t {
 	AnnotationDefault,
 	EnclosingMethod,
 	SourceDebugExtension,
-	MethodParameters
+	MethodParameters,
+	RuntimeVisibleParameterAnnotations,
+	RuntimeInvisibleParameterAnnotations
 };
 
 struct AttributeInfo {
@@ -251,3 +253,15 @@ struct MethodParametersAttribute : public AttributeInfo {
 	uint8_t parametersCount;
 	Parameter* parameters;
 };
+
+struct Annotations {
+	uint16_t numAnnotations;
+	Annotation* annotations;
+};
+
+struct RuntimeVisibleParameterAnnotationsAttribute : public AttributeInfo {
+	uint8_t numParameters;
+	Annotations* parameterAnotations;
+};
+
+struct RuntimeInvisibleParameterAnnotationsAttribute : RuntimeVisibleParameterAnnotationsAttribute {};
