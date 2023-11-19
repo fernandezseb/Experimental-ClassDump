@@ -28,7 +28,8 @@ enum AttributeType : uint8_t {
 	Signature,
 	AnnotationDefault,
 	EnclosingMethod,
-	SourceDebugExtension
+	SourceDebugExtension,
+	MethodParameters
 };
 
 struct AttributeInfo {
@@ -239,4 +240,14 @@ struct EnclosingMethodAttribute : public AttributeInfo {
 
 struct SourceDebugExtensionAttribute : public AttributeInfo {
 	uint8_t* debugExtension;
+};
+
+struct Parameter {
+	uint16_t nameIndex;
+	uint16_t accessFlags;
+};
+
+struct MethodParametersAttribute : public AttributeInfo {
+	uint8_t parametersCount;
+	Parameter* parameters;
 };

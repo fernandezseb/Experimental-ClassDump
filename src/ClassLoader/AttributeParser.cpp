@@ -484,6 +484,21 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 
 			attributes[currentAttrib] = attribute;
 		}
+		else if (strcmp(name, "MethodParameters") == 0) {
+			MethodParametersAttribute* attribute = (MethodParametersAttribute*)memory->alloc(sizeof(MethodParametersAttribute));
+			attribute->type = SourceDebugExtension;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+			attribute->parametersCount = byteArray.readUnsignedByte();
+			uint8_t paramCount = attribute->parametersCount;
+			attribute->parameters = (Parameter*)memory->alloc(paramCount * sizeof(Parameter));
+			for (uint8_t currentParam = 0; currentParam < paramCount; ++currentParam) {
+				attribute->parameters[currentParam].nameIndex = byteArray.readUnsignedShort();
+				attribute->parameters[currentParam].accessFlags = byteArray.readUnsignedShort();
+			}
+
+			attributes[currentAttrib] = attribute;
+		}
 		else {
 			printf("Error: Attribute parsing not implemented yet for type: %s\n", name);
 			Platform::ExitProgram(1);
