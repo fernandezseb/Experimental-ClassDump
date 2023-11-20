@@ -310,6 +310,30 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 			}
 			attributes[currentAttrib] = att;
 		}
+		else if (strcmp(name, "LocalVariableTypeTable") == 0) {
+			uint16_t localVariableTypeTableLength = byteArray.readUnsignedShort();
+			LocalVariableTypeTableAttribute* att = (LocalVariableTypeTableAttribute*)memory->alloc(sizeof(LocalVariableTypeTableAttribute));
+			att->attributeNameIndex = attributeNameIndex;
+			att->attributeLength = attributeLength;
+			att->size = localVariableTypeTableLength;
+			att->type = LocalVariableTypeTable;
+			att->entries = (LocalVariableTypeTableEntry*)memory->alloc(sizeof(LocalVariableTypeTableEntry) * localVariableTypeTableLength);
+			for (int localVariableTableIndex = 0; localVariableTableIndex < localVariableTypeTableLength; ++localVariableTableIndex) {
+				uint16_t startPc = byteArray.readUnsignedShort();
+				uint16_t length = byteArray.readUnsignedShort();
+				uint16_t nameIndex = byteArray.readUnsignedShort();
+				uint16_t signatureIndex = byteArray.readUnsignedShort();
+				uint16_t index = byteArray.readUnsignedShort();
+				LocalVariableTypeTableEntry entry;
+				entry.startPc = startPc;
+				entry.length = length;
+				entry.nameIndex = nameIndex;
+				entry.signatureIndex = signatureIndex;
+				entry.index = index;
+				att->entries[localVariableTableIndex] = entry;
+			}
+			attributes[currentAttrib] = att;
+		}
 		else if (strcmp(name, "SourceFile") == 0) {
 			uint16_t sourceFileIndex = byteArray.readUnsignedShort();
 			AttributeSourceFile* att = (AttributeSourceFile*) memory->alloc(sizeof(AttributeSourceFile));

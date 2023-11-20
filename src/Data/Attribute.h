@@ -17,6 +17,7 @@ enum AttributeType : uint8_t {
 	SourceFile,
 	LineNumberTable,
 	LocalVariableTable,
+	LocalVariableTypeTable,
 	StackMapTable,
 	Exceptions,
 	InnerClasses,
@@ -89,6 +90,19 @@ struct LocalVariableTableEntry {
 struct AttributeLocalVariableTable : public AttributeInfo {
 	LocalVariableTableEntry* entries;
 	uint16_t size;
+};
+
+struct LocalVariableTypeTableEntry {
+	uint16_t startPc;
+	uint16_t length;
+	uint16_t nameIndex;
+	uint16_t signatureIndex;
+	uint16_t index;
+};
+
+struct LocalVariableTypeTableAttribute : public AttributeInfo {
+	uint16_t size;
+	LocalVariableTypeTableEntry* entries;
 };
 
 struct VerificationTypeInfo {
