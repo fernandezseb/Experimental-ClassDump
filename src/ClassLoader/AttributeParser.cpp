@@ -227,6 +227,143 @@ static ElementValue parseElementValue(ByteArray& byteArray, ConstantPool* consta
 	return elementValue;
 }
 
+static RuntimeVisibleTypeAnnotationsAttribute* parseRuntimeTypeAnnotations(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
+{
+	RuntimeVisibleTypeAnnotationsAttribute* attribute = (RuntimeVisibleTypeAnnotationsAttribute*)memory->alloc(sizeof(RuntimeVisibleTypeAnnotationsAttribute));
+	attribute->type = RuntimeVisibleParameterAnnotations;
+	attribute->numAnnotations = byteArray.readUnsignedShort();
+	attribute->annotations = (TypeAnnotation*)memory->alloc(sizeof(TypeAnnotation) * attribute->numAnnotations);
+
+	for (uint8_t currentAnnotation = 0; currentAnnotation < attribute->numAnnotations; ++currentAnnotation) {
+		TypeAnnotation typeAnnotation;
+
+		uint8_t targetType = byteArray.readUnsignedByte();
+
+		typeAnnotation.targetType = targetType;
+
+		switch (targetType) {
+		case 0x00: // generic class or interface
+		case 0x01: // generic method or constructor
+		{
+			uint8_t typeParameterIndex = byteArray.readUnsignedByte();
+			typeAnnotation.targetInfo.target.typeParameterIndex = typeParameterIndex;
+			break;
+		}
+		case 0x10: { // extends or implements clause
+			uint16_t superTypeIndex = byteArray.readUnsignedShort();
+			typeAnnotation.targetInfo.superTypeTarget.superTypeIndex = superTypeIndex;
+			break;
+		}
+		case 0x11: // type in bound of type parameter declaration of generic class or interface
+		case 0x12: // type in bound of type parameter declaration of generic method or constructor 
+		{
+			uint8_t typeParameterIndex = byteArray.readUnsignedByte();
+			uint8_t boundIndex = byteArray.readUnsignedByte();
+			typeAnnotation.targetInfo.typeParameterBoundTarget.typeParameterIndex = typeParameterIndex;
+			typeAnnotation.targetInfo.typeParameterBoundTarget.boundIndex = boundIndex;
+			break;
+		}
+		case 0x13: // in field decleration
+		case 0x14: // return type of method or type or newly constructed object
+		case 0x15: // receiver type of method or constructor
+		{
+			break;
+		}
+		case 0x16: // type in formal parameter decleration of method constructor or lambda expression
+		{
+			uint8_t formalParameterIndex = byteArray.readUnsignedByte();
+			typeAnnotation.targetInfo.formalParameterTarget.formalParameterIndex = formalParameterIndex;
+			break;
+		}
+		case 0x17: // type in throws clause of method or constructor
+		{
+			uint16_t throwsTypeIndex = byteArray.readUnsignedShort();
+			typeAnnotation.targetInfo.throwsTarget.throwsTypeIndex = throwsTypeIndex;
+			break;
+		}
+		case 0x40: // type in local variable declaration
+		case 0x41: // type in resource variable declaration
+		{
+			uint16_t tableLength = byteArray.readUnsignedShort();
+
+			typeAnnotation.targetInfo.localVarTarget.tableLength = tableLength;
+			typeAnnotation.targetInfo.localVarTarget.table = (LocalVarTargetEntry*)
+				memory->alloc(sizeof(LocalVarTargetEntry) * tableLength);
+
+			for (uint16_t currentEntry = 0; currentEntry < tableLength; ++currentEntry) {
+				uint16_t startPc = byteArray.readUnsignedShort();
+				uint16_t length = byteArray.readUnsignedShort();
+				uint16_t index = byteArray.readUnsignedShort();
+				LocalVarTargetEntry entry;
+				entry.startPc = startPc;
+				entry.length = length;
+				entry.index = index;
+				typeAnnotation.targetInfo.localVarTarget.table[currentEntry] = entry;
+			}
+
+			break;
+		}
+		case 0x42: // type in exception parameter declaration
+		{
+			uint16_t exceptionTableIndex = byteArray.readUnsignedShort();
+			typeAnnotation.targetInfo.catchTarget.exceptionTableIndex = exceptionTableIndex;
+			break;
+		}
+		case 0x43: // type in instanceof expression
+		case 0x44: // type ion new expression
+		case 0x45: // type in method reference expression using ::new
+		case 0x46: // type in method reference using ::identifier
+		{
+			uint16_t offset = byteArray.readUnsignedShort();
+			typeAnnotation.targetInfo.offsetTarget.offset = offset;
+			break;
+		}
+		case 0x47: // type in cast expression
+		case 0x48: // type argument for generic constructor in new expression or explicit constructor invocation statement 
+		case 0x49: // type argument for generic method in method invocation expression 
+		case 0x4A: // type argument for generic constructor in method reference expression using ::new
+		case 0x4B: // type argument for generic method in method reference expression using ::Identifier
+		{
+			uint16_t offset = byteArray.readUnsignedShort();
+			uint8_t typeArgumentIndex = byteArray.readUnsignedByte();
+			typeAnnotation.targetInfo.typeArgumentTarget.offset = offset;
+			typeAnnotation.targetInfo.typeArgumentTarget.typeArgumentIndex = typeArgumentIndex;
+			break;
+		}
+		}
+
+
+		uint8_t pathLength = byteArray.readUnsignedByte();
+		TypePath typePath = { 0 };
+		typePath.pathLength = pathLength;
+		typePath.path = (TypePathPath*)memory->alloc(pathLength * sizeof(TypePathPath));
+
+		for (uint8_t currentPath = 0; currentPath < pathLength; ++currentPath) {
+			TypePathPath typePathPath = { 0 };
+			typePathPath.typePathKind = byteArray.readUnsignedByte();
+			typePathPath.typeArgumentIndex = byteArray.readUnsignedByte();
+			typeAnnotation.targetPath = typePath;
+			typePath.path[currentPath] = typePathPath;
+		}
+
+		uint16_t typeIndex = byteArray.readUnsignedShort();
+		uint16_t numElementValuePairs = byteArray.readUnsignedShort();
+		typeAnnotation.typeIndex = typeIndex;
+		typeAnnotation.numElementValuePairs = numElementValuePairs;
+		typeAnnotation.elementValuePairs = (ElementValuePair*)memory->alloc(sizeof(ElementValuePair) * numElementValuePairs);
+
+		for (uint16_t currentElement = 0; currentElement < numElementValuePairs; ++currentElement) {
+			uint16_t elementNameIndex = byteArray.readUnsignedShort();
+			typeAnnotation.elementValuePairs[elementNameIndex].elementNameIndex = elementNameIndex;
+			typeAnnotation.elementValuePairs[elementNameIndex].value = parseElementValue(byteArray, constantPool, memory);
+		}
+
+		attribute->annotations[currentAnnotation] = typeAnnotation;
+	}
+
+	return attribute;
+}
+
 AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
 {
 	uint16_t attributesCount = byteArray.readUnsignedShort();
@@ -503,6 +640,22 @@ AttributeCollection* AttributeParser::readAttributes(ByteArray& byteArray, Const
 				attribute->parameterAnotations[currentParam].annotations = annotations;
 
 			}
+
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "RuntimeVisibleTypeAnnotations") == 0) {
+			RuntimeVisibleTypeAnnotationsAttribute* attribute = parseRuntimeTypeAnnotations(byteArray, constantPool, memory);
+			attribute->type = RuntimeVisibleTypeAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
+
+			attributes[currentAttrib] = attribute;
+		}
+		else if (strcmp(name, "RuntimeInvisibleTypeAnnotations") == 0) {
+			RuntimeInvisibleTypeAnnotationsAttribute* attribute = (RuntimeInvisibleTypeAnnotationsAttribute*) parseRuntimeTypeAnnotations(byteArray, constantPool, memory);
+			attribute->type = RuntimeInvisibleTypeAnnotations;
+			attribute->attributeLength = attributeLength;
+			attribute->attributeNameIndex = attributeNameIndex;
 
 			attributes[currentAttrib] = attribute;
 		}

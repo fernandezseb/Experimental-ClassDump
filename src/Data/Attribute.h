@@ -32,7 +32,9 @@ enum AttributeType : uint8_t {
 	SourceDebugExtension,
 	MethodParameters,
 	RuntimeVisibleParameterAnnotations,
-	RuntimeInvisibleParameterAnnotations
+	RuntimeInvisibleParameterAnnotations,
+	RuntimeVisibleTypeAnnotations,
+	RuntimeInvisibleTypeAnnotations
 };
 
 struct AttributeInfo {
@@ -278,4 +280,90 @@ struct RuntimeVisibleParameterAnnotationsAttribute : public AttributeInfo {
 	Annotations* parameterAnotations;
 };
 
-struct RuntimeInvisibleParameterAnnotationsAttribute : RuntimeVisibleParameterAnnotationsAttribute {};
+struct RuntimeInvisibleParameterAnnotationsAttribute : public RuntimeVisibleParameterAnnotationsAttribute {};
+
+struct TypePathPath {
+	uint8_t typePathKind;
+	uint8_t typeArgumentIndex;
+};
+
+struct TypePath {
+	uint8_t pathLength;
+	TypePathPath* path;
+};
+
+struct TypeParameterTarget {
+	uint8_t typeParameterIndex;
+};
+
+struct SuperTypeTarget {
+	uint16_t superTypeIndex;
+};
+
+struct TypeParameterBoundTarget {
+	uint8_t typeParameterIndex;
+	uint8_t boundIndex;
+};
+
+struct EmptyTarget {
+};
+
+struct FormalParameterTarget {
+	uint8_t formalParameterIndex;
+};
+
+struct ThrowsTarget {
+	uint16_t throwsTypeIndex;
+};
+
+struct LocalVarTargetEntry {
+	uint16_t startPc;
+	uint16_t length;
+	uint16_t index;
+};
+
+struct LocalVarTarget {
+	uint16_t tableLength;
+	LocalVarTargetEntry* table;
+};
+
+struct CatchTarget {
+	uint16_t exceptionTableIndex;
+};
+
+struct OffsetTarget {
+	uint16_t offset;
+};
+
+struct TypeArgumentTarget {
+	uint16_t offset;
+	uint8_t typeArgumentIndex;
+};
+
+struct TypeAnnotation {
+	uint8_t targetType;
+	union {
+		TypeParameterTarget target;
+		SuperTypeTarget superTypeTarget;
+		TypeParameterBoundTarget typeParameterBoundTarget;
+		EmptyTarget emptyTarget;
+		FormalParameterTarget formalParameterTarget;
+		ThrowsTarget throwsTarget;
+		LocalVarTarget localVarTarget;
+		CatchTarget catchTarget;
+		OffsetTarget offsetTarget;
+		TypeArgumentTarget typeArgumentTarget;
+	} targetInfo;
+	TypePath targetPath;
+	uint16_t typeIndex;
+	uint16_t numElementValuePairs;
+	ElementValuePair* elementValuePairs;
+};
+
+struct RuntimeVisibleTypeAnnotationsAttribute : public AttributeInfo {
+	uint16_t numAnnotations;
+	TypeAnnotation* annotations;
+};
+
+struct RuntimeInvisibleTypeAnnotationsAttribute : public RuntimeVisibleTypeAnnotationsAttribute {
+};
