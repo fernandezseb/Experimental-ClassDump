@@ -1,17 +1,20 @@
-import java.io.IOException;
-import java.util.function.Supplier;
-import java.beans.Transient;
 
-@Deprecated
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.function.Supplier;
+
 public class Main {
 
-    // ConstantValue attribute
-    private final int constantValue = 4512345;
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE_USE)
+    public @interface JsonElement {
+        public String key() default "";
+    }
 
-    @Transient(value = false)
-    public static void main(String[] args) throws IOException {
-        Supplier<Integer> integerSupplier = () -> 42;
-        throw new IOException("Something went wrong with IO");
+    public static void main(String[] args) {
+        Supplier<@JsonElement Integer> integerSupplier = () -> 42;
     }
 
 }
