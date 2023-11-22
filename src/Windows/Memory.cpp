@@ -1,4 +1,14 @@
 #include "Memory.h"
+#include "windows.h"
+
+static void* reserveMemory(size_t size, size_t baseAddress) {
+	LPVOID lpBaseAddress = (LPVOID)baseAddress;
+	return VirtualAlloc(
+		lpBaseAddress,
+		size,
+		MEM_RESERVE,
+		PAGE_READWRITE);
+}
 
 Memory::Memory(size_t size, size_t maxSize) 
 	: size(size), maxSize(maxSize)
@@ -15,7 +25,7 @@ Memory::Memory(size_t size, size_t maxSize)
 		}
 	}
 
-	uint8_t* reservedMemory = (uint8_t*)Platform::ReserveMemory(maxSize, 0);
+	uint8_t* reservedMemory = (uint8_t*)reserveMemory(maxSize, 0);
 	memoryPtr = (uint8_t*)Platform::AllocateMemory(this->size, (size_t)reservedMemory);
 }
 

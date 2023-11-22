@@ -9,17 +9,6 @@ struct PlatformFile {
 
 };
 
-
-void* Platform::ReserveMemory(size_t size, size_t baseAddress)
-{
-	LPVOID lpBaseAddress = (LPVOID)baseAddress;
-	return VirtualAlloc(
-		lpBaseAddress,
-		size,
-		MEM_RESERVE,
-		PAGE_READWRITE);
-}
-
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 {
 	LPVOID lpBaseAddress = (LPVOID)baseAddress;
