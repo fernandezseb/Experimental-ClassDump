@@ -173,7 +173,7 @@ static Annotation parseAnnotation(ByteArray& byteArray, ConstantPool* constantPo
 	return annotation;
 }
 
-static ElementValue parseElementValue(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
+ElementValue parseElementValue(ByteArray& byteArray, ConstantPool* constantPool, Memory* memory)
 {
 	ElementValue elementValue = { 0 };
 
