@@ -16,4 +16,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(descriptor_test Windows)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_directories(descriptor_test PRIVATE Linux)
+    target_link_libraries(descriptor_test Linux)
+endif()
+
 target_include_directories(descriptor_test PUBLIC ${PROJECT_SOURCE_DIR}/src/)

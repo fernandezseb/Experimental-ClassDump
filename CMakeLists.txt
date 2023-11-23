@@ -57,5 +57,11 @@ project(ClassDump
         target_link_libraries(${PROJECT_NAME} Windows)
     endif()
 
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        add_subdirectory(src/Linux)
+        target_link_directories(${PROJECT_NAME} PRIVATE Linux)
+        target_link_libraries(${PROJECT_NAME} Linux)
+    endif()
+
     enable_testing()
     add_subdirectory("test")
