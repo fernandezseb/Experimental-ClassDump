@@ -125,5 +125,4 @@ Even though it is not set in stone, I will be trying to implement as much featur
 
 ## Still to do
 * The last opcodes that are not implemented yet: lookuptable, wide
-* Make code work on platforms other than Windows (with MSVC)
 * Implement full unicode support
