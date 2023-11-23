@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Data/ConstantPool.h"
+#include "Util.h"
 
 class PrintUtils {
 public:
