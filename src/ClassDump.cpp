@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
             ClassPrinter classPrinter;
             ClassInfo* classInfo = classLoader.readClass(className, &memory);
             classPrinter.printClass(*classInfo, &memory);
-#ifdef _DEBUG
+#ifndef NDEBUG
             memory.printSize();
 #endif
         }
