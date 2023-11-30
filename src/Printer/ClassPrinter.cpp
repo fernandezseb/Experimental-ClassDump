@@ -429,13 +429,17 @@ void ClassPrinter::printConstantPoolItem(uint16_t currentIndex, const ConstantPo
 	sprintf(indexStr, "#%" PRIu16, (currentIndex+1));
 
 	printf("%5s", indexStr);
-	char out[300] = {0};
-	printf(" = %-15s%-15s", getTypeAsString(item->getType()), PrintUtils::printData(out, item, cp));
+	char dataBuffer[300] = {0};
+	char printBuffer[300] = {0};
+	PrintUtils::printData(dataBuffer, item, cp);
+	snprintf(printBuffer, 300, " = %-15s%-15s", getTypeAsString(item->getType()), dataBuffer);
+	Platform::printModifiedUtf8String(printBuffer);
 
 	char buffer[300] = { 0 };
 	char* out2 = PrintUtils::printResolved(buffer, item, cp);
 	if (strlen(out2) > 0) {
-		printf("// %s", out2);
+		printf("// ");
+		Platform::printModifiedUtf8String(out2);
 	}
 	printf("\n");
 }

@@ -5,6 +5,7 @@
 
 int main(int argc, char* argv[])
 {
+    Platform::Initialize();
     if (argc > 1) {
         if (strncmp(argv[1], "-v", 2) == 0) {
             printf("ClassDump version %d.%d\n", CLASSDUMP_VERSION_MAJOR, CLASSDUMP_VERSION_MINOR);

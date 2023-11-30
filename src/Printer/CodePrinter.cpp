@@ -58,7 +58,8 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		if (item != 0) {
 			char buffer[300] = {0};
 			PrintUtils::printResolvedInline(buffer, cp->constants[shortIndex - 1], cp);
-			printf(" %s", buffer);
+			printf(" ");
+			Platform::printModifiedUtf8String(buffer);
 		}
 	}
 }
@@ -95,7 +96,8 @@ void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		if (item != 0) {
 			char buffer[300] = { 0 };
 			PrintUtils::printResolvedInline(buffer, cp->constants[byte - 1], cp);
-			printf(" %s", buffer);
+			printf(" ");
+			Platform::printModifiedUtf8String(buffer);
 		}
 	}
 }

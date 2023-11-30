@@ -119,10 +119,7 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 	case CT_UTF8:
 	{
 		CPUTF8Info* utf8Info = (CPUTF8Info*)item;
-		// TODO: Fix this fixed buffer
-		char printBuffer[300] = {0};
-		modifiedUtf8ToStandardUtf8(((char*)utf8Info->bytes), printBuffer);
-		sprintf(temp, "%s", printBuffer);
+		sprintf(temp, "%s", utf8Info->bytes);
 		break;
 	}
 	case CT_FLOAT:
@@ -178,12 +175,8 @@ char* PrintUtils::printResolved(char* buffer, const ConstantPoolItem* item, cons
 	case CT_STRING:
 	{
 		CPStringInfo* stringInfo = (CPStringInfo*)item;
-		// TODO: Fix this fixed buffer
-		char printBuffer[300] = {0};
 		char* stringToPrint = cp->getString(stringInfo->stringIndex);
-		modifiedUtf8ToStandardUtf8(stringToPrint, printBuffer);
-		sprintf(temp, "%s", printBuffer);
-		strcat(buffer, temp);
+		strcat(buffer, stringToPrint);
 		break;
 	}
 	case CT_FIELDREF:

@@ -2,12 +2,50 @@
 
 #include <Windows.h>
 
+#include "Util.h"
+
 struct PlatformFile {
 	uint8_t* fileMemory;
 	const char* name;
 	HANDLE hFile;
 
 };
+
+void Platform::Initialize()
+{
+	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	if (hStdout == INVALID_HANDLE_VALUE)
+	{
+		AllocConsole();
+		AttachConsole(ATTACH_PARENT_PROCESS);
+
+		hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		if (hStdout == INVALID_HANDLE_VALUE)
+		{
+			Platform:ExitProgram(-6);
+		}
+	}
+
+	SetConsoleCP(65001);
+}
+
+void Platform::print(const char* string, uint64_t length)
+{
+	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), string, (DWORD)length, NULL, NULL);
+}
+
+void Platform::printModifiedUtf8String(char* string)
+{
+	JString jstring = {0};
+	size_t length = strlen(string);
+	jstring.chars = (char*) AllocateMemory(length, 0); // In the worst case, the string has the same length
+	jstring.length = length;
+	modifiedUtf8ToStandardUtf8(string, &jstring);
+	print(jstring.chars, jstring.length);
+	FreeMemory(jstring.chars);
+}
 
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 {

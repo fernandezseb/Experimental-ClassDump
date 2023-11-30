@@ -21,3 +21,13 @@
 #define T_SHORT   "short"
 #define T_BOOLEAN "boolean"
 #define T_DOUBLE  "double"
+
+/*
+ * A string containing real UTF-8 characters.
+ * Not like the ones in class files
+ */
+struct JString
+{
+    uint64_t length;
+    char* chars;
+};

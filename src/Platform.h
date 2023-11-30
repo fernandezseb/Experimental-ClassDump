@@ -1,12 +1,14 @@
 #pragma once
 
 #include <cinttypes>
-#include <cstdio>
 
 struct PlatformFile;
 
 class Platform {
 public:
+	static void Initialize();
+	static void print(const char* string, uint64_t length);
+	static void printModifiedUtf8String(char* string);
 	static void* AllocateMemory(size_t size, size_t baseAddress);
 	static void FreeMemory(void* allocatedMemory);
 	static PlatformFile* getFile(const char* name);
