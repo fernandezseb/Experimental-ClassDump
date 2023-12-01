@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <cstddef>
 
 struct PlatformFile;
 

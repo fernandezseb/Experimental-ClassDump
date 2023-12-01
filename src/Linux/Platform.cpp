@@ -9,6 +9,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "Core.h"
+#include "Util.h"
+
 
 struct PlatformFile {
 	int fd;
@@ -16,6 +19,10 @@ struct PlatformFile {
 	uint8_t* fileMemory;
 };
 
+
+void Platform::Initialize()
+{
+}
 
 
 void* Platform::AllocateMemory(size_t size, size_t baseAddress)
@@ -75,6 +82,22 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
     stat(file->name, &attrib);
 	strftime(time, 20, "%d-%m-%y", localtime(&(attrib.st_ctime)));
 	strcpy(stringOut, time);
+}
+
+void Platform::print(const char* string, uint64_t length)
+{
+	fwrite(string , 1 , length , stdout );
+}
+
+void Platform::printModifiedUtf8String(char* string)
+{
+	JString jstring = {0};
+	size_t length = strlen(string);
+	jstring.chars = (char*) AllocateMemory(length, 0); // In the worst case, the string has the same length
+	jstring.length = length;
+	modifiedUtf8ToStandardUtf8(string, &jstring);
+	print(jstring.chars, jstring.length);
+	FreeMemory(jstring.chars);
 }
 
 void Platform::closeFile(PlatformFile* file)
