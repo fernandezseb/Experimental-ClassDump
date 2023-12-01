@@ -3,46 +3,39 @@
 
 char* PrintUtils::printResolvedInline(char* buffer, const ConstantPoolItem* item, const ConstantPool* cp)
 {
-	char temp[300];
 	switch (item->getType())
 	{
 	case CT_NAMEANDTYPE:
 	{
-		sprintf(temp, "NameAndType ");
-		strcat(buffer, temp);
+		strcat(buffer, "NameAndType ");
 		return PrintUtils::printResolved(buffer, item, cp);
 	}
 	case CT_STRING:
 	{
-		sprintf(temp, "string ");
-		strcat(buffer, temp);
+		strcat(buffer, "string ");
 		return PrintUtils::printResolved(buffer, item, cp);
 	}
 	case CT_FIELDREF:
 	{
 		// TODO: Print the Class name here as well, even if the class is the class itself
-		sprintf(temp, "Field ");
-		strcat(buffer, temp);
+		strcat(buffer, "Field ");
 		return PrintUtils::printResolved(buffer, item, cp);
 	}
 	case CT_METHODREF:
 	{
-		sprintf(temp, "Method ");
-		strcat(buffer, temp);
+		strcat(buffer, "Method ");
 		PrintUtils::printResolved(buffer, item, cp);
 		break;
 	}
 	case CT_CLASS:
 	{
-		sprintf(temp, "class ");
-		strcat(buffer, temp);
+		strcat(buffer, "class ");
 		PrintUtils::printResolved(buffer, item, cp);
 		break;
 	}
 	case CT_INTEGER:
 	{
-		sprintf(temp, "int ");
-		strcat(buffer, temp);
+		strcat(buffer, "int ");
 		return PrintUtils::printData(buffer, item, cp);
 	}
 	case CT_UTF8:
@@ -51,20 +44,17 @@ char* PrintUtils::printResolvedInline(char* buffer, const ConstantPoolItem* item
 	}
 	case CT_FLOAT:
 	{
-		sprintf(temp, "float ");
-		strcat(buffer, temp);
+		strcat(buffer, "float ");
 		return PrintUtils::printData(buffer, item, cp);
 	}
 	case CT_DOUBLE:
 	{
-		sprintf(temp, "double ");
-		strcat(buffer, temp);
+		strcat(buffer, "double ");
 		return PrintUtils::printData(buffer, item, cp);
 	}
 	case CT_LONG:
 	{
-		sprintf(temp, "long ");
-		strcat(buffer, temp);
+		strcat(buffer, "long ");
 		return PrintUtils::printData(buffer, item, cp);
 	}
 	default:
@@ -156,11 +146,11 @@ char* PrintUtils::printData(char* buffer, const ConstantPoolItem* item, const Co
 
 char* PrintUtils::printResolved(char* buffer, const ConstantPoolItem* item, const ConstantPool* cp)
 {
-	char temp[300];
 	switch (item->getType())
 	{
 	case CT_NAMEANDTYPE:
 	{
+		char temp[300];
 		CPNameAndTypeInfo* nameAndType = (CPNameAndTypeInfo*)item;
 		const char* name = cp->getString(nameAndType->nameIndex);
 		if (strcmp(name, "<init>") == 0) {
@@ -198,6 +188,7 @@ char* PrintUtils::printResolved(char* buffer, const ConstantPoolItem* item, cons
 	}
 	case CT_CLASS:
 	{
+		char temp[300];
 		CPClassInfo* classInfo = (CPClassInfo*)item;
 		sprintf(temp, "%s", cp->getString(classInfo->nameIndex));
 		strcat(buffer, temp);
