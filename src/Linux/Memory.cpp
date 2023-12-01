@@ -27,7 +27,7 @@ void* Memory::alloc(size_t size)
 
 void Memory::printSize()
 {
-	printf("Memory stats:\n");
-	printf("  Memory used: %zu bytes\n", ptr);
-	printf("  Free memory: %zu bytes\n", (size-ptr));
+	jprintf("Memory stats:\n");
+	jprintf("  Memory used: %zu bytes\n", ptr);
+	jprintf("  Free memory: %zu bytes\n", (size-ptr));
 }

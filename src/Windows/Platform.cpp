@@ -11,7 +11,7 @@ struct PlatformFile {
 
 };
 
-void Platform::Initialize()
+void Platform::initialize()
 {
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -24,11 +24,13 @@ void Platform::Initialize()
 
 		if (hStdout == INVALID_HANDLE_VALUE)
 		{
-			Platform:ExitProgram(-6);
+			Platform:exitProgram(-6);
 		}
 	}
 
 	SetConsoleCP(65001);
+
+	textBuffer = (char*) allocateMemory(getPageSize(), 0);
 }
 
 void Platform::print(const char* string, uint64_t length)
@@ -40,14 +42,26 @@ void Platform::printModifiedUtf8String(char* string)
 {
 	JString jstring = {0};
 	size_t length = strlen(string);
-	jstring.chars = (char*) AllocateMemory(length, 0); // In the worst case, the string has the same length
+	jstring.chars = (char*) allocateMemory(length, 0); // In the worst case, the string has the same length
 	jstring.length = length;
 	modifiedUtf8ToStandardUtf8(string, &jstring);
 	print(jstring.chars, jstring.length);
-	FreeMemory(jstring.chars);
+	freeMemory(jstring.chars);
 }
 
-void* Platform::AllocateMemory(size_t size, size_t baseAddress)
+int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
+{
+	va_list argsList;
+	va_start(argsList, string);
+	textBuffer[0] = 0;
+	int size = vsnprintf(textBuffer, getPageSize(), string, argsList);
+	print(textBuffer, size);
+	va_end(argsList);
+
+	return size;
+}
+
+void* Platform::allocateMemory(size_t size, size_t baseAddress)
 {
 	LPVOID lpBaseAddress = (LPVOID)baseAddress;
 	return VirtualAlloc(
@@ -57,7 +71,7 @@ void* Platform::AllocateMemory(size_t size, size_t baseAddress)
 		PAGE_READWRITE);
 }
 
-void Platform::FreeMemory(void* allocatedMemory)
+void Platform::freeMemory(void* allocatedMemory)
 {
 	VirtualFree(
 		allocatedMemory,
@@ -67,7 +81,7 @@ void Platform::FreeMemory(void* allocatedMemory)
 
 PlatformFile* Platform::getFile(const char* name)
 {
-	PlatformFile *file = (PlatformFile*) AllocateMemory(sizeof(PlatformFile), 0);
+	PlatformFile *file = (PlatformFile*) allocateMemory(sizeof(PlatformFile), 0);
 
 	file->hFile = CreateFileA(
 		name,
@@ -107,7 +121,7 @@ uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
 	*sizeOut = size;
 
 	DWORD readBytes;
-	uint8_t* fileMemory = (uint8_t*)Platform::AllocateMemory(size, 0);
+	uint8_t* fileMemory = (uint8_t*)Platform::allocateMemory(size, 0);
 	file->fileMemory = fileMemory;
 
 	ReadFile(
@@ -148,18 +162,19 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
 	char time[50];
-	sprintf(time, "%s %02d, %d", months[stLocal.wMonth-1], stLocal.wDay, stLocal.wYear);
-	strcpy(stringOut, time);
+	snprintf(time, 50, "%s %02d, %d", months[stLocal.wMonth-1], stLocal.wDay, stLocal.wYear);
+	strncpy(stringOut, time, 50);
 }
 
 void Platform::closeFile(PlatformFile* file)
 {
 	CloseHandle(file->hFile);
-	FreeMemory(file);
+	freeMemory(file);
 }
 
-void Platform::ExitProgram(uint32_t exitCode)
+void Platform::exitProgram(uint32_t exitCode)
 {
+	cleanup();
 	ExitProcess(exitCode);
 }
 
@@ -168,4 +183,12 @@ size_t Platform::getPageSize()
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 	return si.dwPageSize;
+}
+
+void Platform::cleanup()
+{
+	if (textBuffer != nullptr) {
+		freeMemory(textBuffer);
+		textBuffer = nullptr;
+	}
 }

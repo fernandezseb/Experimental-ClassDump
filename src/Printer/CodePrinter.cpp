@@ -52,14 +52,13 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		uint16_t shortIndex = (byte1 << 8) | byte2;
 		if (shortIndex <= 0) {
 			fprintf(stderr, "Invalid index in CP\n");
-			Platform::ExitProgram(1);
+			Platform::exitProgram(1);
 		}
 		ConstantPoolItem* item = cp->constants[shortIndex - 1];
 		if (item != 0) {
 			char buffer[300] = {0};
 			PrintUtils::printResolvedInline(buffer, cp->constants[shortIndex - 1], cp);
-			printf(" ");
-			Platform::printModifiedUtf8String(buffer);
+			jprintf(" %s", buffer);
 		}
 	}
 }
@@ -96,8 +95,7 @@ void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 		if (item != 0) {
 			char buffer[300] = { 0 };
 			PrintUtils::printResolvedInline(buffer, cp->constants[byte - 1], cp);
-			printf(" ");
-			Platform::printModifiedUtf8String(buffer);
+			jprintf(" %s", buffer);
 		}
 	}
 }
@@ -225,7 +223,7 @@ void CodePrinter::printCode(
 		}
 		if (!found) {
 			printf("Error: Instruction with opcode: %" PRIu8 " unrecognized\n", opcode);
-			Platform::ExitProgram(1);
+			Platform::exitProgram(1);
 		}
 		printf("\n");
 	}

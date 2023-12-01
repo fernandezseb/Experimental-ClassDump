@@ -11,7 +11,7 @@ void ClassLoader::checkMagicNumber(ByteArray& byteArray) {
     uint32_t magic = byteArray.readUnsignedInt();
     if (magic != MAGIC_NUMBER) {
         fprintf(stderr, "Error: Magic Number not OK.Exiting.\n");
-        Platform::ExitProgram(1);
+        Platform::exitProgram(1);
     }
 }
 
@@ -200,7 +200,7 @@ ConstantPoolItem* ClassLoader::readConstantPoolItem(uint8_t tag, ByteArray& byte
     default:
     {
         fprintf(stderr, "Error: Unidentified constant pool item detected with tag: %" PRIu8 "\n", tag);
-        Platform::ExitProgram(-5);
+        Platform::exitProgram(-5);
     }
     }
 
@@ -267,7 +267,7 @@ ClassInfo* ClassLoader::readClass(const char* className, Memory* memory)
     strcpy(classInfo->md5, md5Buffer);
 
     Platform::closeFile(file);
-    Platform::FreeMemory(fileContent);
+    Platform::freeMemory(fileContent);
 
     return classInfo;
 }

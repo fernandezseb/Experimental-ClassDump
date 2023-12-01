@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[])
 {
-    Platform::Initialize();
+    Platform::initialize();
     if (argc > 1) {
         if (strncmp(argv[1], "-v", 2) == 0) {
             printf("ClassDump version %d.%d\n", CLASSDUMP_VERSION_MAJOR, CLASSDUMP_VERSION_MINOR);
@@ -23,8 +23,9 @@ int main(int argc, char* argv[])
         }
     } else {
         fprintf(stderr, "Error: Class name must be supplied\n");
-        Platform::ExitProgram(1);
+        Platform::exitProgram(1);
     }
+    Platform::cleanup();
 
     return 0;
 }

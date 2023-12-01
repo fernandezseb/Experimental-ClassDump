@@ -158,7 +158,7 @@ void AttributePrinter::printAttribute(AttributeInfo* attribute, const ConstantPo
 			}
 			default: {
 				fprintf(stderr, "Error: Unknown frame type detected.\n");
-				Platform::ExitProgram(-5);
+				Platform::exitProgram(-5);
 			}
 			}
 		}

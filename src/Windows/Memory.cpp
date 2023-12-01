@@ -1,4 +1,4 @@
-#include "Memory.h"
+#include "../Memory.h"
 #include "windows.h"
 
 static void* reserveMemory(size_t size, size_t baseAddress) {
@@ -26,12 +26,12 @@ Memory::Memory(size_t size, size_t maxSize)
 	}
 
 	uint8_t* reservedMemory = (uint8_t*)reserveMemory(maxSize, 0);
-	memoryPtr = (uint8_t*)Platform::AllocateMemory(this->size, (size_t)reservedMemory);
+	memoryPtr = (uint8_t*)Platform::allocateMemory(this->size, (size_t)reservedMemory);
 }
 
 Memory::~Memory()
 {
-	Platform::FreeMemory(memoryPtr);
+	Platform::freeMemory(memoryPtr);
 }
 
 void* Memory::alloc(size_t size)
@@ -43,14 +43,14 @@ void* Memory::alloc(size_t size)
 			toAlloc = maxSize - this->size;
 		}
 
-		Platform::AllocateMemory(toAlloc, ((size_t)memoryPtr)+this->size);
+		Platform::allocateMemory(toAlloc, ((size_t)memoryPtr)+this->size);
 		this->size += toAlloc;
 	}
 
 	if (ptr + size > this->size) {
 		fprintf(stderr, "\nOut of memory\n");
 		printSize();
-		Platform::ExitProgram(3);
+		Platform::exitProgram(3);
 	}
 
 	size_t oldPtr = ptr;
@@ -60,9 +60,9 @@ void* Memory::alloc(size_t size)
 
 void Memory::printSize()
 {
-	printf("Memory stats:\n");
-	printf("  Memory used: %zu bytes\n", ptr);
-	printf("  Memory commited: %zu bytes\n", size);
-	printf("  Free memory: %zu bytes\n", (size-ptr));
-	printf("  Max memory (reserved): %zu bytes\n", maxSize);
+	jprintf("Memory stats:\n");
+	jprintf("  Memory used: %zu bytes\n", ptr);
+	jprintf("  Memory commited: %zu bytes\n", size);
+	jprintf("  Free memory: %zu bytes\n", (size-ptr));
+	jprintf("  Max memory (reserved): %zu bytes\n", maxSize);
 }

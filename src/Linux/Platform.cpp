@@ -20,17 +20,18 @@ struct PlatformFile {
 };
 
 
-void Platform::Initialize()
+void Platform::initialize()
 {
+	textBuffer = (char*) allocateMemory(getPageSize(), 0);
 }
 
 
-void* Platform::AllocateMemory(size_t size, size_t baseAddress)
+void* Platform::allocateMemory(size_t size, size_t baseAddress)
 {
-		return malloc(size);
+	return malloc(size);
 }
 
-void Platform::FreeMemory(void* allocatedMemory)
+void Platform::freeMemory(void* allocatedMemory)
 {
 	free(allocatedMemory);
 }
@@ -86,7 +87,7 @@ void Platform::getLastModifiedString(PlatformFile* file, char* stringOut)
 
 void Platform::print(const char* string, uint64_t length)
 {
-	fwrite(string , 1 , length , stdout );
+	fwrite(string, 1 ,length, stdout);
 }
 
 void Platform::printModifiedUtf8String(char* string)
@@ -100,18 +101,39 @@ void Platform::printModifiedUtf8String(char* string)
 	FreeMemory(jstring.chars);
 }
 
+int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
+{
+	va_list argsList;
+	va_start(argsList, string);
+	textBuffer[0] = 0;
+	int size = vsnprintf(textBuffer, getPageSize(), string, argsList);
+	print(textBuffer, size);
+	va_end(argsList);
+
+	return size;
+}
+
 void Platform::closeFile(PlatformFile* file)
 {
 	close(file->fd);
 	FreeMemory(file);
 }
 
-void Platform::ExitProgram(uint32_t exitCode)
+void Platform::exitProgram(uint32_t exitCode)
 {
+	cleanup();
 	exit(exitCode);
 }
 
 size_t Platform::getPageSize()
 {
 	return getpagesize();
+}
+
+void Platform::cleanup()
+{
+	if (textBuffer != nullptr) {
+		freeMemory(textBuffer);
+		textBuffer = nullptr;
+	}
 }

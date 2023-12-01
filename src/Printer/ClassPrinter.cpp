@@ -285,7 +285,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 
 	for (auto const& flag : accessFlagsField) {
 		if ((flag & fieldInfo->accessFlags) != 0) {
-				printf("%s ", flagToKeyword(flag));
+				jprintf("%s ", flagToKeyword(flag));
 		}
 	}
 
@@ -430,16 +430,13 @@ void ClassPrinter::printConstantPoolItem(uint16_t currentIndex, const ConstantPo
 
 	printf("%5s", indexStr);
 	char dataBuffer[300] = {0};
-	char printBuffer[300] = {0};
 	PrintUtils::printData(dataBuffer, item, cp);
-	snprintf(printBuffer, 300, " = %-15s%-15s", getTypeAsString(item->getType()), dataBuffer);
-	Platform::printModifiedUtf8String(printBuffer);
+	jprintf(" = %-15s%-15s", getTypeAsString(item->getType()), dataBuffer);
 
 	char buffer[300] = { 0 };
 	char* out2 = PrintUtils::printResolved(buffer, item, cp);
 	if (strlen(out2) > 0) {
-		printf("// ");
-		Platform::printModifiedUtf8String(out2);
+		jprintf("// %s", out2);
 	}
 	printf("\n");
 }
@@ -503,10 +500,10 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 
 	const char* superClassName = cp->getString(superClassPtr->nameIndex);
 	if (strcmp("java/lang/Object", superClassName) != 0) {
-		char* outputBuffer = (char*) Platform::AllocateMemory(strlen(superClassName) + 1, 0);
+		char* outputBuffer = (char*) Platform::allocateMemory(strlen(superClassName) + 1, 0);
 		binaryClassToExternalCopy(superClassName, outputBuffer);
 		printf(" extends %s", outputBuffer);
-		Platform::FreeMemory(outputBuffer);
+		Platform::freeMemory(outputBuffer);
 	}
 
 	if (classInfo.interfacesCount > 0) {
@@ -520,11 +517,11 @@ void ClassPrinter::printClass(const ClassInfo& classInfo, Memory* memory)
 			names[currentIndex] = (char*)cp->getString(classPtr->nameIndex);
 		}
 
-		char* outputBuffer = (char*)Platform::AllocateMemory(300, 0);
+		char* outputBuffer = (char*)Platform::allocateMemory(300, 0);
 		joinStrings(names, classInfo.interfacesCount, ", ", 300, outputBuffer);
 		binaryClassToExternalInPlace(outputBuffer);
 		printf("%s", outputBuffer);
-		Platform::FreeMemory(outputBuffer);
+		Platform::freeMemory(outputBuffer);
 
 	}
 	printf("\n");
