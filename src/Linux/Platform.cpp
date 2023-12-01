@@ -38,7 +38,7 @@ void Platform::freeMemory(void* allocatedMemory)
 
 PlatformFile* Platform::getFile(const char* name)
 {
-	PlatformFile *file = (PlatformFile*) AllocateMemory(sizeof(PlatformFile), 0);
+	PlatformFile *file = (PlatformFile*) allocateMemory(sizeof(PlatformFile), 0);
 
 	file->fd = open(name, O_RDONLY);
 	file->name = name;
@@ -66,7 +66,7 @@ uint8_t* Platform::readEntireFile(PlatformFile* file, size_t* sizeOut)
 	
 	*sizeOut = size;
 
-	uint8_t* fileMemory = (uint8_t*)Platform::AllocateMemory(size, 0);
+	uint8_t* fileMemory = (uint8_t*)Platform::allocateMemory(size, 0);
 	file->fileMemory = fileMemory;
 
 	uint64_t bytesRead = read(file->fd, fileMemory, size);
@@ -94,11 +94,11 @@ void Platform::printModifiedUtf8String(char* string)
 {
 	JString jstring = {0};
 	size_t length = strlen(string);
-	jstring.chars = (char*) AllocateMemory(length, 0); // In the worst case, the string has the same length
+	jstring.chars = (char*) allocateMemory(length, 0); // In the worst case, the string has the same length
 	jstring.length = length;
 	modifiedUtf8ToStandardUtf8(string, &jstring);
 	print(jstring.chars, jstring.length);
-	FreeMemory(jstring.chars);
+	freeMemory(jstring.chars);
 }
 
 int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
@@ -116,7 +116,7 @@ int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
 void Platform::closeFile(PlatformFile* file)
 {
 	close(file->fd);
-	FreeMemory(file);
+	freeMemory(file);
 }
 
 void Platform::exitProgram(uint32_t exitCode)
