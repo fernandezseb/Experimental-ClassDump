@@ -61,6 +61,7 @@ void ShortIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 			jprintf(" %s", buffer);
 		}
 	}
+	jflush();
 }
 
 void InvokeDynamicPrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
@@ -98,6 +99,7 @@ void ByteIndices(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)
 			jprintf(" %s", buffer);
 		}
 	}
+	jflush();
 }
 
 void ArrayTypePrinter(uint8_t* args, uint16_t argsCount, const ConstantPool* cp)

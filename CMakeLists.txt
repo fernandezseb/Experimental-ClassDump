@@ -40,7 +40,9 @@ project(ClassDump
     src/Printer/CodePrinter.h
     src/Printer/CodePrinter.cpp
     src/Printer/PrintUtils.h
-    src/Printer/PrintUtils.cpp)
+    src/Printer/PrintUtils.cpp
+    src/OutputBuffer.cpp
+    src/OutputBuffer.h)
 
 
     target_include_directories(${PROJECT_NAME} PUBLIC src/ extern/ ${PROJECT_BINARY_DIR} test/)

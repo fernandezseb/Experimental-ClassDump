@@ -65,4 +65,5 @@ void Memory::printSize()
 	jprintf("  Memory commited: %zu bytes\n", size);
 	jprintf("  Free memory: %zu bytes\n", (size-ptr));
 	jprintf("  Max memory (reserved): %zu bytes\n", maxSize);
+	jflush();
 }

@@ -288,6 +288,7 @@ void ClassPrinter::printField(const FieldInfo* fieldInfo, const ConstantPool* cp
 				jprintf("%s ", flagToKeyword(flag));
 		}
 	}
+	jflush();
 
 	char bufferType[300] = { 0 };
 	getAsExternalReturnType((char*)descriptor, bufferType);
@@ -438,6 +439,7 @@ void ClassPrinter::printConstantPoolItem(uint16_t currentIndex, const ConstantPo
 	if (strlen(out2) > 0) {
 		jprintf("// %s", out2);
 	}
+	jflush();
 	printf("\n");
 }
 static inline void binaryClassToExternalCopy(const char* className, char* output)

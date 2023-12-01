@@ -9,7 +9,9 @@ ${PROJECT_SOURCE_DIR}/src/Util.h
 ${PROJECT_SOURCE_DIR}/src/Util.cpp
 ${PROJECT_SOURCE_DIR}/src/Platform.h
 ${PROJECT_SOURCE_DIR}/src/ByteArray.cpp
-${PROJECT_SOURCE_DIR}/src/Platform.h)
+${PROJECT_SOURCE_DIR}/src/Platform.h
+${PROJECT_SOURCE_DIR}/src/OutputBuffer.h
+${PROJECT_SOURCE_DIR}/src/OutputBuffer.cpp)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_directories(descriptor_test PRIVATE Windows)

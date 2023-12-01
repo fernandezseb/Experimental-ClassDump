@@ -31,6 +31,7 @@ void Platform::initialize()
 	SetConsoleCP(65001);
 
 	textBuffer = (char*) allocateMemory(getPageSize(), 0);
+	outBuffer = new OutputBuffer(getPageSize());
 }
 
 void Platform::print(const char* string, uint64_t length)
@@ -45,7 +46,7 @@ void Platform::printModifiedUtf8String(char* string)
 	jstring.chars = (char*) allocateMemory(length, 0); // In the worst case, the string has the same length
 	jstring.length = length;
 	modifiedUtf8ToStandardUtf8(string, &jstring);
-	print(jstring.chars, jstring.length);
+	outBuffer->print(jstring.chars, jstring.length);
 	freeMemory(jstring.chars);
 }
 
@@ -55,10 +56,15 @@ int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
 	va_start(argsList, string);
 	textBuffer[0] = 0;
 	int size = vsnprintf(textBuffer, getPageSize(), string, argsList);
-	print(textBuffer, size);
+	outBuffer->print(textBuffer, size);
 	va_end(argsList);
 
 	return size;
+}
+
+void Platform::flush()
+{
+	outBuffer->flush();
 }
 
 void* Platform::allocateMemory(size_t size, size_t baseAddress)
@@ -190,5 +196,10 @@ void Platform::cleanup()
 	if (textBuffer != nullptr) {
 		freeMemory(textBuffer);
 		textBuffer = nullptr;
+	}
+	if (outBuffer != nullptr)
+	{
+		delete outBuffer;
+		outBuffer = nullptr;
 	}
 }

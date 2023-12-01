@@ -113,6 +113,11 @@ int Platform::printModifiedUtf8StringFormatted(const char* string, ...)
 	return size;
 }
 
+void Platform::flush()
+{
+	outBuffer->flush();
+}
+
 void Platform::closeFile(PlatformFile* file)
 {
 	close(file->fd);
