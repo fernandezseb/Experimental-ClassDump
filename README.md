@@ -5,6 +5,8 @@ The output is very similar to the one from the javap tool with all output enable
 
 There is a blogpost introducing this project on my website over [here](https://sebfernandez.be/programming/a-simple-class-file-parser/)
 
+[![Linux build](https://github.com/fernandezseb/Experimental-ClassDump/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/fernandezseb/Experimental-ClassDump/actions/workflows/cmake-single-platform.yml)
+
 ## Example
 
 ```bash
